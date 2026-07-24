@@ -1,4 +1,4 @@
-package hr.algebra.gamearena.api.rest_controller;
+package hr.algebra.gamearena.api.controller.rest;
 
 import org.springframework.web.bind.annotation.RestController;
 
