@@ -2,11 +2,11 @@ CREATE TABLE users (
 	id			BIGSERIAL 	PRIMARY KEY,
 	username		VARCHAR(50)  	NOT NULL UNIQUE,
 	email			VARCHAR(255) 	NOT NULL UNIQUE,
-	# profile_pic_url	VARCHAR(255)	UNIQUE,
+	-- profile_pic_url	VARCHAR(255)	UNIQUE,
 	password_hash		VARCHAR(255) 	NOT NULL,
 	password_salt		VARCHAR(255) 	NOT NULL,
-	# role			VARCHAR(20)	NOT NULL DEFAULT 'player'
-	# 					CHECK (role IN ('player', 'organizer', 'admin')),
+	-- role			VARCHAR(20)	NOT NULL DEFAULT 'player'
+	-- 					CHECK (role IN ('player', 'organizer', 'admin')),
 	is_active		BOOLEAN		NOT NULL DEFAULT TRUE,
 	created_at		TIMESTAMP	NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
@@ -41,17 +41,17 @@ CREATE TABLE games (
 CREATE TABLE teams (
 	id		BIGSERIAL	PRIMARY KEY,
 	name		VARCHAR(100)	NOT NULL,
-	game_id		BIGINT		NOT NULL REFERENCES games(game_id),
-	captain_id	BIGINT		NOT NULL REFERENCES users(user_id),
-	# logo_url	VARCHAR(255),
+	game_id		BIGINT		NOT NULL REFERENCES games(id),
+	captain_id	BIGINT		NOT NULL REFERENCES users(id),
+	-- logo_url	VARCHAR(255),
 	created_at	TIMESTAMP	NOT NULL DEFAULT CURRENT_TIMESTAMP,
-	UNIQUE (team_name, game_id)
+	UNIQUE (name, game_id)
 );
- 
+
 CREATE TABLE team_members (
 	team_member_id	BIGSERIAL	PRIMARY KEY,
-	team_id		BIGINT		NOT NULL REFERENCES teams(team_id) ON DELETE CASCADE,
-	user_id		BIGINT		NOT NULL REFERENCES users(user_id),
+	team_id		BIGINT		NOT NULL REFERENCES teams(id) ON DELETE CASCADE,
+	user_id		BIGINT		NOT NULL REFERENCES users(id),
 	joined_at	TIMESTAMP	NOT NULL DEFAULT CURRENT_TIMESTAMP,
 	UNIQUE (team_id, user_id)
 );
@@ -59,9 +59,9 @@ CREATE TABLE team_members (
 -- A player creates a team and invites other players
 CREATE TABLE team_invitations (
 	invitation_id	BIGSERIAL	PRIMARY KEY,
-	team_id		BIGINT		NOT NULL REFERENCES teams(team_id) ON DELETE CASCADE,
-	inviter_id	BIGINT		NOT NULL REFERENCES users(user_id),
-	invitee_id	BIGINT		NOT NULL REFERENCES users(user_id),
+	team_id		BIGINT		NOT NULL REFERENCES teams(id) ON DELETE CASCADE,
+	inviter_id	BIGINT		NOT NULL REFERENCES users(id),
+	invitee_id	BIGINT		NOT NULL REFERENCES users(id),
 	status		VARCHAR(20)	NOT NULL DEFAULT 'pending'
 			CHECK (status IN ('pending', 'accepted', 'declined', 'cancelled')),
 	created_at	TIMESTAMP	NOT NULL DEFAULT CURRENT_TIMESTAMP,
