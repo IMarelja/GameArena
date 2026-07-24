@@ -3,10 +3,12 @@ package hr.algebra.gamearena.api.service.user;
 import hr.algebra.gamearena.api.dto.user.UserView;
 import hr.algebra.gamearena.api.model.user.User;
 import hr.algebra.gamearena.api.repository.user.IUserRepo;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+@Slf4j
 @Service
 public class UserService implements IUserService {
 
@@ -18,10 +20,16 @@ public class UserService implements IUserService {
 
     @Override
     public List<UserView> findAll() {
-        return userRepo.findAll()
+        log.info("UserService findAll(): Fetching all users from the database...");
+
+        var users = this.userRepo.findAll()
                 .stream()
                 .map(this::userToUserView)
-                .toList();
+                .toList();;
+
+        log.info("UserService findAll(): All users have been fetched from the database.");
+        return users;
+
     }
 
     private UserView userToUserView(User user) {
