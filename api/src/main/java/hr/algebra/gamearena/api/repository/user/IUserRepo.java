@@ -8,4 +8,5 @@ import java.util.Optional;
 public interface IUserRepo {
     List<User> findAll();
     Optional<User> findByEmail(String email);
+    Optional<User> findByUsername(String username);
 }

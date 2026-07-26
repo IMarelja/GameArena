@@ -10,14 +10,15 @@ import java.util.Optional;
 @Repository
 public class UserPostgresRepo implements IUserRepo {
 
-    private final IUserPostgreSQLRepo sqlRepository;
+    private final IUserPostgreSQLRepo sqlUserRepository;
+
     public UserPostgresRepo(IUserPostgreSQLRepo sqlRepository) {
-        this.sqlRepository = sqlRepository;
+        this.sqlUserRepository = sqlRepository;
     }
 
     @Override
     public List<User> findAll() {
-        return sqlRepository.findAll()
+        return sqlUserRepository.findAll()
                 .stream()
                 .map(this::postgresUserToUser)
                 .toList();
@@ -25,7 +26,13 @@ public class UserPostgresRepo implements IUserRepo {
 
     @Override
     public Optional<User> findByEmail(String email) {
-        return sqlRepository.findByEmail(email)
+        return sqlUserRepository.findByEmail(email)
+                .map(this::postgresUserToUser);
+    }
+
+    @Override
+    public Optional<User> findByUsername(String username) {
+        return sqlUserRepository.findByUsername(username)
                 .map(this::postgresUserToUser);
     }
 
