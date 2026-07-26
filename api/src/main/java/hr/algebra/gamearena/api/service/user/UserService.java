@@ -1,6 +1,6 @@
 package hr.algebra.gamearena.api.service.user;
 
-import hr.algebra.gamearena.api.dto.user.UserView;
+import hr.algebra.gamearena.api.dto.user.UserViewDto;
 import hr.algebra.gamearena.api.model.user.User;
 import hr.algebra.gamearena.api.repository.user.IUserRepo;
 import lombok.extern.slf4j.Slf4j;
@@ -19,7 +19,7 @@ public class UserService implements IUserService {
     }
 
     @Override
-    public List<UserView> findAll() {
+    public List<UserViewDto> findAll() {
         log.info("UserService findAll(): Fetching all users from the database...");
 
         var users = this.userRepo.findAll()
@@ -32,8 +32,8 @@ public class UserService implements IUserService {
 
     }
 
-    private UserView userToUserView(User user) {
-        UserView userView = new UserView();
+    private UserViewDto userToUserView(User user) {
+        UserViewDto userView = new UserViewDto();
         userView.setId(user.getId());
         userView.setUsername(user.getUsername());
         userView.setCreatedAt(user.getCreatedAt());
