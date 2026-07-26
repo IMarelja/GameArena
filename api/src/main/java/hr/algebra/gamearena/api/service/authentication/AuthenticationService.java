@@ -20,14 +20,10 @@ public class AuthenticationService implements IAuthenticationService {
 
     @Override
     public TokenDto login(LoginDto loginDto) {
-        var user = userRepo.findByEmail(loginDto.getUsernameOrEmail());
+        var user = userRepo.findByUsernameOrEmail(loginDto.getUsernameOrEmail());
 
-        if(user.isEmpty()) {
-            user = this.userRepo.findByUsername(loginDto.getUsernameOrEmail());
-            if(user.isEmpty()) {
-                throw new UserNotFoundException("User not found");
-            }
-        }
+        if(user.isEmpty())
+            throw new UserNotFoundException("User not found");
 
         TokenDto tokenDto = new TokenDto();
 

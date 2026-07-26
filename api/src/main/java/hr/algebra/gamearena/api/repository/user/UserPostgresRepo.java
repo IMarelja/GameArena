@@ -36,6 +36,12 @@ public class UserPostgresRepo implements IUserRepo {
                 .map(this::postgresUserToUser);
     }
 
+    @Override
+    public Optional<User> findByUsernameOrEmail(String usernameOrEmail) {
+        return sqlUserRepository.findByUsernameOrEmail(usernameOrEmail)
+                .map(this::postgresUserToUser);
+    }
+
     private User postgresUserToUser(UserPostgres postgres) {
         return new User(
                 postgres.getId(),
