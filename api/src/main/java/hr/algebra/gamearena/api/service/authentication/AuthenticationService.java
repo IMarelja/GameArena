@@ -3,9 +3,11 @@ package hr.algebra.gamearena.api.service.authentication;
 import hr.algebra.gamearena.api.dto.authentication.LoginDto;
 import hr.algebra.gamearena.api.dto.authentication.RegisterDto;
 import hr.algebra.gamearena.api.dto.authentication.TokenDto;
+import hr.algebra.gamearena.api.dto.jwt.JwtTokenAttributes;
 import hr.algebra.gamearena.api.exceptions.extenders.UnauthorizedAccessException;
 import hr.algebra.gamearena.api.exceptions.extenders.UserNotFoundException;
 import hr.algebra.gamearena.api.repository.user.IUserRepo;
+import hr.algebra.gamearena.api.service.jwt.IJwtService;
 import hr.algebra.gamearena.api.utils.SecurityUtilities;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -15,9 +17,11 @@ import org.springframework.stereotype.Service;
 public class AuthenticationService implements IAuthenticationService {
 
     private final IUserRepo userRepo;
+    private final IJwtService jwtService;
 
-    public AuthenticationService(IUserRepo userRepo) {
+    public AuthenticationService(IUserRepo userRepo, IJwtService jwtService) {
         this.userRepo = userRepo;
+        this.jwtService = jwtService;
     }
 
     @Override
@@ -37,9 +41,18 @@ public class AuthenticationService implements IAuthenticationService {
         if(!fetchedUser.get().getPasswordHash().equals(loginHashedPassword))
             throw new UnauthorizedAccessException("The password is incorrect");
 
-        TokenDto tokenDto = new TokenDto();
 
-        tokenDto.setToken("Good job");
+
+        var tokenAttributes = new JwtTokenAttributes();
+        tokenAttributes.setUserId(fetchedUser.get().getId());
+        tokenAttributes.setRememberMe(loginDto.isRememberMe());
+
+        var tokenDto = new TokenDto();
+        tokenDto.setToken(
+                jwtService.generateToken(
+                        tokenAttributes
+                )
+        );
 
         return tokenDto;
     }

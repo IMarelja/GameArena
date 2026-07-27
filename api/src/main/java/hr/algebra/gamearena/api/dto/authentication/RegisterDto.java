@@ -10,5 +10,5 @@ public class RegisterDto {
     private String email;
     private String password;
     private String confirmPassword;
-    private Boolean rememberMe;
+    private Boolean rememberMe = true;
 }
