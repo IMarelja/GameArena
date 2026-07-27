@@ -20,37 +20,25 @@ public class UserPostgresRepo implements IUserRepo {
     public List<User> findAll() {
         return sqlUserRepository.findAll()
                 .stream()
-                .map(this::postgresUserToUser)
+                .map(User::fromPostgres)
                 .toList();
     }
 
     @Override
     public Optional<User> findByEmail(String email) {
         return sqlUserRepository.findByEmail(email)
-                .map(this::postgresUserToUser);
+                .map(User::fromPostgres);
     }
 
     @Override
     public Optional<User> findByUsername(String username) {
         return sqlUserRepository.findByUsername(username)
-                .map(this::postgresUserToUser);
+                .map(User::fromPostgres);
     }
 
     @Override
     public Optional<User> findByUsernameOrEmail(String usernameOrEmail) {
         return sqlUserRepository.findByUsernameOrEmail(usernameOrEmail)
-                .map(this::postgresUserToUser);
-    }
-
-    private User postgresUserToUser(UserPostgres postgres) {
-        return new User(
-                postgres.getId(),
-                postgres.getUsername(),
-                postgres.getEmail(),
-                postgres.getPasswordHash(),
-                postgres.getPasswordSalt(),
-                postgres.getIsActive(),
-                postgres.getCreatedAt()
-        );
+                .map(User::fromPostgres);
     }
 }

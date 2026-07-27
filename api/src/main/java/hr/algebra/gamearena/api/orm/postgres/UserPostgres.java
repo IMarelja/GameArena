@@ -30,7 +30,7 @@ public class UserPostgres {
     private String passwordSalt;
 
     // @Column(name = "role")
-    // private String role
+    // private String/Role role
 
     @Column(name = "is_active")
     private Boolean isActive;

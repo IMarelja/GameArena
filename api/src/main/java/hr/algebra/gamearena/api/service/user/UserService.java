@@ -34,9 +34,9 @@ public class UserService implements IUserService {
 
     private UserViewDto userToUserView(User user) {
         UserViewDto userView = new UserViewDto();
-        userView.setId(user.getId());
-        userView.setUsername(user.getUsername());
-        userView.setCreatedAt(user.getCreatedAt());
+        userView.setId(user.id());
+        userView.setUsername(user.username());
+        userView.setCreatedAt(user.createdAt());
         return userView;
     }
 }

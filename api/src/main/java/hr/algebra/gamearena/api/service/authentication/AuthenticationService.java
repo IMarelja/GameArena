@@ -32,23 +32,23 @@ public class AuthenticationService implements IAuthenticationService {
         if(fetchedUser.isEmpty())
             throw new UserNotFoundException("User not found");
 
-        if(fetchedUser.get().getIsActive())
+        if(fetchedUser.get().isActive())
             throw new ForbiddenAccessException("This account is suspended, contact moderators or administrators");
 
         var loginHashedPassword = SecurityUtilities.hashPasswordWithSalt(
                 loginDto.getPassword(),
                 fetchedUser
                         .get()
-                        .getPasswordSalt()
+                        .passwordSalt()
         );
 
-        if(!fetchedUser.get().getPasswordHash().equals(loginHashedPassword))
+        if(!fetchedUser.get().passwordHash().equals(loginHashedPassword))
             throw new UnauthorizedAccessException("The password is incorrect");
 
 
 
         var tokenAttributes = new JwtTokenRequest(
-                fetchedUser.get().getId(),
+                fetchedUser.get().id(),
                 loginDto.isRememberMe()
         );
 
