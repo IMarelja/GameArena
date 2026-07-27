@@ -25,7 +25,7 @@ public class UserService implements IUserService {
         var users = this.userRepo.findAll()
                 .stream()
                 .map(this::userToUserView)
-                .toList();;
+                .toList();
 
         log.info("UserService findAll(): All users have been fetched from the database.");
         return users;
