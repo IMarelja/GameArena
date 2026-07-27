@@ -8,6 +8,8 @@ import hr.algebra.gamearena.api.exceptions.extenders.ConflictException;
 import hr.algebra.gamearena.api.exceptions.extenders.ForbiddenAccessException;
 import hr.algebra.gamearena.api.exceptions.extenders.UnauthorizedAccessException;
 import hr.algebra.gamearena.api.exceptions.extenders.UserNotFoundException;
+import hr.algebra.gamearena.api.model.user.Role;
+import hr.algebra.gamearena.api.model.user.UserCreate;
 import hr.algebra.gamearena.api.repository.user.IUserRepo;
 import hr.algebra.gamearena.api.service.jwt.IJwtService;
 import hr.algebra.gamearena.api.utils.SecurityUtilities;
@@ -72,10 +74,20 @@ public class AuthenticationService implements IAuthenticationService {
         if(userRepo.existsByUsername(registerDto.getUsername()))
             throw new ConflictException("Username is already in use");
 
+        var passwordSalt = SecurityUtilities.saltForPassword();
+        var passwordHash = SecurityUtilities.hashPasswordWithSalt(registerDto.getPassword(), passwordSalt);
 
+        var userCreate = new UserCreate();
+        userCreate.setUsername(registerDto.getUsername());
+        userCreate.setEmail(registerDto.getEmail());
+        userCreate.setPasswordHash(passwordHash);
+        userCreate.setPasswordSalt(passwordSalt);
+        userCreate.setRole(Role.USER);
+
+        var savedUser = userRepo.save(userCreate);
 
         var tokenAttributes = new JwtTokenRequest(
-                1L,
+                savedUser.id(),
                 registerDto.getRememberMe()
         );
 

@@ -59,9 +59,10 @@ public class UserPostgresRepo implements IUserRepo {
     }
 
     @Override
-    public User save(UserCreateDto userCreate) {
-
-        return null;
+    public User save(UserCreate userCreate) {
+        var userPostgres = new UserPostgres().fromUserCreate(userCreate);
+        var savedUser = sqlUserRepository.save(userPostgres);
+        return User.fromPostgres(savedUser);
     }
 
 

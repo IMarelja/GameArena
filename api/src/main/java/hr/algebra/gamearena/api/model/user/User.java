@@ -4,18 +4,13 @@ import hr.algebra.gamearena.api.orm.postgres.UserPostgres;
 
 import java.time.LocalDateTime;
 
-/**
- * @param passwordHash private final String profilePicUrl
- * @param isActive     private final String role
- */
 public record User(
         Long id,
         String username,
         String email,
-        // String profilePicUrl
         String passwordHash,
         String passwordSalt,
-        // Roles/String role
+        Role role,
         Boolean isActive,
         LocalDateTime createdAt
     ) {
@@ -27,6 +22,7 @@ public record User(
                 userPostgres.getEmail(),
                 userPostgres.getPasswordHash(),
                 userPostgres.getPasswordSalt(),
+                userPostgres.getRole(),
                 userPostgres.getIsActive(),
                 userPostgres.getCreatedAt()
         );
