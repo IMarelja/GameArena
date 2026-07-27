@@ -3,9 +3,7 @@ package hr.algebra.gamearena.api.controller;
 import hr.algebra.gamearena.api.dto.other.ApiError;
 import hr.algebra.gamearena.api.dto.other.ApiResponse;
 import hr.algebra.gamearena.api.exceptions.GameArenaApiException;
-import hr.algebra.gamearena.api.exceptions.extenders.CryptographicOperationException;
-import hr.algebra.gamearena.api.exceptions.extenders.UnauthorizedAccessException;
-import hr.algebra.gamearena.api.exceptions.extenders.UserNotFoundException;
+import hr.algebra.gamearena.api.exceptions.extenders.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,15 +14,23 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @Slf4j
 public class GlobalExceptionHandler {
 
+    @ExceptionHandler(ForbiddenAccessException.class)
+    public ResponseEntity<ApiResponse<ApiError>> forbiddenAccessException(ForbiddenAccessException ex) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ApiResponse.error(new ApiError(ex.getMessage())));
+    }
+
+    @ExceptionHandler(InvalidVariableException.class)
+    public ResponseEntity<ApiResponse<Void>> handleInvalidVariableException(InvalidVariableException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ApiResponse.error(new ApiError("Invalid variables: " + ex.getMessage())));
+    }
+
     @ExceptionHandler(UnauthorizedAccessException.class)
     public ResponseEntity<ApiResponse<Void>> handleUserNotFoundException(UnauthorizedAccessException e){
-        log.error("UnauthorizedAccessException error: {}", e.getMessage());
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ApiResponse.error(new ApiError(e.getMessage())));
     }
 
     @ExceptionHandler(UserNotFoundException.class)
     public ResponseEntity<ApiResponse<Void>> handleUserNotFoundException(UserNotFoundException e){
-        log.error("UserNotFoundException error: {}", e.getMessage());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ApiResponse.error(new ApiError(e.getMessage())));
     }
 

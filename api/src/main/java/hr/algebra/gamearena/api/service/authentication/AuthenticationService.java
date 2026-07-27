@@ -4,6 +4,7 @@ import hr.algebra.gamearena.api.dto.authentication.LoginDto;
 import hr.algebra.gamearena.api.dto.authentication.RegisterDto;
 import hr.algebra.gamearena.api.dto.authentication.TokenDto;
 import hr.algebra.gamearena.api.dto.jwt.JwtTokenAttributes;
+import hr.algebra.gamearena.api.exceptions.extenders.ForbiddenAccessException;
 import hr.algebra.gamearena.api.exceptions.extenders.UnauthorizedAccessException;
 import hr.algebra.gamearena.api.exceptions.extenders.UserNotFoundException;
 import hr.algebra.gamearena.api.repository.user.IUserRepo;
@@ -30,6 +31,9 @@ public class AuthenticationService implements IAuthenticationService {
 
         if(fetchedUser.isEmpty())
             throw new UserNotFoundException("User not found");
+
+        if(fetchedUser.get().getIsActive())
+            throw new ForbiddenAccessException("This account is suspended, contact moderators or administrators");
 
         var loginHashedPassword = SecurityUtilities.hashPasswordWithSalt(
                 loginDto.getPassword(),
