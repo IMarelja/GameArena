@@ -1,7 +1,8 @@
 package hr.algebra.gamearena.api.repository.user;
 
-import hr.algebra.gamearena.api.dto.user.UserCreateDto;
 import hr.algebra.gamearena.api.model.user.User;
+import hr.algebra.gamearena.api.model.user.UserCreate;
+import hr.algebra.gamearena.api.orm.postgres.UserPostgres;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -23,6 +24,13 @@ public class UserPostgresRepo implements IUserRepo {
                 .map(User::fromPostgres)
                 .toList();
     }
+
+    @Override
+    public Optional<User> findById(Long id) {
+        return sqlUserRepository.findById(id)
+                .map(User::fromPostgres);
+    }
+
     @Override
     public Optional<User> findByEmail(String email) {
         return sqlUserRepository.findByEmail(email)

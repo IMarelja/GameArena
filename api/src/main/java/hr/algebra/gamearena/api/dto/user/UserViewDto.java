@@ -11,7 +11,5 @@ public class UserViewDto {
 
     private Long id;
     private String username;
-    // private final String profilePicUrl
-    // private final String role
     private LocalDateTime createdAt;
 }

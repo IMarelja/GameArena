@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -30,6 +31,12 @@ public class UserService implements IUserService {
         log.info("UserService findAll(): All users have been fetched from the database.");
         return users;
 
+    }
+
+    @Override
+    public Optional<UserViewDto> findById(Long id) {
+        return this.userRepo.findById(id)
+                .map(this::userToUserView);
     }
 
     private UserViewDto userToUserView(User user) {
