@@ -3,7 +3,7 @@ package hr.algebra.gamearena.api.service.authentication;
 import hr.algebra.gamearena.api.dto.authentication.LoginDto;
 import hr.algebra.gamearena.api.dto.authentication.RegisterDto;
 import hr.algebra.gamearena.api.dto.authentication.TokenDto;
-import hr.algebra.gamearena.api.dto.jwt.JwtTokenAttributes;
+import hr.algebra.gamearena.api.dto.jwt.JwtTokenRequest;
 import hr.algebra.gamearena.api.exceptions.extenders.ForbiddenAccessException;
 import hr.algebra.gamearena.api.exceptions.extenders.UnauthorizedAccessException;
 import hr.algebra.gamearena.api.exceptions.extenders.UserNotFoundException;
@@ -47,9 +47,10 @@ public class AuthenticationService implements IAuthenticationService {
 
 
 
-        var tokenAttributes = new JwtTokenAttributes();
-        tokenAttributes.setUserId(fetchedUser.get().getId());
-        tokenAttributes.setRememberMe(loginDto.isRememberMe());
+        var tokenAttributes = new JwtTokenRequest(
+                fetchedUser.get().getId(),
+                loginDto.isRememberMe()
+        );
 
         var tokenDto = new TokenDto();
         tokenDto.setToken(

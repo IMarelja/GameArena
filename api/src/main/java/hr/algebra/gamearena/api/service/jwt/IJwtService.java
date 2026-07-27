@@ -1,7 +1,9 @@
 package hr.algebra.gamearena.api.service.jwt;
 
-import hr.algebra.gamearena.api.dto.jwt.JwtTokenAttributes;
+import hr.algebra.gamearena.api.dto.jwt.JwtToken;
+import hr.algebra.gamearena.api.dto.jwt.JwtTokenRequest;
 
 public interface IJwtService {
-    String generateToken(JwtTokenAttributes attributes);
+    JwtToken getToken(String token);
+    String generateToken(JwtTokenRequest attributes);
 }
