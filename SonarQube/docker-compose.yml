@@ -1,5 +1,6 @@
 services:
   app:
+    container_name: SonarQube-GameArena
     image: sonarqube:26.6.0.123539-community
     depends_on:
       - db
@@ -15,6 +16,7 @@ services:
       - "9000:9000"
 
   db:
+    container_name: SonarQube-DB-GameArena
     image: postgres:16
     environment:
       POSTGRES_USER: sonar
