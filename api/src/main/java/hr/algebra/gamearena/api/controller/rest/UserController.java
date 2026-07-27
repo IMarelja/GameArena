@@ -24,4 +24,12 @@ public class UserController {
     public ResponseEntity<ApiResponse<List<UserViewDto>>> findAll() {
         return ResponseEntity.ok(ApiResponse.success(this.userService.findAll()));
     }
+
+    /*
+    @GetMapping("/me")
+    public ResponseEntity<ApiResponse<UserViewDto>> getMe() {
+
+    }
+    */
+
 }
