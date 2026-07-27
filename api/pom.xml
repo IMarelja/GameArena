@@ -28,6 +28,9 @@
     </scm>
     <properties>
         <java.version>21</java.version>
+        <sonar.projectKey>GameArenaApi</sonar.projectKey>
+        <sonar.projectName>GameArena API</sonar.projectName>
+        <sonar.java.enablePreview>true</sonar.java.enablePreview>
     </properties>
     <dependencies>
         <dependency>
@@ -115,6 +118,10 @@
                         </configuration>
                     </execution>
                 </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.sonarsource.scanner.maven</groupId>
+                <artifactId>sonar-maven-plugin</artifactId>
             </plugin>
         </plugins>
     </build>
