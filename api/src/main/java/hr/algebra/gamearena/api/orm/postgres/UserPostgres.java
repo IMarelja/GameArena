@@ -1,5 +1,6 @@
 package hr.algebra.gamearena.api.orm.postgres;
 
+import hr.algebra.gamearena.api.dto.user.UserCreateDto;
 import jakarta.persistence.*;
 import lombok.Getter;
 
@@ -38,4 +39,13 @@ public class UserPostgres {
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
+    public UserPostgres fromUserCreateDto(
+            UserCreateDto userCreateDto
+    ){
+        this.email = userCreateDto.getEmail();
+        this.username = userCreateDto.getUsername();
+        this.passwordHash = userCreateDto.getPasswordHash();
+        this.passwordSalt = userCreateDto.getPasswordSalt();
+        return this;
+    }
 }

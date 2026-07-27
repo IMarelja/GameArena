@@ -4,6 +4,7 @@ import hr.algebra.gamearena.api.dto.authentication.LoginDto;
 import hr.algebra.gamearena.api.dto.authentication.RegisterDto;
 import hr.algebra.gamearena.api.dto.authentication.TokenDto;
 import hr.algebra.gamearena.api.dto.jwt.JwtTokenRequest;
+import hr.algebra.gamearena.api.exceptions.extenders.ConflictException;
 import hr.algebra.gamearena.api.exceptions.extenders.ForbiddenAccessException;
 import hr.algebra.gamearena.api.exceptions.extenders.UnauthorizedAccessException;
 import hr.algebra.gamearena.api.exceptions.extenders.UserNotFoundException;
@@ -32,7 +33,7 @@ public class AuthenticationService implements IAuthenticationService {
         if(fetchedUser.isEmpty())
             throw new UserNotFoundException("User not found");
 
-        if(fetchedUser.get().isActive())
+        if(!fetchedUser.get().isActive())
             throw new ForbiddenAccessException("This account is suspended, contact moderators or administrators");
 
         var loginHashedPassword = SecurityUtilities.hashPasswordWithSalt(
@@ -64,6 +65,27 @@ public class AuthenticationService implements IAuthenticationService {
 
     @Override
     public TokenDto register(RegisterDto registerDto) {
-        return null;
+
+        if(userRepo.existsByEmail(registerDto.getEmail()))
+            throw new ConflictException("Email is already in use");
+
+        if(userRepo.existsByUsername(registerDto.getUsername()))
+            throw new ConflictException("Username is already in use");
+
+
+
+        var tokenAttributes = new JwtTokenRequest(
+                1L,
+                registerDto.getRememberMe()
+        );
+
+        var tokenDto = new TokenDto();
+        tokenDto.setToken(
+                jwtService.generateToken(
+                        tokenAttributes
+                )
+        );
+
+        return tokenDto;
     }
 }

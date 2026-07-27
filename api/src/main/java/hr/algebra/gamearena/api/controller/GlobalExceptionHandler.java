@@ -14,6 +14,11 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @Slf4j
 public class GlobalExceptionHandler {
 
+    @ExceptionHandler(ConflictException.class)
+    public ResponseEntity<ApiError> handleConflictException(ConflictException ex) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(new ApiError("Conflict: " + ex.getMessage()));
+    }
+
     @ExceptionHandler(ForbiddenAccessException.class)
     public ResponseEntity<ApiResponse<ApiError>> forbiddenAccessException(ForbiddenAccessException ex) {
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ApiResponse.error(new ApiError(ex.getMessage())));
