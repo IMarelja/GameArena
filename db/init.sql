@@ -1,12 +1,12 @@
+CREATE TYPE user_role AS ENUM ('USER', 'ADMIN');
+
 CREATE TABLE users (
 	id			BIGSERIAL 	PRIMARY KEY,
 	username		VARCHAR(50)  	NOT NULL UNIQUE,
 	email			VARCHAR(255) 	NOT NULL UNIQUE,
-	-- profile_pic_url	VARCHAR(255)	UNIQUE,
 	password_hash		VARCHAR(255) 	NOT NULL,
 	password_salt		VARCHAR(255) 	NOT NULL,
-	-- role			VARCHAR(20)	NOT NULL DEFAULT 'player'
-	-- 					CHECK (role IN ('player', 'organizer', 'admin')),
+	role			user_role	NOT NULL DEFAULT 'USER',
 	is_active		BOOLEAN		NOT NULL DEFAULT TRUE,
 	created_at		TIMESTAMP	NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
