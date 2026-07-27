@@ -11,6 +11,8 @@ public class SecurityUtilities {
 
     private static final SecureRandom secureRandom = new SecureRandom();
 
+    private SecurityUtilities() {}
+
     public static String hashPasswordWithSalt(String password, String salt) {
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
