@@ -10,6 +10,7 @@ import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 
 @Getter
 @Entity
@@ -53,7 +54,7 @@ public class UserPostgres {
         this.passwordSalt = userCreate.getPasswordSalt();
         this.role = userCreate.getRole();
         this.isActive = true;
-        this.createdAt = LocalDateTime.now();
+        this.createdAt = LocalDateTime.now(ZoneId.of("UTC"));
         return this;
     }
 }
