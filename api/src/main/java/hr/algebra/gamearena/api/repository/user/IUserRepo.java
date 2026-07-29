@@ -12,7 +12,7 @@ public interface IUserRepo {
     Optional<User> findByEmail(String email);
     Optional<User> findByUsername(String username);
     Optional<User> findByUsernameOrEmail(String usernameOrEmail);
-    boolean existsById(Long id);
+    boolean existsByIdAndIsActive(Long id);
     boolean existsByUsername(String username);
     boolean existsByEmail(String email);
     User save(UserCreate userCreate);

@@ -16,6 +16,9 @@ public interface IUserPostgreSQLRepo extends JpaRepository<UserPostgres, Long> {
 
     boolean existsByEmail(String email);
 
+    @Query("SELECT COUNT(u) > 0 FROM UserPostgres u WHERE u.id = :id AND u.isActive = true")
+    boolean existsByIdAndIsActive(@Param("id") Long id);
+
     @Query("SELECT u FROM UserPostgres u WHERE u.username = :usernameOrEmail OR u.email = :usernameOrEmail")
     Optional<UserPostgres> findByUsernameOrEmail(
             @Param("usernameOrEmail") String usernameOrEmail

@@ -21,20 +21,8 @@ public class UserService implements IUserService {
     }
 
     @Override
-    public boolean existsById(Long id) {
-        return userRepo.existsById(id);
-    }
-
-    @Override
     public boolean isActiveById(Long id) {
-
-        var fetchedUser = userRepo.findById(id);
-
-        if (fetchedUser.isEmpty()) {
-            return false;
-        }
-
-        return fetchedUser.get().isActive();
+        return userRepo.existsByIdAndIsActive(id);
     }
 
     @Override
