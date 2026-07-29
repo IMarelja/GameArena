@@ -1,4 +1,4 @@
-package hr.algebra.gamearena.api.utils;
+package hr.algebra.gamearena.api.service.jwt;
 
 import hr.algebra.gamearena.api.dto.jwt.JwtTokenClaim;
 import hr.algebra.gamearena.api.dto.jwt.JwtTokenRequest;
@@ -10,7 +10,7 @@ import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
 import java.time.Instant;
@@ -18,26 +18,27 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
 
-@Component
-public class JwtUtils {
+@Service
+public class JwtService implements IJwtService {
 
     @Value("${jwt.secret}")
-    private static String secret;
+    private String secret;
 
     @Value("${jwt.expiration.default}")
-    private static long expirationDefault;
+    private long expirationDefault;
 
     @Value("${jwt.expiration.rememberMe}")
-    private static long expirationRememberMe;
+    private long expirationRememberMe;
 
-    private static SecretKey signingKey;
+    private SecretKey signingKey;
 
     @PostConstruct
     private void init() {
         signingKey = Keys.hmacShaKeyFor(Decoders.BASE64.decode(secret));
     }
 
-    public static String generateToken(JwtTokenRequest request) {
+    @Override
+    public String generateToken(JwtTokenRequest request) {
         Instant issuedAt = Instant.now();
         Instant expiresAt = issuedAt.plusSeconds(request.rememberMe() ? expirationRememberMe : expirationDefault);
 
@@ -51,7 +52,8 @@ public class JwtUtils {
                 .compact();
     }
 
-    public static JwtTokenClaim extractClaimFromToken(String token) {
+    @Override
+    public JwtTokenClaim extractClaimFromToken(String token) {
         Claims claims = parseClaims(token);
 
         return new JwtTokenClaim(
@@ -62,7 +64,8 @@ public class JwtUtils {
         );
     }
 
-    public static boolean isTokenValidSigningAndExpiration(String token) {
+    @Override
+    public boolean isTokenValidSigningAndExpiration(String token) {
         try {
             parseClaims(token);
             return true;
@@ -71,7 +74,7 @@ public class JwtUtils {
         }
     }
 
-    private static Claims parseClaims(String token) {
+    private Claims parseClaims(String token) {
         return Jwts.parser()
                 .verifyWith(signingKey)
                 .build()

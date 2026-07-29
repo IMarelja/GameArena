@@ -11,7 +11,7 @@ import hr.algebra.gamearena.api.exceptions.extenders.UserNotFoundException;
 import hr.algebra.gamearena.api.model.user.Role;
 import hr.algebra.gamearena.api.model.user.UserCreate;
 import hr.algebra.gamearena.api.repository.user.IUserRepo;
-import hr.algebra.gamearena.api.utils.JwtUtils;
+import hr.algebra.gamearena.api.service.jwt.IJwtService;
 import hr.algebra.gamearena.api.utils.SecurityUtilities;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -21,9 +21,11 @@ import org.springframework.stereotype.Service;
 public class AuthenticationService implements IAuthenticationService {
 
     private final IUserRepo userRepo;
+    private final IJwtService jwtService;
 
-    public AuthenticationService(IUserRepo userRepo) {
+    public AuthenticationService(IUserRepo userRepo, IJwtService jwtService) {
         this.userRepo = userRepo;
+        this.jwtService = jwtService;
     }
 
     @Override
@@ -56,7 +58,7 @@ public class AuthenticationService implements IAuthenticationService {
 
         var tokenDto = new TokenDto();
         tokenDto.setToken(
-                JwtUtils.generateToken(
+                jwtService.generateToken(
                         tokenAttributes
                 )
         );
@@ -93,7 +95,7 @@ public class AuthenticationService implements IAuthenticationService {
 
         var tokenDto = new TokenDto();
         tokenDto.setToken(
-                JwtUtils.generateToken(
+                jwtService.generateToken(
                         tokenAttributes
                 )
         );

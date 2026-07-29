@@ -2,6 +2,7 @@ package hr.algebra.gamearena.api.controller.rest;
 
 import hr.algebra.gamearena.api.dto.other.ApiResponse;
 import hr.algebra.gamearena.api.dto.user.UserViewDto;
+import hr.algebra.gamearena.api.service.jwt.JwtService;
 import hr.algebra.gamearena.api.service.user.IUserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,9 +18,11 @@ import java.util.List;
 public class UserController {
 
     private final IUserService userService;
+    private final JwtService jwtService;
 
-    public UserController(IUserService userService) {
+    public UserController(IUserService userService, JwtService jwtService) {
         this.userService = userService;
+        this.jwtService = jwtService;
     }
 
     @GetMapping
