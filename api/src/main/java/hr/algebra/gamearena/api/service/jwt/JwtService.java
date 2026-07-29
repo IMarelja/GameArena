@@ -9,6 +9,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -17,8 +18,10 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
+import java.util.Optional;
 
 @Service
+@Slf4j
 public class JwtService implements IJwtService {
 
     @Value("${jwt.secret}")
@@ -53,24 +56,19 @@ public class JwtService implements IJwtService {
     }
 
     @Override
-    public JwtTokenClaim extractClaimFromToken(String token) {
-        Claims claims = parseClaims(token);
-
-        return new JwtTokenClaim(
-                claims.get("userId", Long.class),
-                Role.valueOf(claims.get("role", String.class)),
-                toLocalDateTime(claims.getIssuedAt()),
-                toLocalDateTime(claims.getExpiration())
-        );
-    }
-
-    @Override
-    public boolean isTokenValidSigningAndExpiration(String token) {
+    public Optional<JwtTokenClaim> parseToken(String token) {
         try {
-            parseClaims(token);
-            return true;
-        } catch (JwtException | IllegalArgumentException e) {
-            return false;
+            Claims claims = parseClaims(token);
+
+            return Optional.of(new JwtTokenClaim(
+                    claims.get("userId", Long.class),
+                    Role.valueOf(claims.get("role", String.class)),
+                    toLocalDateTime(claims.getIssuedAt()),
+                    toLocalDateTime(claims.getExpiration())
+            ));
+        } catch (JwtException | IllegalArgumentException | NullPointerException e) {
+            log.debug("JwtService parseToken(): rejected token: {}", e.getMessage());
+            return Optional.empty();
         }
     }
 
