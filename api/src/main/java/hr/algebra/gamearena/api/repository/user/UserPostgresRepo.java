@@ -49,6 +49,11 @@ public class UserPostgresRepo implements IUserRepo {
     }
 
     @Override
+    public boolean existsById(Long id) {
+        return sqlUserRepository.existsById(id);
+    }
+
+    @Override
     public boolean existsByUsername(String username) {
         return sqlUserRepository.existsByUsername(username);
     }

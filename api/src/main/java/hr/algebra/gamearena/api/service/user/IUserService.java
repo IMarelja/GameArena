@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Optional;
 
 public interface IUserService {
+    boolean existsById(Long id);
+    boolean isActiveById(Long id);
     List<UserViewDto> findAll();
     Optional<UserViewDto> findById(Long id);
     Optional<UserFullViewDto> findFullInfoById(Long id);

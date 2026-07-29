@@ -21,6 +21,23 @@ public class UserService implements IUserService {
     }
 
     @Override
+    public boolean existsById(Long id) {
+        return userRepo.existsById(id);
+    }
+
+    @Override
+    public boolean isActiveById(Long id) {
+
+        var fetchedUser = userRepo.findById(id);
+
+        if (fetchedUser.isEmpty()) {
+            return false;
+        }
+
+        return fetchedUser.get().isActive();
+    }
+
+    @Override
     public List<UserViewDto> findAll() {
         log.info("UserService findAll(): Fetching all users from the database...");
 
