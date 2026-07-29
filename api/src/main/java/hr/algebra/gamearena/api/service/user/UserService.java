@@ -1,5 +1,6 @@
 package hr.algebra.gamearena.api.service.user;
 
+import hr.algebra.gamearena.api.dto.user.UserFullViewDto;
 import hr.algebra.gamearena.api.dto.user.UserViewDto;
 import hr.algebra.gamearena.api.model.user.User;
 import hr.algebra.gamearena.api.repository.user.IUserRepo;
@@ -25,7 +26,7 @@ public class UserService implements IUserService {
 
         var users = this.userRepo.findAll()
                 .stream()
-                .map(this::userToUserView)
+                .map(UserViewDto::fromUser)
                 .toList();
 
         log.info("UserService findAll(): All users have been fetched from the database.");
@@ -36,14 +37,12 @@ public class UserService implements IUserService {
     @Override
     public Optional<UserViewDto> findById(Long id) {
         return this.userRepo.findById(id)
-                .map(this::userToUserView);
+                .map(UserViewDto::fromUser);
     }
 
-    private UserViewDto userToUserView(User user) {
-        UserViewDto userView = new UserViewDto();
-        userView.setId(user.id());
-        userView.setUsername(user.username());
-        userView.setCreatedAt(user.createdAt());
-        return userView;
+    @Override
+    public Optional<UserFullViewDto> findFullInfoById(Long id) {
+        return this.userRepo.findById(id)
+                .map(UserFullViewDto::fromUser);
     }
 }

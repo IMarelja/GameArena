@@ -1,15 +1,16 @@
 package hr.algebra.gamearena.api.dto.user;
 
-import lombok.Getter;
-import lombok.Setter;
+import hr.algebra.gamearena.api.model.user.User;
 
 import java.time.LocalDateTime;
 
-@Getter
-@Setter
-public class UserViewDto {
+public record UserViewDto(Long id, String username, LocalDateTime createdAt) {
 
-    private Long id;
-    private String username;
-    private LocalDateTime createdAt;
+    public static UserViewDto fromUser(User user){
+        return new UserViewDto(
+                user.id(),
+                user.username(),
+                user.createdAt()
+        );
+    }
 }
