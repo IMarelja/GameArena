@@ -1,11 +1,12 @@
 package hr.algebra.gamearena.api.controller.rest;
 
+import hr.algebra.gamearena.api.dto.jwt.JwtTokenClaim;
 import hr.algebra.gamearena.api.dto.other.ApiResponse;
+import hr.algebra.gamearena.api.dto.user.UserFullViewDto;
 import hr.algebra.gamearena.api.dto.user.UserViewDto;
-import hr.algebra.gamearena.api.service.jwt.JwtService;
 import hr.algebra.gamearena.api.service.user.IUserService;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,11 +19,9 @@ import java.util.List;
 public class UserController {
 
     private final IUserService userService;
-    private final JwtService jwtService;
 
-    public UserController(IUserService userService, JwtService jwtService) {
+    public UserController(IUserService userService) {
         this.userService = userService;
-        this.jwtService = jwtService;
     }
 
     @GetMapping
@@ -38,9 +37,25 @@ public class UserController {
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
+    /** Restricted to ADMIN by the rule declared in SecurityConfig. */
+    @GetMapping("/{id}/full")
+    public ResponseEntity<ApiResponse<UserFullViewDto>> getByIdFullInfo(@PathVariable Long id) {
+        var user = this.userService.findFullInfoById(id);
+
+        return user.map(userFullViewDto -> ResponseEntity.ok(ApiResponse.success(userFullViewDto)))
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    /**
+     * The caller's own record. The id is taken from the verified token rather than from the request,
+     * so there is nothing for a caller to tamper with and no ownership check to write.
+     */
     @GetMapping("/me")
-    public ResponseEntity<ApiResponse<UserViewDto>> getMe() {
-        return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body(new ApiResponse<UserViewDto>());
+    public ResponseEntity<ApiResponse<UserFullViewDto>> getMe(@AuthenticationPrincipal JwtTokenClaim caller) {
+        var user = this.userService.findFullInfoById(caller.userId());
+
+        return user.map(userFullViewDto -> ResponseEntity.ok(ApiResponse.success(userFullViewDto)))
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
 }

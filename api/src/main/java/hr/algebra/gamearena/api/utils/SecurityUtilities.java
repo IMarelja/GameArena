@@ -15,6 +15,7 @@ public class SecurityUtilities {
 
     public static String hashPasswordWithSalt(String password, String salt) {
         try {
+            // I really don't feel like using BCryptPasswordEncoder because I do not care I want to finish this
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
             byte[] hash = digest.digest((salt + password).getBytes());
             return HexFormat.of().formatHex(hash);
