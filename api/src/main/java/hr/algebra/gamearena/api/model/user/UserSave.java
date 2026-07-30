@@ -5,7 +5,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class UserCreate {
+public class UserSave {
     private String username;
     private String email;
     private String passwordHash;

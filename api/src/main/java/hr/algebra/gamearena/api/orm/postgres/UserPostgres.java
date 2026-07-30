@@ -1,10 +1,9 @@
 package hr.algebra.gamearena.api.orm.postgres;
 
 import hr.algebra.gamearena.api.model.user.Role;
-import hr.algebra.gamearena.api.model.user.UserCreate;
+import hr.algebra.gamearena.api.model.user.UserSave;
 import jakarta.persistence.*;
 import lombok.Getter;
-import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
@@ -45,14 +44,14 @@ public class UserPostgres {
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
-    public UserPostgres fromUserCreate(
-            UserCreate userCreate
+    public UserPostgres fromUserSave(
+            UserSave userSave
     ){
-        this.email = userCreate.getEmail();
-        this.username = userCreate.getUsername();
-        this.passwordHash = userCreate.getPasswordHash();
-        this.passwordSalt = userCreate.getPasswordSalt();
-        this.role = userCreate.getRole();
+        this.email = userSave.getEmail();
+        this.username = userSave.getUsername();
+        this.passwordHash = userSave.getPasswordHash();
+        this.passwordSalt = userSave.getPasswordSalt();
+        this.role = userSave.getRole();
         this.isActive = true;
         this.createdAt = LocalDateTime.now(ZoneId.of("UTC"));
         return this;

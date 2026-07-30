@@ -1,7 +1,7 @@
 package hr.algebra.gamearena.api.repository.user;
 
 import hr.algebra.gamearena.api.model.user.User;
-import hr.algebra.gamearena.api.model.user.UserCreate;
+import hr.algebra.gamearena.api.model.user.UserSave;
 import hr.algebra.gamearena.api.orm.postgres.UserPostgres;
 import org.springframework.stereotype.Repository;
 
@@ -64,8 +64,8 @@ public class UserPostgresRepo implements IUserRepo {
     }
 
     @Override
-    public User save(UserCreate userCreate) {
-        var userPostgres = new UserPostgres().fromUserCreate(userCreate);
+    public User save(UserSave userSave) {
+        var userPostgres = new UserPostgres().fromUserSave(userSave);
         var savedUser = sqlUserRepository.save(userPostgres);
         return User.fromPostgres(savedUser);
     }
