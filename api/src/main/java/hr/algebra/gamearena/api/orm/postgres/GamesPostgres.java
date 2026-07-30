@@ -6,6 +6,7 @@ import lombok.Getter;
 import org.hibernate.annotations.DynamicInsert;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Optional;
 
 @Getter
@@ -38,7 +39,7 @@ public class GamesPostgres {
                 .flatMap(d -> d)
                 .orElse(null);
         this.isActive = true;
-        this.createdAt = LocalDateTime.now();
+        this.createdAt = LocalDateTime.now(ZoneId.of("UTC"));
         return this;
     }
 }
