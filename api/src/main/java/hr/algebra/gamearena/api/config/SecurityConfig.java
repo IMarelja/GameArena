@@ -32,11 +32,6 @@ public class SecurityConfig {
         return new JwtAuthenticationFilter(userService, jwtService);
     }
 
-    /**
-     * Spring Boot registers every {@link jakarta.servlet.Filter} bean with the servlet container on top
-     * of wherever else it is used. The JWT filter belongs to the security chain alone, so the
-     * container-level registration is switched off here to stop it running twice.
-     */
     @Bean
     public FilterRegistrationBean<JwtAuthenticationFilter> jwtAuthenticationFilterRegistration(
             JwtAuthenticationFilter jwtAuthenticationFilter)
@@ -50,23 +45,18 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(
             HttpSecurity http,
             JwtAuthenticationFilter jwtAuthenticationFilter,
-            SecurityErrorHandler securityErrorHandler) throws Exception
+            SecurityErrorHandler securityErrorHandler)
     {
         return http
-                // Stateless bearer-token API: no session to fixate and no cookie to forge, so the
-                // CSRF token and the session machinery would only get in the way.
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-
-                // Rules are matched top to bottom and the first hit wins, so the specific paths
-                // must come before the templated ones - /api/user/me would otherwise be swallowed
-                // by /api/user/{id}.
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/error").permitAll()
 
-                        // Anonymous: no token needed
+                        // Anonymous
                         .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/api/public/**").permitAll()
 
                         // Any authenticated user
                         .requestMatchers(HttpMethod.GET, "/api/user/me").authenticated()

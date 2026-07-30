@@ -7,6 +7,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.NonNull;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.AccessDeniedException;
@@ -30,41 +31,37 @@ import java.nio.charset.StandardCharsets;
 @RequiredArgsConstructor
 public class SecurityErrorHandler implements AuthenticationEntryPoint, AccessDeniedHandler {
 
-    private static final String NO_TOKEN_MESSAGE = "Token not provided";
-    private static final String FORBIDDEN_MESSAGE = "You are not allowed to access this resource";
-
     private final ObjectMapper objectMapper;
 
     /** 401 - the endpoint needs an identity and the caller has none. */
     @Override
     public void commence(
             HttpServletRequest request,
-            HttpServletResponse response,
-            AuthenticationException authException) throws IOException
+            @NonNull HttpServletResponse response,
+            @NonNull AuthenticationException authException) throws IOException
     {
         Object refusalReason = request.getAttribute(JwtAuthenticationFilter.AUTH_ERROR_ATTRIBUTE);
-        String message = refusalReason instanceof String reason ? reason : NO_TOKEN_MESSAGE;
+        String message = refusalReason instanceof String reason ? reason : "Token not provided";
 
-        write(response, HttpStatus.UNAUTHORIZED, message);
+        response.setStatus(HttpStatus.UNAUTHORIZED.value());
+        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+        response.setCharacterEncoding(StandardCharsets.UTF_8.name());
+
+        objectMapper.writeValue(response.getWriter(), ApiResponse.error(new ApiError(message)));
     }
 
     /** 403 - the caller is known, but does not hold the role the endpoint requires. */
     @Override
     public void handle(
-            HttpServletRequest request,
-            HttpServletResponse response,
-            AccessDeniedException accessDeniedException) throws IOException
+            @NonNull HttpServletRequest request,
+            @NonNull HttpServletResponse response,
+            @NonNull AccessDeniedException accessDeniedException) throws IOException
     {
-        write(response, HttpStatus.FORBIDDEN, FORBIDDEN_MESSAGE);
-    }
 
-    private void write(HttpServletResponse response, HttpStatus status, String message) throws IOException {
-        log.debug("SecurityErrorHandler: responding {}: {}", status.value(), message);
-
-        response.setStatus(status.value());
+        response.setStatus(HttpStatus.FORBIDDEN.value());
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setCharacterEncoding(StandardCharsets.UTF_8.name());
 
-        objectMapper.writeValue(response.getWriter(), ApiResponse.error(new ApiError(message)));
+        objectMapper.writeValue(response.getWriter(), ApiResponse.error(new ApiError("You are not allowed to access this resource")));
     }
 }
