@@ -4,19 +4,57 @@ import hr.algebra.gamearena.api.dto.other.ApiError;
 import hr.algebra.gamearena.api.dto.other.ApiResponse;
 import hr.algebra.gamearena.api.exceptions.GameArenaApiException;
 import hr.algebra.gamearena.api.exceptions.extenders.*;
+import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.HandlerMethodValidationException;
+
+import java.util.List;
 
 @RestControllerAdvice
 @Slf4j
 public class GlobalExceptionHandler {
 
+    /**
+     * A {@code @Valid @RequestBody} that failed its constraints. Every violated annotation on the
+     * body is reported, not just the first one, so a caller can fix the whole form in one pass.
+     */
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ApiResponse<Void>> handleMethodArgumentNotValidException(MethodArgumentNotValidException ex) {
+        List<ApiError> errors = ex.getBindingResult().getAllErrors().stream()
+                .map(error -> new ApiError(error.getDefaultMessage()))
+                .toList();
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ApiResponse.errors(errors));
+    }
+
+    /** Constraints declared directly on handler parameters (@RequestParam, @PathVariable, ...). */
+    @ExceptionHandler(HandlerMethodValidationException.class)
+    public ResponseEntity<ApiResponse<Void>> handleHandlerMethodValidationException(HandlerMethodValidationException ex) {
+        List<ApiError> errors = ex.getAllErrors().stream()
+                .map(error -> new ApiError(error.getDefaultMessage()))
+                .toList();
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ApiResponse.errors(errors));
+    }
+
+    /** Constraints checked outside the web layer, e.g. a {@code @Validated} service call. */
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<ApiResponse<Void>> handleConstraintViolationException(ConstraintViolationException ex) {
+        List<ApiError> errors = ex.getConstraintViolations().stream()
+                .map(violation -> new ApiError(violation.getMessage()))
+                .toList();
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ApiResponse.errors(errors));
+    }
+
     @ExceptionHandler(ConflictException.class)
-    public ResponseEntity<ApiError> handleConflictException(ConflictException ex) {
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(new ApiError("Conflict: " + ex.getMessage()));
+    public ResponseEntity<ApiResponse<Void>> handleConflictException(ConflictException ex) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(ApiResponse.error(new ApiError("Conflict: " + ex.getMessage())));
     }
 
     @ExceptionHandler(ForbiddenAccessException.class)
