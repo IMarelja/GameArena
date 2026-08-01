@@ -1,4 +1,4 @@
-package hr.algebra.gamearena.api.dto.games;
+package hr.algebra.gamearena.api.model.games;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -7,7 +7,8 @@ import java.util.Optional;
 
 @Getter
 @Setter
-public class GamesCreateRequst {
+public class GamesUpdate {
     private String name;
     private Optional<String> description;
+    private boolean isActive;
 }
