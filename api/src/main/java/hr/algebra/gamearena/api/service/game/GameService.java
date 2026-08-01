@@ -1,6 +1,6 @@
 package hr.algebra.gamearena.api.service.game;
 
-import hr.algebra.gamearena.api.dto.games.GamesCreate;
+import hr.algebra.gamearena.api.dto.games.GamesCreateRequst;
 import hr.algebra.gamearena.api.exceptions.extenders.ConflictException;
 import hr.algebra.gamearena.api.model.games.Games;
 import hr.algebra.gamearena.api.model.games.GamesSave;
@@ -32,7 +32,7 @@ public class GameService implements IGameService {
     }
 
     @Override
-    public Games create(GamesCreate games) {
+    public Games create(GamesCreateRequst games) {
 
         if (gamesRepo.existsByName(games.getName()))
             throw new ConflictException("A game with the name '" + games.getName() + "' already exists");

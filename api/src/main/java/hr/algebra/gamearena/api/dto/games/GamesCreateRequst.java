@@ -7,7 +7,7 @@ import java.util.Optional;
 
 @Getter
 @Setter
-public class GamesCreate {
+public class GamesCreateRequst {
     private String name;
     private Optional<String> description;
 }
