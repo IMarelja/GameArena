@@ -24,11 +24,16 @@ public class AuthenticationController {
 
     @PostMapping("/login")
     public ResponseEntity<ApiResponse<TokenDto>> login(@Valid @RequestBody LoginRequest loginRequest) {
+        loginRequest.setUsernameOrEmail(loginRequest.getUsernameOrEmail().trim());
+
         return ResponseEntity.ok(ApiResponse.success(this.authenticationService.login(loginRequest)));
     }
 
     @PostMapping("/register")
     public ResponseEntity<ApiResponse<TokenDto>> register(@Valid @RequestBody RegisterRequest registerRequest) {
+        registerRequest.setEmail(registerRequest.getEmail().trim());
+        registerRequest.setUsername(registerRequest.getUsername().trim());
+
         return ResponseEntity.ok(ApiResponse.success(this.authenticationService.register(registerRequest)));
     }
 }

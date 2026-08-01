@@ -33,8 +33,11 @@ public class GamesController {
     }
 
     @PostMapping
-    public ResponseEntity<ApiResponse<GamesView>> createGames(@Valid @RequestBody GamesCreateRequest gamesCreateRequst) {
-        return ResponseEntity.ok(ApiResponse.success(this.gameService.create(gamesCreateRequst)));
+    public ResponseEntity<ApiResponse<GamesView>> createGames(@Valid @RequestBody GamesCreateRequest gamesCreateRequest) {
+        gamesCreateRequest.setName(gamesCreateRequest.getName().trim());
+        gamesCreateRequest.setDescription(gamesCreateRequest.getDescription().trim());
+
+        return ResponseEntity.ok(ApiResponse.success(this.gameService.create(gamesCreateRequest)));
     }
 
 
