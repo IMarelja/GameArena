@@ -4,10 +4,10 @@ import hr.algebra.gamearena.api.model.games.GamesSave;
 import jakarta.persistence.*;
 import lombok.Getter;
 import org.hibernate.annotations.DynamicInsert;
+import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.Optional;
 
 @Getter
 @Entity
@@ -35,9 +35,9 @@ public class GamesPostgres {
             GamesSave gamesSave
     ){
         this.name = gamesSave.getName();
-        this.description = Optional.ofNullable(gamesSave.getDescription())
-                .flatMap(d -> d)
-                .orElse(null);
+        this.description = StringUtils.hasText(gamesSave.getDescription())
+                ? gamesSave.getDescription()
+                : null;
         this.isActive = true;
         this.createdAt = LocalDateTime.now(ZoneId.of("UTC"));
         return this;
