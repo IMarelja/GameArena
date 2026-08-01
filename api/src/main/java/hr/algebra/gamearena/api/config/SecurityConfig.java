@@ -56,7 +56,7 @@ public class SecurityConfig {
 
                         // Anonymous
                         .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers("/api/public/**").permitAll()
+                        .requestMatchers("/api/games/**").permitAll()
 
                         // Any authenticated user
                         .requestMatchers(HttpMethod.GET, "/api/user/me").authenticated()

@@ -8,6 +8,7 @@ import java.util.Optional;
 
 public interface IGameService {
     List<GamesView> getAll();
+    List<GamesView> getAllActive();
     Optional<GamesView> getById(Long id);
     GamesView create(GamesCreateRequest game);
 }

@@ -67,3 +67,8 @@ CREATE TABLE team_invitations (
 	created_at	TIMESTAMP	NOT NULL DEFAULT CURRENT_TIMESTAMP,
 	responded_at	TIMESTAMP
 );
+
+-- ---------------------------------------------------------------------
+-- Tournament
+-- ---------------------------------------------------------------------
+

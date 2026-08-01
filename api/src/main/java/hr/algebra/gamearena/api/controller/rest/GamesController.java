@@ -24,6 +24,11 @@ public class GamesController {
         return ResponseEntity.ok(ApiResponse.success(gameService.getAll()));
     }
 
+    @GetMapping("/active")
+    public ResponseEntity<ApiResponse<List<GamesView>>> getAllActiveGames() {
+        return ResponseEntity.ok(ApiResponse.success(gameService.getAllActive()));
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<GamesView>> getGames(@PathVariable("id") Long gameId) {
         var game = this.gameService.getById(gameId);

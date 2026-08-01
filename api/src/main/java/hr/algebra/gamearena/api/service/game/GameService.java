@@ -32,6 +32,14 @@ public class GameService implements IGameService {
     }
 
     @Override
+    public List<GamesView> getAllActive() {
+        return gamesRepo.getByIsActiveTrue()
+                .stream()
+                .map(GamesView::toGamesView)
+                .toList();
+    }
+
+    @Override
     public Optional<GamesView> getById(Long id) {
         return gamesRepo.getById(id).map(GamesView::toGamesView);
     }

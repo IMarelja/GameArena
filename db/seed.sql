@@ -37,10 +37,15 @@ INSERT INTO users (username, email, password_hash, password_salt, role, is_activ
 	CURRENT_TIMESTAMP - INTERVAL '5 days'),
 	-- Seed dummy data
 	('mvidovic',	'mvidovic@example.com',   'seed$hash$0001', 'seed$salt$0001', 'USER', TRUE,  CURRENT_TIMESTAMP - INTERVAL '90 days'),
-	('ana.horvat',	'ana.horvat@example.com', 'seed$hash$0002', 'seed$salt$0002', 'USER', TRUE,  CURRENT_TIMESTAMP - INTERVAL '75 days'),
+	('ana.horvat',	'ana.horvat@example.com', 'seVLUESed$hash$0002', 'seed$salt$0002', 'USER', TRUE,  CURRENT_TIMESTAMP - INTERVAL '75 days'),
 	('ivan_k',	'ivan.k@example.com',     'seed$hash$0003', 'seed$salt$0003', 'USER', TRUE,  CURRENT_TIMESTAMP - INTERVAL '60 days'),
 	('petra99',	'petra99@example.com',    'seed$hash$0004', 'seed$salt$0004', 'USER', TRUE,  CURRENT_TIMESTAMP - INTERVAL '45 days'),
 	('domagoj',	'domagoj@example.com',    'seed$hash$0005', 'seed$salt$0005', 'USER', FALSE, CURRENT_TIMESTAMP - INTERVAL '30 days'),
 	('luka.b',	'luka.b@example.com',     'seed$hash$0006', 'seed$salt$0006', 'USER', TRUE,  CURRENT_TIMESTAMP - INTERVAL '20 days'),
 	('nikolina',	'nikolina@example.com',   'seed$hash$0007', 'seed$salt$0007', 'USER', TRUE,  CURRENT_TIMESTAMP - INTERVAL '10 days');
 	
+INSERT INTO games (name, description, is_active, created_at) VALUES
+	('League of Legends',	NULL,					TRUE,	CURRENT_TIMESTAMP - INTERVAL '100 days'),
+	('Team Fortress 2',	'Hatconomy first person shooter',	TRUE,	CURRENT_TIMESTAMP - INTERVAL '50 days'),
+	('Fortnite',		'Battle royal FPS',			FALSE,	CURRENT_TIMESTAMP - INTERVAL '10 days')
+

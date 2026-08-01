@@ -26,6 +26,14 @@ public class GamesPostgresRepo implements IGamesRepo{
     }
 
     @Override
+    public List<Games> getByIsActiveTrue() {
+        return sqlGamesPostgresRepo.findAllByIsActiveTrue()
+                .stream()
+                .map(Games::fromPostgres)
+                .toList();
+    }
+
+    @Override
     public Optional<Games> getById(Long id) {
         return sqlGamesPostgresRepo.findById(id)
                 .map(Games::fromPostgres);

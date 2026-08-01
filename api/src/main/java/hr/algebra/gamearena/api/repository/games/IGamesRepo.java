@@ -8,6 +8,7 @@ import java.util.Optional;
 
 public interface IGamesRepo {
     List<Games> getAll();
+    List<Games> getByIsActiveTrue();
     Optional<Games> getById(Long id);
     boolean existsByName(String name);
     Games save(GamesSave gamesSave);
