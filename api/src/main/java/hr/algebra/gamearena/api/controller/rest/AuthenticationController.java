@@ -1,10 +1,11 @@
 package hr.algebra.gamearena.api.controller.rest;
 
-import hr.algebra.gamearena.api.dto.authentication.LoginDto;
-import hr.algebra.gamearena.api.dto.authentication.RegisterDto;
+import hr.algebra.gamearena.api.dto.authentication.LoginRequest;
+import hr.algebra.gamearena.api.dto.authentication.RegisterRequest;
 import hr.algebra.gamearena.api.dto.authentication.TokenDto;
 import hr.algebra.gamearena.api.dto.other.ApiResponse;
 import hr.algebra.gamearena.api.service.authentication.AuthenticationService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -22,12 +23,12 @@ public class AuthenticationController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<ApiResponse<TokenDto>> login(@RequestBody LoginDto loginDto) {
-        return ResponseEntity.ok(ApiResponse.success(this.authenticationService.login(loginDto)));
+    public ResponseEntity<ApiResponse<TokenDto>> login(@Valid @RequestBody LoginRequest loginRequest) {
+        return ResponseEntity.ok(ApiResponse.success(this.authenticationService.login(loginRequest)));
     }
 
     @PostMapping("/register")
-    public ResponseEntity<ApiResponse<TokenDto>> register(@RequestBody RegisterDto registerDto) {
-        return ResponseEntity.ok(ApiResponse.success(this.authenticationService.register(registerDto)));
+    public ResponseEntity<ApiResponse<TokenDto>> register(@Valid @RequestBody RegisterRequest registerRequest) {
+        return ResponseEntity.ok(ApiResponse.success(this.authenticationService.register(registerRequest)));
     }
 }

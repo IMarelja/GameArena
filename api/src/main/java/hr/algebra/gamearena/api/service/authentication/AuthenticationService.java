@@ -1,7 +1,7 @@
 package hr.algebra.gamearena.api.service.authentication;
 
-import hr.algebra.gamearena.api.dto.authentication.LoginDto;
-import hr.algebra.gamearena.api.dto.authentication.RegisterDto;
+import hr.algebra.gamearena.api.dto.authentication.LoginRequest;
+import hr.algebra.gamearena.api.dto.authentication.RegisterRequest;
 import hr.algebra.gamearena.api.dto.authentication.TokenDto;
 import hr.algebra.gamearena.api.dto.jwt.JwtTokenRequest;
 import hr.algebra.gamearena.api.exceptions.extenders.ConflictException;
@@ -29,8 +29,8 @@ public class AuthenticationService implements IAuthenticationService {
     }
 
     @Override
-    public TokenDto login(LoginDto loginDto) {
-        var fetchedUser = userRepo.findByUsernameOrEmail(loginDto.getUsernameOrEmail());
+    public TokenDto login(LoginRequest loginRequest) {
+        var fetchedUser = userRepo.findByUsernameOrEmail(loginRequest.getUsernameOrEmail());
 
         if(fetchedUser.isEmpty())
             throw new UserNotFoundException("User not found");
@@ -39,7 +39,7 @@ public class AuthenticationService implements IAuthenticationService {
             throw new ForbiddenAccessException("This account is suspended, contact moderators or administrators");
 
         var loginHashedPassword = SecurityUtilities.hashPasswordWithSalt(
-                loginDto.getPassword(),
+                loginRequest.getPassword(),
                 fetchedUser
                         .get()
                         .passwordSalt()
@@ -53,7 +53,7 @@ public class AuthenticationService implements IAuthenticationService {
         var tokenAttributes = new JwtTokenRequest(
                 fetchedUser.get().id(),
                 fetchedUser.get().role(),
-                loginDto.isRememberMe()
+                loginRequest.getRememberMe()
         );
 
         var tokenDto = new TokenDto();
@@ -67,20 +67,20 @@ public class AuthenticationService implements IAuthenticationService {
     }
 
     @Override
-    public TokenDto register(RegisterDto registerDto) {
+    public TokenDto register(RegisterRequest registerRequest) {
 
-        if(userRepo.existsByEmail(registerDto.getEmail()))
+        if(userRepo.existsByEmail(registerRequest.getEmail()))
             throw new ConflictException("Email is already in use");
 
-        if(userRepo.existsByUsername(registerDto.getUsername()))
+        if(userRepo.existsByUsername(registerRequest.getUsername()))
             throw new ConflictException("Username is already in use");
 
         var passwordSalt = SecurityUtilities.saltForPassword();
-        var passwordHash = SecurityUtilities.hashPasswordWithSalt(registerDto.getPassword(), passwordSalt);
+        var passwordHash = SecurityUtilities.hashPasswordWithSalt(registerRequest.getPassword(), passwordSalt);
 
         var userSave = new UserSave();
-        userSave.setUsername(registerDto.getUsername());
-        userSave.setEmail(registerDto.getEmail());
+        userSave.setUsername(registerRequest.getUsername());
+        userSave.setEmail(registerRequest.getEmail());
         userSave.setPasswordHash(passwordHash);
         userSave.setPasswordSalt(passwordSalt);
         userSave.setRole(Role.USER);
@@ -90,7 +90,7 @@ public class AuthenticationService implements IAuthenticationService {
         var tokenAttributes = new JwtTokenRequest(
                 savedUser.id(),
                 savedUser.role(),
-                registerDto.getRememberMe()
+                registerRequest.getRememberMe()
         );
 
         var tokenDto = new TokenDto();
