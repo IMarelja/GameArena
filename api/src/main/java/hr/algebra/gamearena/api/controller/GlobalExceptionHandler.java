@@ -57,6 +57,11 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(ApiResponse.error(new ApiError("Conflict: " + ex.getMessage())));
     }
 
+    @ExceptionHandler(NotFoundException.class)
+    public ResponseEntity<ApiResponse<Void>> handleNotFoundException(NotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ApiResponse.error(new ApiError(ex.getMessage())));
+    }
+
     @ExceptionHandler(ForbiddenAccessException.class)
     public ResponseEntity<ApiResponse<ApiError>> forbiddenAccessException(ForbiddenAccessException ex) {
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ApiResponse.error(new ApiError(ex.getMessage())));

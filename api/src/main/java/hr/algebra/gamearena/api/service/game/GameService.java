@@ -1,9 +1,12 @@
 package hr.algebra.gamearena.api.service.game;
 
 import hr.algebra.gamearena.api.dto.games.GamesCreateRequest;
+import hr.algebra.gamearena.api.dto.games.GamesEditRequest;
 import hr.algebra.gamearena.api.dto.games.GamesView;
 import hr.algebra.gamearena.api.exceptions.extenders.ConflictException;
+import hr.algebra.gamearena.api.exceptions.extenders.NotFoundException;
 import hr.algebra.gamearena.api.model.games.GamesSave;
+import hr.algebra.gamearena.api.model.games.GamesUpdate;
 import hr.algebra.gamearena.api.repository.games.IGamesRepo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -41,7 +44,9 @@ public class GameService implements IGameService {
 
     @Override
     public Optional<GamesView> getById(Long id) {
-        return gamesRepo.getById(id).map(GamesView::toGamesView);
+        return Optional.of(gamesRepo.getById(id)
+                .map(GamesView::toGamesView)
+                .orElseThrow(() -> new NotFoundException("No game found with the id '" + id + "'")));
     }
 
     @Override
@@ -55,5 +60,20 @@ public class GameService implements IGameService {
         gamesSave.setDescription(games.getDescription());
 
         return toGamesView (gamesRepo.save(gamesSave));
+    }
+
+    @Override
+    public GamesView update(Long id, GamesEditRequest gamesEditRequest) {
+        if (gamesRepo.existsByNameAndIdNot(gamesEditRequest.getName(), id))
+            throw new ConflictException("A game with the name '" + gamesEditRequest.getName() + "' already exists");
+
+        var gamesUpdate = new GamesUpdate();
+        gamesUpdate.setName(gamesEditRequest.getName());
+        gamesUpdate.setDescription(gamesEditRequest.getDescription());
+        gamesUpdate.setActive(gamesEditRequest.getIsActive());
+
+        return gamesRepo.update(id, gamesUpdate)
+                .map(GamesView::toGamesView)
+                .orElseThrow(() -> new NotFoundException("No game found with the id '" + id + "'"));
     }
 }

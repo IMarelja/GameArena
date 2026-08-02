@@ -1,7 +1,9 @@
 package hr.algebra.gamearena.api.service.game;
 
 import hr.algebra.gamearena.api.dto.games.GamesCreateRequest;
+import hr.algebra.gamearena.api.dto.games.GamesEditRequest;
 import hr.algebra.gamearena.api.dto.games.GamesView;
+import hr.algebra.gamearena.api.model.games.GamesUpdate;
 
 import java.util.List;
 import java.util.Optional;
@@ -11,4 +13,5 @@ public interface IGameService {
     List<GamesView> getAllActive();
     Optional<GamesView> getById(Long id);
     GamesView create(GamesCreateRequest game);
+    GamesView update(Long id, GamesEditRequest gamesEditRequest);
 }

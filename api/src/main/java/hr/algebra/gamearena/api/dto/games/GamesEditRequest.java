@@ -7,7 +7,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class GamesUpdateRequest {
+public class GamesEditRequest {
     @NotBlank
     @NotNull
     private String name;

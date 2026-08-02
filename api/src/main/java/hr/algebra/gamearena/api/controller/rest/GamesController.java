@@ -1,8 +1,10 @@
 package hr.algebra.gamearena.api.controller.rest;
 
 import hr.algebra.gamearena.api.dto.games.GamesCreateRequest;
+import hr.algebra.gamearena.api.dto.games.GamesEditRequest;
 import hr.algebra.gamearena.api.dto.games.GamesView;
 import hr.algebra.gamearena.api.dto.other.ApiResponse;
+import hr.algebra.gamearena.api.exceptions.extenders.NotFoundException;
 import hr.algebra.gamearena.api.service.game.IGameService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
@@ -34,17 +36,27 @@ public class GamesController {
         var game = this.gameService.getById(gameId);
 
         return game.map(gameViewDto -> ResponseEntity.ok(ApiResponse.success(gameViewDto)))
-                .orElseGet(() -> ResponseEntity.notFound().build());
+                .orElseThrow(() -> new NotFoundException("Game with id: " + gameId + " not found"));
     }
 
     @PostMapping
     public ResponseEntity<ApiResponse<GamesView>> createGames(@Valid @RequestBody GamesCreateRequest gamesCreateRequest) {
         gamesCreateRequest.setName(gamesCreateRequest.getName().trim());
-        gamesCreateRequest.setDescription(gamesCreateRequest.getDescription().trim());
+
+        if (gamesCreateRequest.getDescription() != null)
+            gamesCreateRequest.setDescription(gamesCreateRequest.getDescription().trim());
 
         return ResponseEntity.ok(ApiResponse.success(this.gameService.create(gamesCreateRequest)));
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<ApiResponse<GamesView>> updateGames(@PathVariable("id") Long id, @Valid @RequestBody GamesEditRequest gamesEditRequest) {
+        gamesEditRequest.setName(gamesEditRequest.getName().trim());
 
+        if (gamesEditRequest.getDescription() != null)
+            gamesEditRequest.setDescription(gamesEditRequest.getDescription().trim());
+
+        return ResponseEntity.ok(ApiResponse.success(this.gameService.update(id, gamesEditRequest)));
+    }
 
 }

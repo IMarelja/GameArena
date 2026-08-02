@@ -1,6 +1,7 @@
 package hr.algebra.gamearena.api.orm.postgres;
 
 import hr.algebra.gamearena.api.model.games.GamesSave;
+import hr.algebra.gamearena.api.model.games.GamesUpdate;
 import jakarta.persistence.*;
 import lombok.Getter;
 import org.hibernate.annotations.DynamicInsert;
@@ -40,6 +41,17 @@ public class GamesPostgres {
                 : null;
         this.isActive = true;
         this.createdAt = LocalDateTime.now(ZoneId.of("UTC"));
+        return this;
+    }
+
+    public GamesPostgres fromGamesUpdate(
+            GamesUpdate gamesUpdate
+    ){
+        this.name = gamesUpdate.getName();
+        this.description = StringUtils.hasText(gamesUpdate.getDescription())
+                ? gamesUpdate.getDescription()
+                : null;
+        this.isActive = gamesUpdate.isActive();
         return this;
     }
 }

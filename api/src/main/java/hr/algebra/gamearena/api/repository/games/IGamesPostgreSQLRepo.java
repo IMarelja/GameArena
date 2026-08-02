@@ -7,5 +7,8 @@ import java.util.List;
 
 public interface IGamesPostgreSQLRepo extends JpaRepository<GamesPostgres, Long> {
     boolean existsByName(String name);
+    boolean existsByNameAndIdNot(String name, Long id);
     List<GamesPostgres> findAllByIsActiveTrue(); // This is crazy that this shit works
+
+
 }
