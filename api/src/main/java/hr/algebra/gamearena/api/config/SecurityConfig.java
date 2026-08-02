@@ -54,19 +54,18 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/error").permitAll()
 
-                        // Anonymous
-                        .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers("/api/games/**").permitAll()
-
                         // Any authenticated user
                         .requestMatchers(HttpMethod.GET, "/api/user/me").authenticated()
 
-                        // Role based
+                        // Admin Role
                         .requestMatchers(HttpMethod.GET, "/api/user/{id}/full").hasRole(Role.ADMIN.name())
+                        .requestMatchers(HttpMethod.POST, "/api/games").hasRole(Role.ADMIN.name())
+                        .requestMatchers(HttpMethod.PUT, "/api/games/**").hasRole(Role.ADMIN.name())
 
-                        // Anonymous, but declared last: {id} also matches "me", so the narrower
-                        // rules above have to get their chance first.
+                        // Anonymous
+                        .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/user", "/api/user/{id}").permitAll()
+                        .requestMatchers("/api/games/**").permitAll()
 
                         // Anything not listed above is closed by default
                         .anyRequest().authenticated())
