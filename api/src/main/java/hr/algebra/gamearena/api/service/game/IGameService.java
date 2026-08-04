@@ -4,7 +4,6 @@ import hr.algebra.gamearena.api.dto.games.GamesCreateRequest;
 import hr.algebra.gamearena.api.dto.games.GamesEditRequest;
 import hr.algebra.gamearena.api.dto.games.GamesFullView;
 import hr.algebra.gamearena.api.dto.games.GamesView;
-import hr.algebra.gamearena.api.model.games.GamesUpdate;
 
 import java.util.List;
 import java.util.Optional;
