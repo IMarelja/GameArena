@@ -33,7 +33,7 @@ public class SecurityErrorHandler implements AuthenticationEntryPoint, AccessDen
 
     private final ObjectMapper objectMapper;
 
-    /** 401 - the endpoint needs an identity and the caller has none. */
+    /** 401 */
     @Override
     public void commence(
             HttpServletRequest request,
@@ -50,7 +50,7 @@ public class SecurityErrorHandler implements AuthenticationEntryPoint, AccessDen
         objectMapper.writeValue(response.getWriter(), ApiResponse.error(new ApiError(message)));
     }
 
-    /** 403 - the caller is known, but does not hold the role the endpoint requires. */
+    /** 403 */
     @Override
     public void handle(
             @NonNull HttpServletRequest request,

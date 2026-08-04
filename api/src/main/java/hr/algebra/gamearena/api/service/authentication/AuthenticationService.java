@@ -4,66 +4,93 @@ import hr.algebra.gamearena.api.dto.authentication.LoginRequest;
 import hr.algebra.gamearena.api.dto.authentication.RegisterRequest;
 import hr.algebra.gamearena.api.dto.authentication.TokenDto;
 import hr.algebra.gamearena.api.dto.jwt.JwtTokenRequest;
+import hr.algebra.gamearena.api.dto.loginlog.LoginLogCreate;
 import hr.algebra.gamearena.api.exceptions.extenders.ConflictException;
 import hr.algebra.gamearena.api.exceptions.extenders.ForbiddenAccessException;
 import hr.algebra.gamearena.api.exceptions.extenders.UnauthorizedAccessException;
 import hr.algebra.gamearena.api.exceptions.extenders.UserNotFoundException;
+import hr.algebra.gamearena.api.model.loginlog.LoginLogType;
 import hr.algebra.gamearena.api.model.user.Role;
 import hr.algebra.gamearena.api.model.user.UserSave;
 import hr.algebra.gamearena.api.repository.user.IUserRepo;
 import hr.algebra.gamearena.api.service.jwt.IJwtService;
+import hr.algebra.gamearena.api.service.loginlog.ILoginLoggingService;
+import hr.algebra.gamearena.api.utils.NetworkUtilities;
 import hr.algebra.gamearena.api.utils.SecurityUtilities;
-import lombok.extern.slf4j.Slf4j;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Service;
 
-@Slf4j
+
 @Service
 public class AuthenticationService implements IAuthenticationService {
 
     private final IUserRepo userRepo;
     private final IJwtService jwtService;
+    private final ILoginLoggingService loginLoggingService;
+    private final HttpServletRequest httpServletRequest;
 
-    public AuthenticationService(IUserRepo userRepo, IJwtService jwtService) {
+    public AuthenticationService(
+            IUserRepo userRepo,
+            IJwtService jwtService,
+            ILoginLoggingService loginLoggingService,
+            HttpServletRequest httpServletRequest) {
         this.userRepo = userRepo;
         this.jwtService = jwtService;
+        this.loginLoggingService = loginLoggingService;
+        this.httpServletRequest = httpServletRequest;
     }
 
     @Override
     public TokenDto login(LoginRequest loginRequest) {
-        var fetchedUser = userRepo.findByUsernameOrEmail(loginRequest.getUsernameOrEmail());
+        var usernameOrEmail = loginRequest.getUsernameOrEmail();
 
-        if(fetchedUser.isEmpty())
-            throw new UserNotFoundException("User not found");
+        try {
+            var fetchedUser = userRepo.findByUsernameOrEmail(usernameOrEmail);
 
-        if(!fetchedUser.get().isActive())
-            throw new ForbiddenAccessException("This account is suspended, contact moderators or administrators");
+            if(fetchedUser.isEmpty()) {
+                logLoginAttempt(usernameOrEmail, LoginLogType.BAD_CREDENTIALS);
+                throw new UserNotFoundException("User not found");
+            }
 
-        var loginHashedPassword = SecurityUtilities.hashPasswordWithSalt(
-                loginRequest.getPassword(),
-                fetchedUser
-                        .get()
-                        .passwordSalt()
-        );
+            if(!fetchedUser.get().isActive()) {
+                logLoginAttempt(usernameOrEmail, LoginLogType.DISABLED_ACCOUNT);
+                throw new ForbiddenAccessException("This account is suspended, contact moderators or administrators");
+            }
 
-        if(!fetchedUser.get().passwordHash().equals(loginHashedPassword))
-            throw new UnauthorizedAccessException("The password is incorrect");
+            var loginHashedPassword = SecurityUtilities.hashPasswordWithSalt(
+                    loginRequest.getPassword(),
+                    fetchedUser
+                            .get()
+                            .passwordSalt()
+            );
 
+            if(!fetchedUser.get().passwordHash().equals(loginHashedPassword)) {
+                logLoginAttempt(usernameOrEmail, LoginLogType.BAD_PASSWORD);
+                throw new UnauthorizedAccessException("The password is incorrect");
+            }
 
+            var tokenAttributes = new JwtTokenRequest(
+                    fetchedUser.get().id(),
+                    fetchedUser.get().role(),
+                    loginRequest.getRememberMe()
+            );
 
-        var tokenAttributes = new JwtTokenRequest(
-                fetchedUser.get().id(),
-                fetchedUser.get().role(),
-                loginRequest.getRememberMe()
-        );
+            var tokenDto = new TokenDto();
+            tokenDto.setToken(
+                    jwtService.generateToken(
+                            tokenAttributes
+                    )
+            );
 
-        var tokenDto = new TokenDto();
-        tokenDto.setToken(
-                jwtService.generateToken(
-                        tokenAttributes
-                )
-        );
+            logLoginAttempt(usernameOrEmail, LoginLogType.SUCCESS);
 
-        return tokenDto;
+            return tokenDto;
+        } catch (UserNotFoundException | ForbiddenAccessException | UnauthorizedAccessException ex) {
+            throw ex;
+        } catch (RuntimeException ex) {
+            logLoginAttempt(usernameOrEmail, LoginLogType.UNEXPECTED_FAILURE);
+            throw ex;
+        }
     }
 
     @Override
@@ -101,5 +128,20 @@ public class AuthenticationService implements IAuthenticationService {
         );
 
         return tokenDto;
+    }
+
+    private void logLoginAttempt(String credential, LoginLogType type) {
+        var loginLogCreate = new LoginLogCreate();
+        var clientAddress = NetworkUtilities.resolveClientAddress(httpServletRequest);
+
+        loginLogCreate.setCredential(credential);
+        loginLogCreate.setType(type);
+
+        if (NetworkUtilities.isIpv6(clientAddress))
+            loginLogCreate.setIpv6(clientAddress);
+        else
+            loginLogCreate.setIpv4(clientAddress);
+
+        loginLoggingService.log(loginLogCreate);
     }
 }
