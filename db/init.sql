@@ -15,6 +15,10 @@ CREATE TABLE users (
 	created_at		TIMESTAMP	NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE INDEX idx_users_username ON users (username);
+
+CREATE INDEX idx_users_email ON users (email);
+
 -- ---------------------------------------------------------------------
 -- GAMES
 -- ---------------------------------------------------------------------
@@ -63,7 +67,10 @@ CREATE TABLE team_invitations (
 	invitee_id	BIGINT		NOT NULL REFERENCES users(id),
 	status		invite_status	NOT NULL DEFAULT 'PENDING',
 	created_at	TIMESTAMP	NOT NULL DEFAULT CURRENT_TIMESTAMP,
-	responded_at	TIMESTAMP
+	responded_at	TIMESTAMP,
+	CONSTRAINT chk_distict_inviter_invitee CHECK (
+		inviter_id <> invitee_id
+	),
 );
 
 -- ---------------------------------------------------------------------
@@ -86,6 +93,10 @@ CREATE TABLE login_logs (
 	type 		login_log_type 	NOT NULL,
 	created_at 	TIMESTAMP 	NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE INDEX idx_login_logs_credentials ON login_logs (credential)
+
+CREATE INDEX idx_login_logs_type ON login_logs (login_log_type)
 
 -- ---------------------------------------------------------------------
 -- TOURNAMENT
@@ -128,7 +139,7 @@ CREATE TABLE matches (
 	status			match_status	NOT NULL,
 	scheduled_at		TIMESTAMP,
 	played_at		TIMESTAMP,
-	created_at		TIMESTAMP	NOT NULL,
+	created_at		TIMESTAMP	NOT NULL DEFAULT CURRENT_TIMESTAMP,
 	CONSTRAINT chk_matches_distinct_players CHECK (
 		player_one_id <> player_two_id
 	),
