@@ -12,7 +12,6 @@ import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicLong;
 
-@Repository
 public class LoginLoggingMemoryRepo implements ILoginLoggingRepo {
 
     private final List<LoginLogs> loginLogs = new CopyOnWriteArrayList<>();
