@@ -19,11 +19,11 @@ import java.util.Optional;
 @Service
 public class GameService implements IGameService {
 
-    private static String GameNotFoundByIdOutput(Long id){
+    private static String gameNotFoundByIdOutput(Long id){
         return "No game found with the id '" + id + "'";
     }
 
-    private static String GameFoundByNameConflictOutput(String name){
+    private static String gameFoundByNameConflictOutput(String name){
         return "A game with the name '" + name + "' already exists";
     }
 
@@ -54,21 +54,21 @@ public class GameService implements IGameService {
     public Optional<GamesView> getById(Long id) {
         return Optional.of(gamesRepo.getById(id)
                 .map(GamesView::fromGamesModel)
-                .orElseThrow(() -> new NotFoundException( GameNotFoundByIdOutput(id) )));
+                .orElseThrow(() -> new NotFoundException( gameNotFoundByIdOutput(id) )));
     }
 
     @Override
     public Optional<GamesFullView> getByIdFull(Long id) {
         return Optional.of(gamesRepo.getById(id)
                 .map(GamesFullView::fromGamesModel)
-                .orElseThrow(() -> new NotFoundException( GameNotFoundByIdOutput(id) )));
+                .orElseThrow(() -> new NotFoundException( gameNotFoundByIdOutput(id) )));
     }
 
     @Override
     public GamesFullView create(GamesCreateRequest games) {
 
         if (gamesRepo.existsByName(games.getName()))
-            throw new ConflictException( GameFoundByNameConflictOutput(games.getName()) );
+            throw new ConflictException( gameFoundByNameConflictOutput(games.getName()) );
 
         var gamesSave = new GamesSave();
         gamesSave.setName(games.getName());
@@ -80,7 +80,7 @@ public class GameService implements IGameService {
     @Override
     public GamesFullView update(Long id, GamesEditRequest gamesEditRequest) {
         if (gamesRepo.existsByNameAndIdNot(gamesEditRequest.getName(), id))
-            throw new ConflictException( GameFoundByNameConflictOutput(gamesEditRequest.getName()) );
+            throw new ConflictException( gameFoundByNameConflictOutput(gamesEditRequest.getName()) );
 
         var gamesUpdate = new GamesUpdate();
         gamesUpdate.setName(gamesEditRequest.getName());
@@ -89,6 +89,6 @@ public class GameService implements IGameService {
 
         return gamesRepo.update(id, gamesUpdate)
                 .map(GamesFullView::fromGamesModel)
-                .orElseThrow(() -> new NotFoundException(GameNotFoundByIdOutput(id)));
+                .orElseThrow(() -> new NotFoundException(gameNotFoundByIdOutput(id)));
     }
 }
