@@ -5,9 +5,5 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/tournament")
 public class TournamentController {
-/*
-    @GetMapping
-    public ResponseEntity<ApiResponse<List<GamesView>>> getAllGames() {}
-*/
 
 }

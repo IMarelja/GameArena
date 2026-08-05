@@ -61,12 +61,14 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/user/{id}/full").hasRole(Role.ADMIN.name())
                         .requestMatchers(HttpMethod.POST, "/api/games").hasRole(Role.ADMIN.name())
                         .requestMatchers(HttpMethod.PUT, "/api/games/**").hasRole(Role.ADMIN.name())
+                        .requestMatchers("/api/log/**").hasRole(Role.ADMIN.name())
 
                         // Anonymous
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/user", "/api/user/{id}").permitAll()
                         .requestMatchers("/api/games/**").permitAll()
-                        .requestMatchers("/api/log/**").permitAll()
+                        // -- Temp --
+                        .requestMatchers("/api/team/**").permitAll()
 
                         // Anything not listed above is closed by default
                         .anyRequest().authenticated())
