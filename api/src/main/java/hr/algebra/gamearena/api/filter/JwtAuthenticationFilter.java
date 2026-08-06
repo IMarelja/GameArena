@@ -21,23 +21,10 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Identifies the caller, and nothing more.
- * <p>
- * The filter runs on every request. When a bearer token is present and valid the matching
- * {@link JwtTokenClaim} is published as the authenticated principal, so the rest of the request can
- * read it. When no token is present the request simply continues as anonymous. Deciding whether an
- * anonymous or under-privileged caller may reach an endpoint is not this filter's job - that lives
- * in {@code SecurityConfig}.
- */
 @Slf4j
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-    /**
-     * Request attribute holding why a supplied token was refused. Read by {@code SecurityErrorHandler}
-     * so the 401 body can state the actual reason instead of a generic message.
-     */
     public static final String AUTH_ERROR_ATTRIBUTE = "jwtAuthenticationError";
 
     private static final String BEARER_PREFIX = "Bearer ";
@@ -60,7 +47,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 
-    /** Publishes the caller's identity, or records why it could not be established. */
     private void authenticate(HttpServletRequest request, String token) {
         Optional<JwtTokenClaim> jwtClaims = jwtService.parseToken(token);
 
@@ -86,11 +72,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         SecurityContextHolder.setContext(context);
     }
 
-    /**
-     * Leaves the request anonymous and notes the reason. No response is written here: a refused token
-     * only matters once an endpoint actually demands an identity, and that verdict belongs to the
-     * authorization rules. Public endpoints therefore keep working even when a stale token is sent along.
-     */
     private void refuse(HttpServletRequest request, String message) {
         log.debug("JwtAuthenticationFilter: refused token: {}", message);
 
