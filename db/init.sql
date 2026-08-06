@@ -70,7 +70,7 @@ CREATE TABLE team_invitations (
 	responded_at	TIMESTAMP,
 	CONSTRAINT chk_distict_inviter_invitee CHECK (
 		inviter_id <> invitee_id
-	),
+	)
 );
 
 -- ---------------------------------------------------------------------
@@ -94,9 +94,9 @@ CREATE TABLE login_logs (
 	created_at 	TIMESTAMP 	NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE INDEX idx_login_logs_credentials ON login_logs (credential)
+CREATE INDEX idx_login_logs_credentials ON login_logs (credential);
 
-CREATE INDEX idx_login_logs_type ON login_logs (login_log_type)
+CREATE INDEX idx_login_logs_type ON login_logs (type);
 
 -- ---------------------------------------------------------------------
 -- TOURNAMENT
@@ -119,6 +119,8 @@ CREATE TABLE tournaments (
 	ends_at 	TIMESTAMP,
 	created_at 	TIMESTAMP 		NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
+
+-- ⚠️ Tournament participant table for later
 
 CREATE TYPE match_status AS ENUM (
 	'SCHEDULED',
