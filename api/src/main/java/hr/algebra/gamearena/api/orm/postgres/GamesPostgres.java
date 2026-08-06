@@ -32,7 +32,7 @@ public class GamesPostgres {
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
-    public GamesPostgres fromGamesCreate(
+    public GamesPostgres fromGamesSave(
             GamesSave gamesSave
     ){
         this.name = gamesSave.getName();

@@ -52,7 +52,7 @@ public class GamesPostgresRepo implements IGamesRepo{
 
     @Override
     public Games save(GamesSave gamesSave) {
-        var gamesPostgres = new GamesPostgres().fromGamesCreate(gamesSave);
+        var gamesPostgres = new GamesPostgres().fromGamesSave(gamesSave);
         var savedGames = sqlGamesPostgresRepo.save(gamesPostgres);
         return Games.fromPostgres(savedGames);
     }
