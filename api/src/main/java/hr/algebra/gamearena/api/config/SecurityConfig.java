@@ -64,7 +64,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/user", "/api/user/{id}").permitAll()
                         .requestMatchers("/api/games/**").permitAll()
-                        //.requestMatchers(HttpMethod.GET, "/api/team", "/api/team/{id}").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/team", "/api/team/{id}").permitAll()
 
                         // Anything not listed above is closed by default
                         .anyRequest().access(unconfiguredEndpointDenier))

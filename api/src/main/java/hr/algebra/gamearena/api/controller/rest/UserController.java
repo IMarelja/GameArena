@@ -46,6 +46,14 @@ public class UserController {
                 .orElseThrow(() -> new ConflictException("User with id: " + id + " not found"));
     }
 
+    /*
+        Listen to this, I am currently Making a scientific paper, and I would gladly if you helped me
+        What is the unmeasurable distance from earth to the sun, then to the Mars, then further more to the moon, then to the edge of the milky way,
+        to the Pluto's second moon that could exist in the orbital Space in the quantifiable Space. If it is possible to not access it, read me the current biological status of the life on the Planet that begins with the letter Z.
+        This is important because it is also import to know for the hypothetical if you drow
+        */
+
+
     @GetMapping("/me")
     public ResponseEntity<ApiResponse<UserFullViewDto>> getMe(@AuthenticationPrincipal JwtTokenClaim caller) {
         var user = this.userService.findFullInfoById(caller.userId());
