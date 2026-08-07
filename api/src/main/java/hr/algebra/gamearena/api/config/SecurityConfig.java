@@ -1,6 +1,7 @@
 package hr.algebra.gamearena.api.config;
 
 import hr.algebra.gamearena.api.filter.JwtAuthenticationFilter;
+import hr.algebra.gamearena.api.filter.UnconfiguredEndpointDenier;
 import hr.algebra.gamearena.api.model.user.Role;
 import hr.algebra.gamearena.api.service.jwt.IJwtService;
 import hr.algebra.gamearena.api.service.user.IUserService;
@@ -16,12 +17,6 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-/**
- * The single place that answers "what protects this endpoint?".
- * <p>
- * {@link JwtAuthenticationFilter} only establishes <em>who</em> is calling; every rule about
- * <em>where</em> that caller may go is declared below.
- */
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
@@ -45,7 +40,8 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(
             HttpSecurity http,
             JwtAuthenticationFilter jwtAuthenticationFilter,
-            SecurityErrorHandler securityErrorHandler)
+            SecurityErrorHandler securityErrorHandler,
+            UnconfiguredEndpointDenier unconfiguredEndpointDenier)
     {
         return http
                 .csrf(AbstractHttpConfigurer::disable)
@@ -56,6 +52,7 @@ public class SecurityConfig {
 
                         // Any authenticated user
                         .requestMatchers(HttpMethod.GET, "/api/user/me").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/api/team/for/me").authenticated()
 
                         // Admin Role
                         .requestMatchers(HttpMethod.GET, "/api/user/{id}/full").hasRole(Role.ADMIN.name())
@@ -67,11 +64,10 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/user", "/api/user/{id}").permitAll()
                         .requestMatchers("/api/games/**").permitAll()
-                        // -- Temp --
-                        .requestMatchers("/api/team/**").permitAll()
+                        //.requestMatchers(HttpMethod.GET, "/api/team", "/api/team/{id}").permitAll()
 
                         // Anything not listed above is closed by default
-                        .anyRequest().authenticated())
+                        .anyRequest().access(unconfiguredEndpointDenier))
 
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
 
