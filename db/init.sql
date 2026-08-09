@@ -122,6 +122,10 @@ CREATE TABLE tournaments (
 
 -- ⚠️ Tournament participant table for later
 
+-- ---------------------------------------------------------------------
+-- MATCH
+-- ---------------------------------------------------------------------
+
 CREATE TYPE match_status AS ENUM (
 	'SCHEDULED',
 	'IN_PROGRESS',
@@ -150,3 +154,21 @@ CREATE TABLE matches (
 	)
 );
 
+-- ---------------------------------------------------------------------
+-- NOTIFICATION
+-- ---------------------------------------------------------------------
+
+CREATE TABLE notifications (
+	id 			BIGINT		GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+	read_at			BOOL		NOT NULL,
+	type			VARCHAR(50)	NOT NULL,
+	recipient_user_id	BIGINT		NOT NULL REFERENCES users(id),
+	reference_id		BIGINT,
+	reference_type		VARCHAR(50),
+	created_at		TIMESTAMP	NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	CONSTRAINT chk_null_or_nothing_reference CHECK (
+		(reference_id IS NULL) = (reference_type IS NULL)
+	)
+);
+
+CREATE INDEX idx_notifications_recipient_user_id ON notifications (recipient_user_id);
