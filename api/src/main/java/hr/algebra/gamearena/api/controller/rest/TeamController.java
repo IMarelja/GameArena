@@ -8,6 +8,7 @@ import hr.algebra.gamearena.api.exceptions.extenders.NotFoundException;
 import hr.algebra.gamearena.api.service.team.ITeamService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,11 +24,13 @@ public class TeamController {
         this.teamService = teamService;
     }
 
+    @PreAuthorize("permitAll()")
     @GetMapping
     public ResponseEntity<ApiResponse<List<TeamMinimalView>>> getAllTeams(){
         return ResponseEntity.ok(ApiResponse.success(teamService.getAll()));
     }
 
+    @PreAuthorize("isAuthenticated()")
     @PostMapping("/for/me")
     public ResponseEntity<ApiResponse<TeamMinimalView>> createTeam(@AuthenticationPrincipal JwtTokenClaim caller, @Valid @RequestBody TeamCreateRequest team){
         var createdTeam = teamService.createTeamByUsersRequest(caller.userId(), team);
@@ -35,6 +38,7 @@ public class TeamController {
         return ResponseEntity.ok(ApiResponse.success(createdTeam));
     }
 
+    @PreAuthorize("permitAll()")
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<TeamMinimalView>> getTeamById(@PathVariable Long id){
         var team = teamService.getTeamById(id);

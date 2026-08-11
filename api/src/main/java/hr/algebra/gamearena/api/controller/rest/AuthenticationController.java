@@ -7,6 +7,7 @@ import hr.algebra.gamearena.api.dto.other.ApiResponse;
 import hr.algebra.gamearena.api.service.authentication.AuthenticationService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/auth")
+@PreAuthorize("permitAll()")
 public class AuthenticationController {
 
     private final AuthenticationService authenticationService;

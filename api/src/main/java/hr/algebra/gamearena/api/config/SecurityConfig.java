@@ -2,7 +2,6 @@ package hr.algebra.gamearena.api.config;
 
 import hr.algebra.gamearena.api.filter.JwtAuthenticationFilter;
 import hr.algebra.gamearena.api.filter.UnconfiguredEndpointDenier;
-import hr.algebra.gamearena.api.model.user.Role;
 import hr.algebra.gamearena.api.service.jwt.IJwtService;
 import hr.algebra.gamearena.api.service.user.IUserService;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
@@ -49,24 +48,6 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/error").permitAll()
-
-                        // Any authenticated user
-                        .requestMatchers(HttpMethod.GET, "/api/user/me").authenticated()
-                        .requestMatchers(HttpMethod.POST, "/api/team/for/me").authenticated()
-
-                        // Admin Role
-                        .requestMatchers(HttpMethod.GET, "/api/user/{id}/full").hasRole(Role.ADMIN.name())
-                        .requestMatchers(HttpMethod.POST, "/api/games").hasRole(Role.ADMIN.name())
-                        .requestMatchers(HttpMethod.PUT, "/api/games/**").hasRole(Role.ADMIN.name())
-                        .requestMatchers("/api/log/**").hasRole(Role.ADMIN.name())
-
-                        // Anonymous
-                        .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/user", "/api/user/{id}").permitAll()
-                        .requestMatchers("/api/games/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/team", "/api/team/{id}").permitAll()
-
-                        // Anything not listed above is closed by default
                         .anyRequest().access(unconfiguredEndpointDenier))
 
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)

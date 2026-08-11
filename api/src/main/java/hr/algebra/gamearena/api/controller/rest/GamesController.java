@@ -9,6 +9,7 @@ import hr.algebra.gamearena.api.exceptions.extenders.NotFoundException;
 import hr.algebra.gamearena.api.service.game.IGameService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,16 +23,19 @@ public class GamesController {
         this.gameService = gameService;
     }
 
+    @PreAuthorize("permitAll()")
     @GetMapping
     public ResponseEntity<ApiResponse<List<GamesView>>> getAllGames() {
         return ResponseEntity.ok(ApiResponse.success(gameService.getAll()));
     }
 
+    @PreAuthorize("permitAll()")
     @GetMapping("/active")
     public ResponseEntity<ApiResponse<List<GamesView>>> getAllActiveGames() {
         return ResponseEntity.ok(ApiResponse.success(gameService.getAllActive()));
     }
 
+    @PreAuthorize("permitAll()")
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<GamesView>> getGames(@PathVariable("id") Long gameId) {
         var game = this.gameService.getById(gameId);
@@ -40,6 +44,7 @@ public class GamesController {
                 .orElseThrow(() -> new NotFoundException("Game with id: " + gameId + " not found"));
     }
 
+    @PreAuthorize("permitAll()")
     @GetMapping("/{id}/full")
     public ResponseEntity<ApiResponse<GamesFullView>> getGamesFullInfo(@PathVariable("id") Long gameId) {
         var game = this.gameService.getByIdFull(gameId);
@@ -48,6 +53,7 @@ public class GamesController {
                 .orElseThrow(() -> new NotFoundException("Game with id: " + gameId + " not found"));
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<ApiResponse<GamesFullView>> createGames(@Valid @RequestBody GamesCreateRequest gamesCreateRequest) {
         gamesCreateRequest.setName(gamesCreateRequest.getName().trim());
@@ -58,6 +64,7 @@ public class GamesController {
         return ResponseEntity.ok(ApiResponse.success(this.gameService.create(gamesCreateRequest)));
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<GamesFullView>> updateGames(@PathVariable("id") Long id, @Valid @RequestBody GamesEditRequest gamesEditRequest) {
         gamesEditRequest.setName(gamesEditRequest.getName().trim());

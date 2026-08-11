@@ -7,6 +7,7 @@ import hr.algebra.gamearena.api.dto.user.UserViewDto;
 import hr.algebra.gamearena.api.exceptions.extenders.ConflictException;
 import hr.algebra.gamearena.api.service.user.IUserService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -25,11 +26,13 @@ public class UserController {
         this.userService = userService;
     }
 
+    @PreAuthorize("permitAll()")
     @GetMapping
     public ResponseEntity<ApiResponse<List<UserViewDto>>> findAll() {
         return ResponseEntity.ok(ApiResponse.success(this.userService.findAll()));
     }
 
+    @PreAuthorize("permitAll()")
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<UserViewDto>> getById(@PathVariable Long id) {
         var user = this.userService.findById(id);
@@ -38,6 +41,7 @@ public class UserController {
                 .orElseThrow(() -> new ConflictException("User with id: " + id + " not found"));
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/{id}/full")
     public ResponseEntity<ApiResponse<UserFullViewDto>> getByIdFullInfo(@PathVariable Long id) {
         var user = this.userService.findFullInfoById(id);
@@ -54,6 +58,7 @@ public class UserController {
         */
 
 
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/me")
     public ResponseEntity<ApiResponse<UserFullViewDto>> getMe(@AuthenticationPrincipal JwtTokenClaim caller) {
         var user = this.userService.findFullInfoById(caller.userId());

@@ -7,6 +7,7 @@ import hr.algebra.gamearena.api.exceptions.extenders.*;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -19,10 +20,12 @@ import java.util.List;
 @Slf4j
 public class GlobalExceptionHandler {
 
-    /**
-     * A {@code @Valid @RequestBody} that failed its constraints. Every violated annotation on the
-     * body is reported, not just the first one, so a caller can fix the whole form in one pass.
-     */
+    @ExceptionHandler(AccessDeniedException.class)
+    public void handleAccessDeniedException(AccessDeniedException ex) throws AccessDeniedException {
+        // For SecurityErrorHandler to handle if it is 401 or 403 error code
+        throw ex;
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ApiResponse<Void>> handleMethodArgumentNotValidException(MethodArgumentNotValidException ex) {
         List<ApiError> errors = ex.getBindingResult().getAllErrors().stream()
@@ -32,7 +35,6 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ApiResponse.errors(errors));
     }
 
-    /** Constraints declared directly on handler parameters (@RequestParam, @PathVariable, ...). */
     @ExceptionHandler(HandlerMethodValidationException.class)
     public ResponseEntity<ApiResponse<Void>> handleHandlerMethodValidationException(HandlerMethodValidationException ex) {
         List<ApiError> errors = ex.getAllErrors().stream()
@@ -42,7 +44,6 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ApiResponse.errors(errors));
     }
 
-    /** Constraints checked outside the web layer, e.g. a {@code @Validated} service call. */
     @ExceptionHandler(ConstraintViolationException.class)
     public ResponseEntity<ApiResponse<Void>> handleConstraintViolationException(ConstraintViolationException ex) {
         List<ApiError> errors = ex.getConstraintViolations().stream()
