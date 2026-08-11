@@ -18,7 +18,7 @@ import java.util.Optional;
 public class NotificationService implements INotificationService{
     private final INotificationRepo notificationRepo;
 
-    private String NotificationNotFound(Long id){
+    private String notificationNotFound(Long id){
         return "Notification with id " + id + " not found";
     }
 
@@ -30,7 +30,7 @@ public class NotificationService implements INotificationService{
     public Optional<NotificationMinimalView> findById(Long id) {
         return Optional.of(notificationRepo.findById(id)
                 .map(NotificationMinimalView::fromNotification)
-                .orElseThrow(() -> new NotFoundException( NotificationNotFound(id) )));
+                .orElseThrow(() -> new NotFoundException( notificationNotFound(id) )));
     }
 
     @Override

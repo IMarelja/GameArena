@@ -11,17 +11,17 @@ import java.util.Optional;
 @Repository
 public class TeamPostgresRepo implements ITeamRepo{
 
-    private final ITeamPostgreSQLRepo teamPostgresRepo;
-    private final ITeamMemberPostgreSQLRepo teamMemberPostgresRepo;
+    private final ITeamPostgreSQLRepo teamPostgresSQLRepo;
+    private final ITeamMemberPostgreSQLRepo teamMemberPostgresSQLRepo;
 
     public TeamPostgresRepo(ITeamPostgreSQLRepo teamPostgresRepo, ITeamMemberPostgreSQLRepo teamMemberPostgresRepo) {
-        this.teamPostgresRepo = teamPostgresRepo;
-        this.teamMemberPostgresRepo = teamMemberPostgresRepo;
+        this.teamPostgresSQLRepo = teamPostgresRepo;
+        this.teamMemberPostgresSQLRepo = teamMemberPostgresRepo;
     }
 
     @Override
     public List<Team> getAll() {
-        return teamPostgresRepo.findAll()
+        return teamPostgresSQLRepo.findAll()
                 .stream()
                 .map(Team::fromPostgresTeam)
                 .toList();
@@ -29,19 +29,19 @@ public class TeamPostgresRepo implements ITeamRepo{
 
     @Override
     public Optional<Team> getTeamById(Long id) {
-        return teamPostgresRepo.findById(id)
+        return teamPostgresSQLRepo.findById(id)
                 .map(Team::fromPostgresTeam);
     }
 
     @Override
     public Long memberCountInATeam(Long teamId) {
-        return teamMemberPostgresRepo.countByTeamId(teamId);
+        return teamMemberPostgresSQLRepo.countByTeamId(teamId);
     }
 
     @Override
     public Team save(TeamSave team) {
         var teamPostgres = new TeamPostgres().fromTeamSave(team);
-        var savedTeam = teamPostgresRepo.save(teamPostgres);
+        var savedTeam = teamPostgresSQLRepo.save(teamPostgres);
         return Team.fromPostgresTeam(savedTeam);
     }
 }
