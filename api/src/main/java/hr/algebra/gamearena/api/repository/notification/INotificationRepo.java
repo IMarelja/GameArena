@@ -16,5 +16,5 @@ public interface INotificationRepo {
     boolean doesUserOwnThisNotification(Long userId, Long notificationId);
     Notification save(NotificationSave save);
     Notification update(Long id, NotificationUpdate update);
-    boolean delete(Long id);
+    void delete(Long id);
 }

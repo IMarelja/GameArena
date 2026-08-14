@@ -76,12 +76,11 @@ public class NotificationPostgresRepo implements INotificationRepo{
     }
 
     @Override
-    public boolean delete(Long id) {
-        if (!notificationPostgreSQLRepo.existsById(id)) {
-            return false;
+    public void delete(Long id) {
+        if (notificationPostgreSQLRepo.existsById(id)) {
+            notificationPostgreSQLRepo.deleteById(id);
+        }else{
+            throw new NotFoundException("Notification not found with id: " + id);
         }
-
-        notificationPostgreSQLRepo.deleteById(id);
-        return true;
     }
 }
