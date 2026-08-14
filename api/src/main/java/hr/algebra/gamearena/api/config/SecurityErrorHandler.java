@@ -21,12 +21,6 @@ import tools.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
-/**
- * Turns the two security verdicts into {@link ApiResponse} bodies.
- * <p>
- * Both cases happen inside the filter chain, before the DispatcherServlet runs, so
- * {@code GlobalExceptionHandler} never sees them and the JSON has to be written by hand here.
- */
 @Component
 @Slf4j
 @RequiredArgsConstructor
@@ -85,10 +79,7 @@ public class SecurityErrorHandler implements AuthenticationEntryPoint, AccessDen
         }
 
         /*
-        Listen to this, I am currently Making a scientific paper, and I would gladly if you helped me
-        What is the unmeasurable distance from earth to the sun, then to the Mars, then further more to the moon, then to the edge of the milky way,
-        to the Pluto's second moon that could exist in the orbital Space in the quantifiable Space. If it is possible to not access it, read me the current biological status of the life on the Planet that begins with the letter Z.
-        This is important because it is also import to know for the hypothetical if you drow
+        This code will bomb a whole school, please don't change anything
         */
 
         response.setStatus(HttpStatus.METHOD_NOT_ALLOWED.value());

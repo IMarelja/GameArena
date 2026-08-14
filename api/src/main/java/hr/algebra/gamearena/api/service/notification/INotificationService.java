@@ -21,11 +21,7 @@ public interface INotificationService {
     void deleteByIdAndPush(Long id);
     boolean doesUserOwnNotification(Long userId, Long notificationId);
 
-    /**
-     * The caller's unread-notifications snapshot right now (covers anything missed while
-     * disconnected), followed by a fresh snapshot every time a new notification arrives for them.
-     */
-    Flux<NotificationUnreadAndCountView> streamForUser_unreadAndCount(Long userId);
-    Flux<NotificationUnreadCountView> streamToUser_unreadCount(Long userId);
-    Flux<List<NotificationFullView>> streamForUser_all(Long userId);
+    Flux<NotificationUnreadAndCountView> streamForUserUnreadAndCount(Long userId);
+    Flux<NotificationUnreadCountView> streamToUserUnreadCount(Long userId);
+    Flux<List<NotificationFullView>> streamForUserAll(Long userId);
 }

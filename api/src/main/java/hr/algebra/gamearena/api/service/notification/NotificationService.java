@@ -112,14 +112,14 @@ public class NotificationService implements INotificationService{
     }
 
     @Override
-    public Flux<NotificationUnreadAndCountView> streamForUser_unreadAndCount(Long userId) {
+    public Flux<NotificationUnreadAndCountView> streamForUserUnreadAndCount(Long userId) {
         return Flux.concat(
                 Flux.just(buildUnreadSnapshot(userId)),
                 notificationPushService.subscribe(userId).map(this::toUnreadAndCount));
     }
 
     @Override
-    public Flux<NotificationUnreadCountView> streamToUser_unreadCount(Long userId) {
+    public Flux<NotificationUnreadCountView> streamToUserUnreadCount(Long userId) {
         return Flux.concat(
                 Flux.just(countUnreadByUserId(userId)),
                 notificationPushService.subscribe(userId)
@@ -128,7 +128,7 @@ public class NotificationService implements INotificationService{
     }
 
     @Override
-    public Flux<List<NotificationFullView>> streamForUser_all(Long userId) {
+    public Flux<List<NotificationFullView>> streamForUserAll(Long userId) {
         return Flux.concat(Flux.just(buildFullSnapshot(userId)), notificationPushService.subscribe(userId));
     }
 

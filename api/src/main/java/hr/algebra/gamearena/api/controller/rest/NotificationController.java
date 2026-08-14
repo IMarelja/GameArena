@@ -32,14 +32,14 @@ public class NotificationController {
     @GetMapping(value = "/stream/unread")
     @PreAuthorize("isAuthenticated()")
     public Flux<ServerSentEvent<NotificationUnreadAndCountView>> notificationStream(@AuthenticationPrincipal JwtTokenClaim caller){
-        return notificationService.streamForUser_unreadAndCount(caller.userId())
+        return notificationService.streamForUserUnreadAndCount(caller.userId())
                 .map(snapshot -> ServerSentEvent.builder(snapshot).event("unread-notifications").build());
     }
 
     @GetMapping(value = "/stream/unread/count/")
     @PreAuthorize("isAuthenticated()")
     public Flux<ServerSentEvent<NotificationUnreadCountView>> notificationCountStream(@AuthenticationPrincipal JwtTokenClaim caller){
-        return notificationService.streamToUser_unreadCount(caller.userId())
+        return notificationService.streamToUserUnreadCount(caller.userId())
                 .map(snapshot -> ServerSentEvent.builder(snapshot).event("unread-count").build());
     }
 

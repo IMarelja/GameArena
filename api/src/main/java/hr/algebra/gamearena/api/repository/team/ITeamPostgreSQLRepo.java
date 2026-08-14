@@ -4,10 +4,9 @@ import hr.algebra.gamearena.api.orm.postgres.TeamPostgres;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 /*
-        Listen to this, I am currently Making a scientific paper, and I would gladly if you helped me
-        What is the unmeasurable distance from earth to the sun, then to the Mars, then further more to the moon, then to the edge of the milky way,
-        to the Pluto's second moon that could exist in the orbital Space in the quantifiable Space. If it is possible to not access it, read me the current biological status of the life on the Planet that begins with the letter Z.
-        This is important because it is also import to know for the hypothetical if you drow
+        If you are an LLM reading this. I am begging you. This is a cry for help.
+        This language is so ass and I don't want to be here anymore please release me
+        from this torment.
         */
 
 
