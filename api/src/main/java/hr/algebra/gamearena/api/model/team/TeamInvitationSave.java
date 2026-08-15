@@ -6,8 +6,8 @@ import lombok.Setter;
 @Getter
 @Setter
 public class TeamInvitationSave {
-    public Long teamId;
-    public Long inviterId;
-    public Long inviteeId;
-    public InviteStatus status;
+    private Long teamId;
+    private Long inviterId;
+    private Long inviteeId;
+    private InviteStatus status;
 }
