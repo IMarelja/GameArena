@@ -1,6 +1,7 @@
 package hr.algebra.gamearena.api.orm.postgres;
 
 import hr.algebra.gamearena.api.model.team.InviteStatus;
+import hr.algebra.gamearena.api.model.team.TeamInvitationSave;
 import jakarta.persistence.*;
 import lombok.Getter;
 import org.hibernate.annotations.DynamicInsert;
@@ -8,6 +9,7 @@ import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 
 @Getter
 @Entity
@@ -38,4 +40,13 @@ public class TeamInvitationPostgres {
 
     @Column(name = "responded_at")
     private LocalDateTime respondedAt;
+
+    public TeamInvitationPostgres fromTeamInvitationSave(TeamInvitationSave save) {
+        this.teamId = save.getTeamId();
+        this.inviteeId = save.getInviteeId();
+        this.inviterId = save.getInviterId();
+        this.status = save.getStatus();
+        this.createdAt = LocalDateTime.now(ZoneId.of("UTC"));
+        return this;
+    }
 }

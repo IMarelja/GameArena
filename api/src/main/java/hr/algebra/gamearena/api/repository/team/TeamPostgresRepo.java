@@ -1,7 +1,6 @@
 package hr.algebra.gamearena.api.repository.team;
 
-import hr.algebra.gamearena.api.model.team.Team;
-import hr.algebra.gamearena.api.model.team.TeamSave;
+import hr.algebra.gamearena.api.model.team.*;
 import hr.algebra.gamearena.api.orm.postgres.TeamPostgres;
 import org.springframework.stereotype.Repository;
 
@@ -43,5 +42,45 @@ public class TeamPostgresRepo implements ITeamRepo{
         var teamPostgres = new TeamPostgres().fromTeamSave(team);
         var savedTeam = teamPostgresSQLRepo.save(teamPostgres);
         return Team.fromPostgresTeam(savedTeam);
+    }
+
+    @Override
+    public TeamInvitation save(TeamInvitationSave save) {
+        return null;
+    }
+
+    @Override
+    public Optional<TeamInvitation> update(Long id, TeamInvitationUpdate update) {
+        return Optional.empty();
+    }
+
+    @Override
+    public void deleteTeam(Long id) {
+
+    }
+
+    @Override
+    public boolean doesTeamExist(Long id) {
+        return false;
+    }
+
+    @Override
+    public boolean doesTeamInvitationExist(Team team) {
+        return false;
+    }
+
+    @Override
+    public boolean isUserIdPartOfTeam(Long userId, Long teamId) {
+        return false;
+    }
+
+    @Override
+    public boolean isUserAnInviteeOfInvitation(Long invitationId, Long userId) {
+        return false;
+    }
+
+    @Override
+    public boolean isUserAnInviterOfInvitation(Long invitationId, Long userId) {
+        return false;
     }
 }

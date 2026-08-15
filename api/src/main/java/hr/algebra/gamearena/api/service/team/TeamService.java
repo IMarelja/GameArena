@@ -2,6 +2,9 @@ package hr.algebra.gamearena.api.service.team;
 
 import hr.algebra.gamearena.api.dto.team.TeamCreateRequest;
 import hr.algebra.gamearena.api.dto.team.TeamMinimalView;
+import hr.algebra.gamearena.api.dto.team.invitation.TeamInvitationResponseEditRequest;
+import hr.algebra.gamearena.api.dto.team.invitation.InviterTeamInvitationEditRequest;
+import hr.algebra.gamearena.api.dto.team.invitation.TeamInvitationView;
 import hr.algebra.gamearena.api.exceptions.extenders.NotFoundException;
 import hr.algebra.gamearena.api.model.team.TeamSave;
 import hr.algebra.gamearena.api.repository.team.ITeamRepo;
@@ -47,5 +50,35 @@ public class TeamService implements ITeamService {
 
         var savedTeam = teamRepo.save(teamSave);
         return TeamMinimalView.fromTeam(savedTeam, teamRepo.memberCountInATeam(savedTeam.id()));
+    }
+
+    @Override
+    public TeamInvitationView createInvitationAndPushNotification(Long inviterId, Long teamId, Long userId) {
+        return null;
+    }
+
+    @Override
+    public TeamInvitationView respondInvitationAndPushNotification(Long invitationId, TeamInvitationResponseEditRequest request) {
+        return null;
+    }
+
+    @Override
+    public TeamInvitationView updateInvitationAndPushNotification(Long invitationId, InviterTeamInvitationEditRequest request) {
+        return null;
+    }
+
+    @Override
+    public boolean isUserIdPartOfTeam(Long userId, Long teamId) {
+        return false;
+    }
+
+    @Override
+    public boolean isUserAnInviteeOfInvitation(Long invitationId, Long userId) {
+        return false;
+    }
+
+    @Override
+    public boolean isUserAnInviterOfInvitation(Long invitationId, Long userId) {
+        return false;
     }
 }
