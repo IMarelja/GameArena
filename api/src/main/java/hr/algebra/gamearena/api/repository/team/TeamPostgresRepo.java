@@ -94,7 +94,7 @@ public class TeamPostgresRepo implements ITeamRepo{
     }
 
     @Override
-    public boolean doesTeamInvitationExist(Long teamId, Long inviteeId) {
+    public boolean doesPendingTeamInvitationExist(Long teamId, Long inviteeId) {
         return teamInvitationPostgresSQLRepo.existsByTeamIdAndInviteeIdAndStatus(teamId, inviteeId, InviteStatus.PENDING);
     }
 

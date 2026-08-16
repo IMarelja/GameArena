@@ -17,7 +17,7 @@ public interface ITeamRepo {
     void deleteMember(Long teamId, Long userId);
     void deleteTeam(Long id);
     boolean doesTeamExist(Long id);
-    boolean doesTeamInvitationExist(Long teamId, Long inviteeId);
+    boolean doesPendingTeamInvitationExist(Long teamId, Long inviteeId);
     boolean isUserIdPartOfTeam(Long userId, Long teamId);
     boolean isUserAnInviteeOfInvitation(Long invitationId, Long userId);
     boolean isUserAnInviterOfInvitation(Long invitationId, Long userId);

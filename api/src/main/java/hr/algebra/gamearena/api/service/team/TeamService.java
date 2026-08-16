@@ -104,7 +104,7 @@ public class TeamService implements ITeamService {
             throw new ConflictException("User is already part of this team");
         }
 
-        if (teamRepo.doesTeamInvitationExist(teamId, userId)) {
+        if (teamRepo.doesPendingTeamInvitationExist(teamId, userId)) {
             throw new ConflictException("User has already received an invitation for this team");
         }
 
