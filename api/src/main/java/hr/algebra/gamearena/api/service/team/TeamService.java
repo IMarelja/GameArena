@@ -186,22 +186,36 @@ public class TeamService implements ITeamService {
         var team = teamRepo.getTeamById(teamId)
                 .orElseThrow(() -> new NotFoundException(teamNotFoundByIdOutput(teamId)));
 
-        boolean isSelfRemoval = callerId.equals(userId);
         boolean isCaptain = team.captain_id().equals(callerId);
 
-        if (!isSelfRemoval && !isCaptain) {
+        if (!isCaptain)
             throw new ForbiddenAccessException("Only the team captain can remove other members");
-        }
 
-        if (team.captain_id().equals(userId)) {
-            throw new InvalidVariableException("The team captain can't be removed from the team");
-        }
+        boolean isSelf = callerId.equals(userId);
 
-        if (!teamRepo.isUserIdPartOfTeam(userId, teamId)) {
+        if(isSelf)
+            throw new InvalidVariableException("You can not remove self, you are the captain");
+
+        if (!teamRepo.isUserIdPartOfTeam(userId, teamId))
             throw new NotFoundException("User is not part of this team");
-        }
 
         teamRepo.deleteMember(teamId, userId);
+    }
+
+    @Override
+    public void leaveTeam(Long callerId, Long teamId) {
+        var team = teamRepo.getTeamById(teamId)
+                .orElseThrow(() -> new NotFoundException(teamNotFoundByIdOutput(teamId)));
+
+        if (!teamRepo.isUserIdPartOfTeam(callerId, teamId))
+            throw new NotFoundException("You are not part of this team");
+
+        boolean isCaptain = team.captain_id().equals(callerId);
+
+        if (isCaptain)
+            throw new ForbiddenAccessException("You can not leave your team, you are the captain. Remove the team and end everyone");
+
+        teamRepo.deleteMember(teamId, callerId);
     }
 
     private void pushInvitationNotification(NotificationType type, Long recipientUserId, Long invitationId) {

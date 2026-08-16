@@ -80,6 +80,18 @@ public class TeamController {
         return ResponseEntity.status(HttpStatus.NO_CONTENT).body(ApiResponse.success(null));
     }
 
+    @PreAuthorize("isAuthenticated()")
+    @DeleteMapping("/{teamId}/leave")
+    public ResponseEntity<ApiResponse<Void>> leaveTeam(
+            @AuthenticationPrincipal JwtTokenClaim claim,
+            @PathVariable Long teamId
+    ){
+        teamService.leaveTeam(claim.userId(), teamId);
+
+        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(null));
+    }
+
+
     // Team Invitation
 
     @PreAuthorize("isAuthenticated()")

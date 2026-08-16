@@ -5,6 +5,7 @@ import hr.algebra.gamearena.api.orm.postgres.TeamInvitationPostgres;
 import hr.algebra.gamearena.api.orm.postgres.TeamMemberPostgres;
 import hr.algebra.gamearena.api.orm.postgres.TeamPostgres;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -79,6 +80,7 @@ public class TeamPostgresRepo implements ITeamRepo{
     }
 
     @Override
+    @Transactional
     public void deleteMember(Long teamId, Long userId) {
         teamMemberPostgresSQLRepo.deleteByTeamIdAndUserId(teamId, userId);
     }
