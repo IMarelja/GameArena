@@ -24,4 +24,5 @@ public interface ITeamService {
     // Team member
     void removeTeamMember(Long callerId, Long teamId, Long userId);
     void leaveTeam(Long callerId, Long teamId);
+    boolean isUserPartOfTeam(Long callerId, Long teamId);
 }

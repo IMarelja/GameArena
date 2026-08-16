@@ -69,6 +69,16 @@ public class TeamController {
     // Team Member
 
     @PreAuthorize("isAuthenticated()")
+    @GetMapping("/{teamId}/member/me")
+    public ResponseEntity<ApiResponse<Boolean>> isCallerPartOfTeam(
+            @AuthenticationPrincipal JwtTokenClaim caller,
+            @PathVariable Long teamId
+    ){
+        return ResponseEntity.ok(ApiResponse.success(teamService.isUserPartOfTeam(caller.userId(), teamId)));
+    }
+
+
+    @PreAuthorize("isAuthenticated()")
     @DeleteMapping("/{teamId}/user/{userId}")
     public ResponseEntity<ApiResponse<Void>> removeTeamMember(
             @AuthenticationPrincipal JwtTokenClaim caller,
@@ -90,7 +100,6 @@ public class TeamController {
 
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(null));
     }
-
 
     // Team Invitation
 

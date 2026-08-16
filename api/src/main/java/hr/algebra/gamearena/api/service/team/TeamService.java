@@ -218,6 +218,15 @@ public class TeamService implements ITeamService {
         teamRepo.deleteMember(teamId, callerId);
     }
 
+    @Override
+    public boolean isUserPartOfTeam(Long callerId, Long teamId) {
+        if (!teamRepo.doesTeamExist(teamId)) {
+            throw new NotFoundException(teamNotFoundByIdOutput(teamId));
+        }
+
+        return teamRepo.isUserIdPartOfTeam(callerId, teamId);
+    }
+
     private void pushInvitationNotification(NotificationType type, Long recipientUserId, Long invitationId) {
         notificationService.createAndPush(new NotificationCreateRequest(
                 type,
