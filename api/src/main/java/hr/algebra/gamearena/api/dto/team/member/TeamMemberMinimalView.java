@@ -5,7 +5,7 @@ import hr.algebra.gamearena.api.model.team.TeamMember;
 import hr.algebra.gamearena.api.model.user.User;
 
 public record TeamMemberMinimalView(
-        Long id,
+        Long memberId,
         Long userId,
         String username,
         Boolean isTeamCaptain

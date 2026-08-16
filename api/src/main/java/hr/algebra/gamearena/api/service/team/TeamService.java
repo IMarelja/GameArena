@@ -6,6 +6,7 @@ import hr.algebra.gamearena.api.dto.team.TeamMinimalView;
 import hr.algebra.gamearena.api.dto.team.invitation.TeamInvitationResponseEditRequest;
 import hr.algebra.gamearena.api.dto.team.invitation.InviterTeamInvitationEditRequest;
 import hr.algebra.gamearena.api.dto.team.invitation.TeamInvitationView;
+import hr.algebra.gamearena.api.dto.team.member.TeamMemberMinimalView;
 import hr.algebra.gamearena.api.exceptions.extenders.ConflictException;
 import hr.algebra.gamearena.api.exceptions.extenders.ForbiddenAccessException;
 import hr.algebra.gamearena.api.exceptions.extenders.InvalidVariableException;
@@ -19,6 +20,7 @@ import hr.algebra.gamearena.api.model.team.TeamInvitationUpdate;
 import hr.algebra.gamearena.api.model.team.TeamMemberSave;
 import hr.algebra.gamearena.api.model.team.TeamSave;
 import hr.algebra.gamearena.api.repository.team.ITeamRepo;
+import hr.algebra.gamearena.api.repository.user.IUserRepo;
 import hr.algebra.gamearena.api.service.notification.INotificationService;
 import org.springframework.stereotype.Service;
 
@@ -30,6 +32,7 @@ public class TeamService implements ITeamService {
 
     private final ITeamRepo teamRepo;
     private final INotificationService notificationService;
+    private final IUserRepo userRepo;
 
     private String teamNotFoundByIdOutput(Long id) {
         return "Team not found with id: " + id;
@@ -39,9 +42,10 @@ public class TeamService implements ITeamService {
         return "Team invitation not found with id: " + id;
     }
 
-    public TeamService(ITeamRepo teamRepo, INotificationService notificationService) {
+    public TeamService(ITeamRepo teamRepo, INotificationService notificationService, IUserRepo userRepo) {
         this.teamRepo = teamRepo;
         this.notificationService = notificationService;
+        this.userRepo = userRepo;
     }
 
     // Team
@@ -180,6 +184,22 @@ public class TeamService implements ITeamService {
     }
 
     // Team Member
+
+    @Override
+    public List<TeamMemberMinimalView> getTeamMembers(Long teamId) {
+        var team = teamRepo.getTeamById(teamId)
+                .orElseThrow(() -> new NotFoundException(teamNotFoundByIdOutput(teamId)));
+
+        return teamRepo.getTeamMembers(teamId)
+                .stream()
+                .map(member -> {
+                    var user = userRepo.findById(member.userId())
+                            .orElseThrow(() -> new NotFoundException("User not found with id: " + member.userId()));
+
+                    return TeamMemberMinimalView.fromTeamTeamMemberAndUser(team, member, user);
+                })
+                .toList();
+    }
 
     @Override
     public void removeTeamMember(Long callerId, Long teamId, Long userId) {

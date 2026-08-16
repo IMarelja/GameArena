@@ -7,6 +7,7 @@ import hr.algebra.gamearena.api.dto.team.TeamMinimalView;
 import hr.algebra.gamearena.api.dto.team.invitation.TeamInvitationResponseEditRequest;
 import hr.algebra.gamearena.api.dto.team.invitation.InviterTeamInvitationEditRequest;
 import hr.algebra.gamearena.api.dto.team.invitation.TeamInvitationView;
+import hr.algebra.gamearena.api.dto.team.member.TeamMemberMinimalView;
 import hr.algebra.gamearena.api.exceptions.extenders.NotFoundException;
 import hr.algebra.gamearena.api.service.team.ITeamService;
 import jakarta.validation.Valid;
@@ -75,6 +76,12 @@ public class TeamController {
             @PathVariable Long teamId
     ){
         return ResponseEntity.ok(ApiResponse.success(teamService.isUserPartOfTeam(caller.userId(), teamId)));
+    }
+
+    @PreAuthorize("permitAll()")
+    @GetMapping("/{teamId}/members")
+    public ResponseEntity<ApiResponse<List<TeamMemberMinimalView>>> getTeamMembers(@PathVariable Long teamId){
+        return ResponseEntity.ok(ApiResponse.success(teamService.getTeamMembers(teamId)));
     }
 
 

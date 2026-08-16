@@ -86,6 +86,14 @@ public class TeamPostgresRepo implements ITeamRepo{
     }
 
     @Override
+    public List<TeamMember> getTeamMembers(Long teamId) {
+        return teamMemberPostgresSQLRepo.findByTeamId(teamId)
+                .stream()
+                .map(TeamMember::fromTeamMemberPostgres)
+                .toList();
+    }
+
+    @Override
     public void deleteTeam(Long id) {
         teamPostgresSQLRepo.deleteById(id);
     }

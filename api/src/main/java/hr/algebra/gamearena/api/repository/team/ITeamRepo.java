@@ -15,6 +15,7 @@ public interface ITeamRepo {
     Optional<TeamInvitation> update(Long id, TeamInvitationUpdate update);
     void addMember(TeamMemberSave save);
     void deleteMember(Long teamId, Long userId);
+    List<TeamMember> getTeamMembers(Long teamId);
     void deleteTeam(Long id);
     boolean doesTeamExist(Long id);
     boolean doesPendingTeamInvitationExist(Long teamId, Long inviteeId);
