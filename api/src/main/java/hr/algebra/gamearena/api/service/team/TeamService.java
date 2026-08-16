@@ -116,7 +116,7 @@ public class TeamService implements ITeamService {
 
         var invitation = teamRepo.save(invitationSave);
 
-        pushInvitationNotification(invitation.inviteeId(), invitation.id());
+        pushInvitationNotification(NotificationType.TEAM_INVITATION, invitation.inviteeId(), invitation.id());
 
         return TeamInvitationView.fromTeamInvitation(invitation);
     }
@@ -143,12 +143,13 @@ public class TeamService implements ITeamService {
 
         if (updated.status() == InviteStatus.ACCEPTED) {
             var memberSave = new TeamMemberSave();
+
             memberSave.setTeamId(updated.teamId());
             memberSave.setUserId(updated.inviteeId());
             teamRepo.addMember(memberSave);
         }
 
-        pushInvitationNotification(updated.inviterId(), updated.id());
+        pushInvitationNotification(NotificationType.TEAM_INVITATION_RESPONSE, updated.inviterId(), updated.id());
 
         return TeamInvitationView.fromTeamInvitation(updated);
     }
@@ -173,7 +174,7 @@ public class TeamService implements ITeamService {
         var updated = teamRepo.update(invitationId, update)
                 .orElseThrow(() -> new NotFoundException(invitationNotFoundByIdOutput(invitationId)));
 
-        pushInvitationNotification(updated.inviteeId(), updated.id());
+        pushInvitationNotification(NotificationType.TEAM_INVITATION_UPDATE, updated.inviteeId(), updated.id());
 
         return TeamInvitationView.fromTeamInvitation(updated);
     }
@@ -203,9 +204,9 @@ public class TeamService implements ITeamService {
         teamRepo.deleteMember(teamId, userId);
     }
 
-    private void pushInvitationNotification(Long recipientUserId, Long invitationId) {
+    private void pushInvitationNotification(NotificationType type, Long recipientUserId, Long invitationId) {
         notificationService.createAndPush(new NotificationCreateRequest(
-                NotificationType.TEAM_INVITATION,
+                type,
                 recipientUserId,
                 invitationId,
                 ReferenceType.TEAM_INVITATION));
