@@ -1,6 +1,8 @@
 package hr.algebra.gamearena.api.repository.team;
 
 import hr.algebra.gamearena.api.model.team.*;
+import hr.algebra.gamearena.api.orm.postgres.TeamInvitationPostgres;
+import hr.algebra.gamearena.api.orm.postgres.TeamMemberPostgres;
 import hr.algebra.gamearena.api.orm.postgres.TeamPostgres;
 import org.springframework.stereotype.Repository;
 
@@ -12,10 +14,16 @@ public class TeamPostgresRepo implements ITeamRepo{
 
     private final ITeamPostgreSQLRepo teamPostgresSQLRepo;
     private final ITeamMemberPostgreSQLRepo teamMemberPostgresSQLRepo;
+    private final ITeamInvitationPostgreSQLRepo teamInvitationPostgresSQLRepo;
 
-    public TeamPostgresRepo(ITeamPostgreSQLRepo teamPostgresRepo, ITeamMemberPostgreSQLRepo teamMemberPostgresRepo) {
+    public TeamPostgresRepo(
+            ITeamPostgreSQLRepo teamPostgresRepo,
+            ITeamMemberPostgreSQLRepo teamMemberPostgresRepo,
+            ITeamInvitationPostgreSQLRepo teamInvitationPostgresRepo
+    ) {
         this.teamPostgresSQLRepo = teamPostgresRepo;
         this.teamMemberPostgresSQLRepo = teamMemberPostgresRepo;
+        this.teamInvitationPostgresSQLRepo = teamInvitationPostgresRepo;
     }
 
     @Override
@@ -46,41 +54,63 @@ public class TeamPostgresRepo implements ITeamRepo{
 
     @Override
     public TeamInvitation save(TeamInvitationSave save) {
-        return null;
+        var teamInvitationPostgres = new TeamInvitationPostgres().fromTeamInvitationSave(save);
+        var savedInvitation = teamInvitationPostgresSQLRepo.save(teamInvitationPostgres);
+        return TeamInvitation.fromTeamInvitationPostgres(savedInvitation);
+    }
+
+    @Override
+    public Optional<TeamInvitation> getInvitationById(Long id) {
+        return teamInvitationPostgresSQLRepo.findById(id)
+                .map(TeamInvitation::fromTeamInvitationPostgres);
     }
 
     @Override
     public Optional<TeamInvitation> update(Long id, TeamInvitationUpdate update) {
-        return Optional.empty();
+        return teamInvitationPostgresSQLRepo.findById(id)
+                .map(invitation -> invitation.fromTeamInvitationUpdate(update))
+                .map(teamInvitationPostgresSQLRepo::save)
+                .map(TeamInvitation::fromTeamInvitationPostgres);
+    }
+
+    @Override
+    public void addMember(TeamMemberSave save) {
+        teamMemberPostgresSQLRepo.save(new TeamMemberPostgres().fromTeamMemberSave(save));
+    }
+
+    @Override
+    public void deleteMember(Long teamId, Long userId) {
+        teamMemberPostgresSQLRepo.deleteByTeamIdAndUserId(teamId, userId);
     }
 
     @Override
     public void deleteTeam(Long id) {
-
+        teamPostgresSQLRepo.deleteById(id);
     }
 
     @Override
     public boolean doesTeamExist(Long id) {
-        return false;
+        return teamPostgresSQLRepo.existsById(id);
     }
 
     @Override
-    public boolean doesTeamInvitationExist(Team team) {
-        return false;
+    public boolean doesTeamInvitationExist(Long teamId, Long inviteeId) {
+        return teamInvitationPostgresSQLRepo.existsByTeamIdAndInviteeIdAndStatus(teamId, inviteeId, InviteStatus.PENDING);
     }
 
     @Override
     public boolean isUserIdPartOfTeam(Long userId, Long teamId) {
-        return false;
+        return teamPostgresSQLRepo.existsByIdAndCaptainId(teamId, userId)
+                || teamMemberPostgresSQLRepo.existsByTeamIdAndUserId(teamId, userId);
     }
 
     @Override
     public boolean isUserAnInviteeOfInvitation(Long invitationId, Long userId) {
-        return false;
+        return teamInvitationPostgresSQLRepo.existsByInvitationIdAndInviteeId(invitationId, userId);
     }
 
     @Override
     public boolean isUserAnInviterOfInvitation(Long invitationId, Long userId) {
-        return false;
+        return teamInvitationPostgresSQLRepo.existsByInvitationIdAndInviterId(invitationId, userId);
     }
 }

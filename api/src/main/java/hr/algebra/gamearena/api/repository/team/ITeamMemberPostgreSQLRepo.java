@@ -5,4 +5,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface ITeamMemberPostgreSQLRepo extends JpaRepository<TeamMemberPostgres, Long> {
     long countByTeamId(Long teamId);
+    boolean existsByTeamIdAndUserId(Long teamId, Long userId);
+    void deleteByTeamIdAndUserId(Long teamId, Long userId);
 }

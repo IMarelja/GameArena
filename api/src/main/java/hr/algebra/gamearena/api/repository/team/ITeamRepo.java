@@ -11,10 +11,13 @@ public interface ITeamRepo {
     Long memberCountInATeam(Long teamId);
     Team save(TeamSave team);
     TeamInvitation save(TeamInvitationSave save);
+    Optional<TeamInvitation> getInvitationById(Long id);
     Optional<TeamInvitation> update(Long id, TeamInvitationUpdate update);
+    void addMember(TeamMemberSave save);
+    void deleteMember(Long teamId, Long userId);
     void deleteTeam(Long id);
     boolean doesTeamExist(Long id);
-    boolean doesTeamInvitationExist(Team team);
+    boolean doesTeamInvitationExist(Long teamId, Long inviteeId);
     boolean isUserIdPartOfTeam(Long userId, Long teamId);
     boolean isUserAnInviteeOfInvitation(Long invitationId, Long userId);
     boolean isUserAnInviterOfInvitation(Long invitationId, Long userId);

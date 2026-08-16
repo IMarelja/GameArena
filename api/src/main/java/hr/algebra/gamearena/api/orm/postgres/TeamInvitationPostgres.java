@@ -2,6 +2,7 @@ package hr.algebra.gamearena.api.orm.postgres;
 
 import hr.algebra.gamearena.api.model.team.InviteStatus;
 import hr.algebra.gamearena.api.model.team.TeamInvitationSave;
+import hr.algebra.gamearena.api.model.team.TeamInvitationUpdate;
 import jakarta.persistence.*;
 import lombok.Getter;
 import org.hibernate.annotations.DynamicInsert;
@@ -47,6 +48,13 @@ public class TeamInvitationPostgres {
         this.inviterId = save.getInviterId();
         this.status = save.getStatus();
         this.createdAt = LocalDateTime.now(ZoneId.of("UTC"));
+        this.respondedAt = null;
+        return this;
+    }
+
+    public TeamInvitationPostgres fromTeamInvitationUpdate(TeamInvitationUpdate update) {
+        this.status = update.getStatus();
+        this.respondedAt = LocalDateTime.now(ZoneId.of("UTC"));
         return this;
     }
 }

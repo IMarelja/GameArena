@@ -1,7 +1,6 @@
 package hr.algebra.gamearena.api.controller.rest;
 
 import hr.algebra.gamearena.api.dto.jwt.JwtTokenClaim;
-import hr.algebra.gamearena.api.dto.other.ApiError;
 import hr.algebra.gamearena.api.dto.other.ApiResponse;
 import hr.algebra.gamearena.api.dto.team.TeamCreateRequest;
 import hr.algebra.gamearena.api.dto.team.TeamMinimalView;
@@ -28,6 +27,8 @@ public class TeamController {
     public TeamController(ITeamService teamService) {
         this.teamService = teamService;
     }
+
+    // Team
 
     @PreAuthorize("permitAll()")
     @GetMapping
@@ -62,10 +63,35 @@ public class TeamController {
             @PathVariable Long teamId,
             @PathVariable Long userId
     ){
-        if(!teamService.isUserIdPartOfTeam(teamId, caller.userId()))
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ApiResponse.error(new ApiError("You need to be part of the team to send invitation to that team")));
-
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(teamService.createInvitationAndPushNotification(caller.userId(), teamId, userId)));
+    }
+
+    // Team Member
+
+    @PreAuthorize("isAuthenticated()")
+    @DeleteMapping("/{teamId}/user/{userId}")
+    public ResponseEntity<ApiResponse<Void>> removeTeamMember(
+            @AuthenticationPrincipal JwtTokenClaim caller,
+            @PathVariable Long teamId,
+            @PathVariable Long userId
+    ){
+        teamService.removeTeamMember(caller.userId(), teamId, userId);
+
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(ApiResponse.success(null));
+    }
+
+    // Team Invitation
+
+    @PreAuthorize("isAuthenticated()")
+    @GetMapping("/invitation/{id}")
+    public ResponseEntity<ApiResponse<TeamInvitationView>> getInvitationById(
+            @AuthenticationPrincipal JwtTokenClaim caller,
+            @PathVariable Long id
+    ){
+        var invitation = teamService.getInvitationById(caller.userId(), id);
+
+        return invitation.map(view -> ResponseEntity.ok(ApiResponse.success(view)))
+                .orElseThrow(() -> new NotFoundException("Team invitation not found with id: " + id));
     }
 
     @PreAuthorize("isAuthenticated()")
@@ -75,11 +101,8 @@ public class TeamController {
             @PathVariable Long id,
             @Valid @RequestBody TeamInvitationResponseEditRequest invitedRequest
     ){
-        // Only invited can update
-        if(!teamService.isUserAnInviterOfInvitation(id, caller.userId()))
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ApiResponse.error(new ApiError("Only the inviter can update this request")));
-
-        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(teamService.respondInvitationAndPushNotification(id, invitedRequest)));
+        // Only the invited user
+        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(teamService.respondInvitationAndPushNotification(id, caller.userId(), invitedRequest)));
     }
 
     @PreAuthorize("isAuthenticated()")
@@ -89,12 +112,7 @@ public class TeamController {
             @PathVariable Long id,
             @Valid @RequestBody InviterTeamInvitationEditRequest inviterRequest
     ){
-        // Only inviter can update
-        if(!teamService.isUserAnInviteeOfInvitation(id, caller.userId()))
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ApiResponse.error(new ApiError("Only the invitee can update this request")));
-
-        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(teamService.updateInvitationAndPushNotification(id, inviterRequest)));
+        // Only the inviter
+        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(teamService.updateInvitationAndPushNotification(id, caller.userId(), inviterRequest)));
     }
-
-
 }

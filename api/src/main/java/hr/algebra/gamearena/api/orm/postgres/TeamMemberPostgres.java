@@ -1,10 +1,12 @@
 package hr.algebra.gamearena.api.orm.postgres;
 
+import hr.algebra.gamearena.api.model.team.TeamMemberSave;
 import jakarta.persistence.*;
 import lombok.Getter;
 import org.hibernate.annotations.DynamicInsert;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 
 @Getter
 @Entity
@@ -24,4 +26,11 @@ public class TeamMemberPostgres {
 
     @Column(name = "joined_at", nullable = false)
     private LocalDateTime joinedAt;
+
+    public TeamMemberPostgres fromTeamMemberSave(TeamMemberSave save) {
+        this.teamId = save.getTeamId();
+        this.userId = save.getUserId();
+        this.joinedAt = LocalDateTime.now(ZoneId.of("UTC"));
+        return this;
+    }
 }
