@@ -8,6 +8,7 @@ public record TeamMember (
     Long id,
     Long teamId,
     Long userId,
+    TeamMemberRole role,
     LocalDateTime joinedAt
 ){
     public static TeamMember fromTeamMemberPostgres(TeamMemberPostgres teamMemberPostgres){
@@ -15,6 +16,7 @@ public record TeamMember (
                 teamMemberPostgres.getTeamMemberId(),
                 teamMemberPostgres.getTeamId(),
                 teamMemberPostgres.getUserId(),
+                teamMemberPostgres.getRole(),
                 teamMemberPostgres.getJoinedAt()
         );
     }

@@ -11,5 +11,4 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 
 public interface ITeamPostgreSQLRepo extends JpaRepository<TeamPostgres, Long> {
-    boolean existsByIdAndCaptainId(Long id, Long captainId);
 }

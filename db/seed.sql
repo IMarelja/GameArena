@@ -122,18 +122,17 @@ BEGIN
 	-- 👥 TEAM
 	-- ----------
 	-- Team: The Legion (captain: ivan_m)
-	INSERT INTO teams (name, game_id, captain_id, created_at)
+	INSERT INTO teams (name, game_id, created_at)
 	VALUES ('The Legion',
 		smbm_id,
-		ivan_m_id,
 		CURRENT_TIMESTAMP - INTERVAL '10 days')
 	RETURNING id INTO legion_team_id;
 
-	INSERT INTO team_members (team_id, user_id, joined_at) VALUES
-		(legion_team_id, ivan_m_id, CURRENT_TIMESTAMP - INTERVAL '10 days'),
-		(legion_team_id, nikolina_id, CURRENT_TIMESTAMP - INTERVAL '8 days'),
-		(legion_team_id, mvidovic_id, CURRENT_TIMESTAMP - INTERVAL '8 days'),
-		(legion_team_id, domagoj_id, CURRENT_TIMESTAMP - INTERVAL '3 days');
+	INSERT INTO team_members (team_id, user_id, role, joined_at) VALUES
+		(legion_team_id, ivan_m_id, 'CAPTAIN', CURRENT_TIMESTAMP - INTERVAL '10 days'),
+		(legion_team_id, nikolina_id, 'REGULAR', CURRENT_TIMESTAMP - INTERVAL '8 days'),
+		(legion_team_id, mvidovic_id, 'REGULAR', CURRENT_TIMESTAMP - INTERVAL '8 days'),
+		(legion_team_id, domagoj_id, 'REGULAR', CURRENT_TIMESTAMP - INTERVAL '3 days');
 		
 		
 END $$;

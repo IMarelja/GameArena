@@ -20,6 +20,7 @@ public interface ITeamRepo {
     boolean doesTeamExist(Long id);
     boolean doesPendingTeamInvitationExist(Long teamId, Long inviteeId);
     boolean isUserIdPartOfTeam(Long userId, Long teamId);
+    boolean isUserTeamCaptain(Long userId, Long teamId);
     boolean isUserAnInviteeOfInvitation(Long invitationId, Long userId);
     boolean isUserAnInviterOfInvitation(Long invitationId, Long userId);
 }

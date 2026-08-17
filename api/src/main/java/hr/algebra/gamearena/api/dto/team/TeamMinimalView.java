@@ -8,7 +8,6 @@ public record TeamMinimalView(
         Long id,
         String name,
         Long gameId,
-        Long captainId,
         LocalDateTime createdAt,
         Long memberCount
 ) {
@@ -17,7 +16,6 @@ public record TeamMinimalView(
                 team.id(),
                 team.name(),
                 team.game_id(),
-                team.captain_id(),
                 team.created_at(),
                 memberCount
         );

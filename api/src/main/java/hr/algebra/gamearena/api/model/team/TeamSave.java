@@ -7,6 +7,5 @@ import lombok.Setter;
 @Setter
 public class TeamSave {
     private String name;
-    private Long captainId;
     private Long gameId;
 }

@@ -8,4 +8,5 @@ import lombok.Setter;
 public class TeamMemberSave {
     private Long teamId;
     private Long userId;
+    private TeamMemberRole role;
 }

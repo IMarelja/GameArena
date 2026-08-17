@@ -24,15 +24,11 @@ public class TeamPostgres {
     @Column(name = "game_id", nullable = false)
     private Long gameId;
 
-    @Column(name = "captain_id", nullable = false)
-    private Long captainId;
-
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
     public TeamPostgres fromTeamSave(TeamSave teamSave) {
         this.name = teamSave.getName();
-        this.captainId = teamSave.getCaptainId();
         this.gameId = teamSave.getGameId();
         this.createdAt = LocalDateTime.now(ZoneId.of("UTC"));
         return this;

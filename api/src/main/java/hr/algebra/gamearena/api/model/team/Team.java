@@ -8,7 +8,6 @@ public record Team(
         Long id,
         String name,
         Long game_id,
-        Long captain_id,
         LocalDateTime created_at
 ) {
     public static Team fromPostgresTeam(TeamPostgres teamPostgres) {
@@ -16,7 +15,6 @@ public record Team(
                 teamPostgres.getId(),
                 teamPostgres.getName(),
                 teamPostgres.getGameId(),
-                teamPostgres.getCaptainId(),
                 teamPostgres.getCreatedAt()
         );
     }

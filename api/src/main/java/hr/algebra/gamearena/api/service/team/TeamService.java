@@ -17,6 +17,7 @@ import hr.algebra.gamearena.api.model.team.InviteStatus;
 import hr.algebra.gamearena.api.model.team.TeamInvitation;
 import hr.algebra.gamearena.api.model.team.TeamInvitationSave;
 import hr.algebra.gamearena.api.model.team.TeamInvitationUpdate;
+import hr.algebra.gamearena.api.model.team.TeamMemberRole;
 import hr.algebra.gamearena.api.model.team.TeamMemberSave;
 import hr.algebra.gamearena.api.model.team.TeamSave;
 import hr.algebra.gamearena.api.repository.team.ITeamRepo;
@@ -70,9 +71,15 @@ public class TeamService implements ITeamService {
         var teamSave = new TeamSave();
         teamSave.setName(team.getName());
         teamSave.setGameId(team.getGameId());
-        teamSave.setCaptainId(userId);
 
         var savedTeam = teamRepo.save(teamSave);
+
+        var captainSave = new TeamMemberSave();
+        captainSave.setTeamId(savedTeam.id());
+        captainSave.setUserId(userId);
+        captainSave.setRole(TeamMemberRole.CAPTAIN);
+        teamRepo.addMember(captainSave);
+
         return TeamMinimalView.fromTeam(savedTeam, teamRepo.memberCountInATeam(savedTeam.id()));
     }
 
@@ -150,6 +157,7 @@ public class TeamService implements ITeamService {
 
             memberSave.setTeamId(updated.teamId());
             memberSave.setUserId(updated.inviteeId());
+            memberSave.setRole(TeamMemberRole.REGULAR);
             teamRepo.addMember(memberSave);
         }
 
@@ -187,8 +195,9 @@ public class TeamService implements ITeamService {
 
     @Override
     public List<TeamMemberMinimalView> getTeamMembers(Long teamId) {
-        var team = teamRepo.getTeamById(teamId)
-                .orElseThrow(() -> new NotFoundException(teamNotFoundByIdOutput(teamId)));
+        if (!teamRepo.doesTeamExist(teamId)) {
+            throw new NotFoundException(teamNotFoundByIdOutput(teamId));
+        }
 
         return teamRepo.getTeamMembers(teamId)
                 .stream()
@@ -196,17 +205,17 @@ public class TeamService implements ITeamService {
                     var user = userRepo.findById(member.userId())
                             .orElseThrow(() -> new NotFoundException("User not found with id: " + member.userId()));
 
-                    return TeamMemberMinimalView.fromTeamTeamMemberAndUser(team, member, user);
+                    return TeamMemberMinimalView.fromTeamMemberAndUser(member, user);
                 })
                 .toList();
     }
 
     @Override
     public void removeTeamMember(Long callerId, Long teamId, Long userId) {
-        var team = teamRepo.getTeamById(teamId)
-                .orElseThrow(() -> new NotFoundException(teamNotFoundByIdOutput(teamId)));
+        if (!teamRepo.doesTeamExist(teamId))
+            throw new NotFoundException(teamNotFoundByIdOutput(teamId));
 
-        boolean isCaptain = team.captain_id().equals(callerId);
+        boolean isCaptain = teamRepo.isUserTeamCaptain(callerId, teamId);
 
         if (!isCaptain)
             throw new ForbiddenAccessException("Only the team captain can remove other members");
@@ -224,13 +233,13 @@ public class TeamService implements ITeamService {
 
     @Override
     public void leaveTeam(Long callerId, Long teamId) {
-        var team = teamRepo.getTeamById(teamId)
-                .orElseThrow(() -> new NotFoundException(teamNotFoundByIdOutput(teamId)));
+        if (!teamRepo.doesTeamExist(teamId))
+            throw new NotFoundException(teamNotFoundByIdOutput(teamId));
 
         if (!teamRepo.isUserIdPartOfTeam(callerId, teamId))
             throw new NotFoundException("You are not part of this team");
 
-        boolean isCaptain = team.captain_id().equals(callerId);
+        boolean isCaptain = teamRepo.isUserTeamCaptain(callerId, teamId);
 
         if (isCaptain)
             throw new ForbiddenAccessException("You can not leave your team, you are the captain. Remove the team and end everyone");
