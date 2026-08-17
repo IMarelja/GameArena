@@ -104,22 +104,30 @@ CREATE INDEX idx_login_logs_type ON login_logs (type);
 -- TOURNAMENT
 -- ---------------------------------------------------------------------
 
-CREATE TYPE tournament_status AS ENUM (
-	'SCHEDULED',
-	'LIVE',
-	'ENDED',
-	'CANCELED'
-);
+--CREATE TYPE tournament_status AS ENUM (
+--	'SCHEDULED',
+--	'LIVE',
+--	'ENDED',
+--	'CANCELED'
+--);
 
 CREATE TABLE tournaments (
 	id 		BIGINT 			GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
 	name 		VARCHAR(255) 		NOT NULL,
 	description 	TEXT,
 	game_id 	BIGINT 			NOT NULL REFERENCES games(id),
-	status 		tournament_status 	NOT NULL,
+	status 		VARCHAR(20)		NOT NULL, --tournament_status 	NOT NULL,
 	starts_at 	TIMESTAMP 		NOT NULL,
 	ends_at 	TIMESTAMP,
 	created_at 	TIMESTAMP 		NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE tournament_member (
+	id		BIGINT		GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+	tournament_id	BIGINT		NOT NULL REFERENCES tournaments(id),
+	user_id		BIGINT		NOT NULL REFERENCES users(id),
+	role		VARCHAR(20)	NOT NULL,
+	joined_at	TIMESTAMP	NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 -- ⚠️ Tournament participant table for later

@@ -1,11 +1,11 @@
 package hr.algebra.gamearena.api.orm.postgres;
 
+import hr.algebra.gamearena.api.model.tournament.TournamentSave;
 import hr.algebra.gamearena.api.model.tournament.TournamentStatus;
 import jakarta.persistence.*;
 import lombok.Getter;
 import org.hibernate.annotations.DynamicInsert;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.type.SqlTypes;
+import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
 
@@ -29,8 +29,7 @@ public class TournamentPostgres {
     private Long gameId;
 
     @Enumerated(EnumType.STRING)
-    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
-    @Column(name = "status", nullable = false, columnDefinition = "tournament_status")
+    @Column(name = "status", nullable = false, length = 20)
     private TournamentStatus status;
 
     @Column(name = "starts_at", nullable = false)
@@ -41,4 +40,16 @@ public class TournamentPostgres {
 
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
+
+    public TournamentPostgres fromTournamentSave(TournamentSave save) {
+        this.name = save.getName();
+        this.description = StringUtils.hasText(save.getDescription())
+                ? save.getDescription()
+                : null;
+        this.gameId = save.getGameId();
+        this.status = save.getStatus();
+        this.startsAt = save.getStartsAt();
+        this.endsAt = save.getEndsAt() != null ? save.getEndsAt() : null;
+        return this;
+    }
 }
