@@ -1,6 +1,7 @@
 package hr.algebra.gamearena.api.controller.rest;
 
 import hr.algebra.gamearena.api.dto.jwt.JwtTokenClaim;
+import hr.algebra.gamearena.api.dto.notification.NotificationFullView;
 import hr.algebra.gamearena.api.dto.notification.NotificationUnreadCountView;
 import hr.algebra.gamearena.api.dto.notification.NotificationCreateRequest;
 import hr.algebra.gamearena.api.dto.notification.NotificationEditRequest;
@@ -18,6 +19,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/notification")
@@ -41,6 +44,14 @@ public class NotificationController {
     public Flux<ServerSentEvent<NotificationUnreadCountView>> notificationCountStream(@AuthenticationPrincipal JwtTokenClaim caller){
         return notificationService.streamToUserUnreadCount(caller.userId())
                 .map(snapshot -> ServerSentEvent.builder(snapshot).event("unread-count").build());
+    }
+
+    @GetMapping(value = "/stream/all")
+    @PreAuthorize("isAuthenticated()")
+    public Flux<ServerSentEvent<List<NotificationMinimalView>>> notificationAllStream(@AuthenticationPrincipal JwtTokenClaim caller){
+        return notificationService.streamForUserAll(caller.userId())
+                .map(all -> all.stream().map(NotificationFullView::toMinimalView).toList())
+                .map(snapshot -> ServerSentEvent.builder(snapshot).event("all-notifications").build());
     }
 
     @PostMapping("/test/to/user/{id}")

@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 
 public record NotificationMinimalView(
     Long id,
-    NotificationType type,
+NotificationType type,
     Long referenceId,
     ReferenceType referenceType,
     Boolean read,
