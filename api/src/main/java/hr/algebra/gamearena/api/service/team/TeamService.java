@@ -67,6 +67,14 @@ public class TeamService implements ITeamService {
     }
 
     @Override
+    public List<TeamMinimalView> getTeamsForUser(Long userId) {
+        return teamRepo.getTeamsForUser(userId)
+                .stream()
+                .map(team -> TeamMinimalView.fromTeam(team, teamRepo.memberCountInATeam(team.id())))
+                .toList();
+    }
+
+    @Override
     public TeamMinimalView createTeamByUsersRequest(Long userId, TeamCreateRequest team) {
         var teamSave = new TeamSave();
         teamSave.setName(team.getName());

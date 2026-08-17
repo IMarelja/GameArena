@@ -11,7 +11,7 @@ import java.time.ZoneId;
 
 @Getter
 @Entity
-@Table(name = "team_members")
+@Table(name = "team_members", indexes = @Index(name = "idx_team_members_user_id", columnList = "user_id"))
 @DynamicInsert
 public class TeamMemberPostgres {
     @Id

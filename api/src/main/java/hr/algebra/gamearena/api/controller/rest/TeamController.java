@@ -48,6 +48,12 @@ public class TeamController {
         return ResponseEntity.ok(ApiResponse.success(createdTeam));
     }
 
+    @PreAuthorize("isAuthenticated()")
+    @GetMapping("/me")
+    public ResponseEntity<ApiResponse<List<TeamMinimalView>>> getTeamsForMe(@AuthenticationPrincipal JwtTokenClaim caller){
+        return ResponseEntity.ok(ApiResponse.success(teamService.getTeamsForUser(caller.userId())));
+    }
+
     @PreAuthorize("permitAll()")
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<TeamMinimalView>> getTeamById(@PathVariable Long id){

@@ -12,4 +12,5 @@ public interface ITeamMemberPostgreSQLRepo extends JpaRepository<TeamMemberPostg
     boolean existsByTeamIdAndUserIdAndRole(Long teamId, Long userId, TeamMemberRole role);
     void deleteByTeamIdAndUserId(Long teamId, Long userId);
     List<TeamMemberPostgres> findByTeamId(Long teamId);
+    List<TeamMemberPostgres> findByUserId(Long userId);
 }

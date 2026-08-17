@@ -42,6 +42,19 @@ public class TeamPostgresRepo implements ITeamRepo{
     }
 
     @Override
+    public List<Team> getTeamsForUser(Long userId) {
+        var teamIds = teamMemberPostgresSQLRepo.findByUserId(userId)
+                .stream()
+                .map(TeamMemberPostgres::getTeamId)
+                .toList();
+
+        return teamPostgresSQLRepo.findAllById(teamIds)
+                .stream()
+                .map(Team::fromPostgresTeam)
+                .toList();
+    }
+
+    @Override
     public Long memberCountInATeam(Long teamId) {
         return teamMemberPostgresSQLRepo.countByTeamId(teamId);
     }

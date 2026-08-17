@@ -8,6 +8,7 @@ import java.util.Optional;
 public interface ITeamRepo {
     List<Team> getAll();
     Optional<Team> getTeamById(Long id);
+    List<Team> getTeamsForUser(Long userId);
     Long memberCountInATeam(Long teamId);
     Team save(TeamSave team);
     TeamInvitation save(TeamInvitationSave save);

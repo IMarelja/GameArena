@@ -14,6 +14,7 @@ public interface ITeamService {
     // Team
     List<TeamMinimalView> getAll();
     Optional<TeamMinimalView> getTeamById(Long id);
+    List<TeamMinimalView> getTeamsForUser(Long userId);
     TeamMinimalView createTeamByUsersRequest(Long userId, TeamCreateRequest team);
 
     // Team invitation

@@ -51,6 +51,8 @@ CREATE TABLE team_members (
 	joined_at	TIMESTAMP	NOT NULL DEFAULT CURRENT_TIMESTAMP,
 	UNIQUE (team_id, user_id)
 );
+
+CREATE INDEX idx_team_members_user_id ON team_members (user_id);
  
 CREATE TYPE invite_status AS ENUM(
 	'PENDING',
