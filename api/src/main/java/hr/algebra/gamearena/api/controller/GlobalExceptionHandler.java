@@ -7,6 +7,7 @@ import hr.algebra.gamearena.api.exceptions.extenders.*;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -20,19 +21,12 @@ import java.util.List;
 @Slf4j
 public class GlobalExceptionHandler {
 
+    // GameArena custom API exceptions
+
     @ExceptionHandler(AccessDeniedException.class)
     public void handleAccessDeniedException(AccessDeniedException ex) throws AccessDeniedException {
         // For SecurityErrorHandler to handle if it is 401 or 403 error code
         throw ex;
-    }
-
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ApiResponse<Void>> handleMethodArgumentNotValidException(MethodArgumentNotValidException ex) {
-        List<ApiError> errors = ex.getBindingResult().getAllErrors().stream()
-                .map(error -> new ApiError(error.getDefaultMessage()))
-                .toList();
-
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ApiResponse.errors(errors));
     }
 
     @ExceptionHandler(HandlerMethodValidationException.class)
@@ -95,6 +89,19 @@ public class GlobalExceptionHandler {
         log.error("Undefined GameArenaApiException error: {}", ex.getMessage(), ex);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ApiResponse.error(new ApiError("Undefined GameArenaApiException error: " + ex.getMessage())));
     }
+
+    // Third party exceptions
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ApiResponse<Void>> handleMethodArgumentNotValidException(MethodArgumentNotValidException ex) {
+        List<ApiError> errors = ex.getBindingResult().getAllErrors().stream()
+                .map(error -> new ApiError(error.getDefaultMessage()))
+                .toList();
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ApiResponse.errors(errors));
+    }
+
+    // Generic exceptions
 
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<ApiResponse<Void>> handleException(RuntimeException ex) {
