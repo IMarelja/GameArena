@@ -5,7 +5,6 @@ import hr.algebra.gamearena.api.model.games.Games;
 import hr.algebra.gamearena.api.model.tournament.Tournament;
 import hr.algebra.gamearena.api.model.tournament.TournamentStatus;
 
-import javax.swing.*;
 import java.time.LocalDateTime;
 
 public record TournamentFullView(

@@ -1,6 +1,5 @@
 package hr.algebra.gamearena.api.dto.tournament.member;
 
-import hr.algebra.gamearena.api.model.tournament.Tournament;
 import hr.algebra.gamearena.api.model.tournament.member.TournamentMember;
 import hr.algebra.gamearena.api.model.tournament.member.TournamentMemberRole;
 

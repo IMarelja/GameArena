@@ -5,10 +5,12 @@ import hr.algebra.gamearena.api.dto.tournament.TournamentEditRequest;
 import hr.algebra.gamearena.api.dto.tournament.TournamentFullView;
 import hr.algebra.gamearena.api.dto.tournament.member.TournamentMemberView;
 import hr.algebra.gamearena.api.repository.tournament.ITournamentRepo;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 
+@Service
 public class TournamentService implements ITournamentService {
 
     private final ITournamentRepo tournamentRepo;
