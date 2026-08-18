@@ -47,11 +47,6 @@ public class TeamService implements ITeamService {
                 + "Assign someone else to be the Captain for this Team";
     }
 
-    private String onlyCaptainCannotDemoteSelfOutput() {
-        return "You are the only Captain in this Team, you can not demote yourself. "
-                + "Assign someone else to be the Captain for this Team";
-    }
-
     public TeamService(ITeamRepo teamRepo, INotificationService notificationService, IUserRepo userRepo) {
         this.teamRepo = teamRepo;
         this.notificationService = notificationService;
