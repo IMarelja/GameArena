@@ -16,6 +16,7 @@ public interface ITeamRepo {
     Optional<TeamInvitation> update(Long id, TeamInvitationUpdate update);
     void addMember(TeamMemberSave save);
     void deleteMember(Long teamId, Long userId);
+    void deleteTeamMember(Long teamMemberId);
     List<TeamMember> getTeamMembers(Long teamId);
     void deleteTeam(Long id);
     boolean doesTeamExist(Long id);
@@ -24,6 +25,7 @@ public interface ITeamRepo {
     boolean isUserTeamCaptain(Long userId, Long teamId);
     long countTeamMembersByRole(Long teamId, TeamMemberRole role);
     Optional<TeamMember> getTeamMember(Long teamId, Long userId);
+    Optional<TeamMember> getTeamMemberById(Long teamMemberId);
     boolean isUserAnInviteeOfInvitation(Long invitationId, Long userId);
     boolean isUserAnInviterOfInvitation(Long invitationId, Long userId);
 }

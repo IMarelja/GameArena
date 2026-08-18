@@ -228,7 +228,7 @@ public class TeamService implements ITeamService {
     }
 
     @Override
-    public void removeTeamMember(Long callerId, Long teamId, Long userId) {
+    public void removeTeamMember(Long callerId, Long teamId, Long teamMemberId) {
         if (!teamRepo.doesTeamExist(teamId))
             throw new NotFoundException(teamNotFoundByIdOutput(teamId));
 
@@ -237,15 +237,18 @@ public class TeamService implements ITeamService {
         if (!isCaptain)
             throw new ForbiddenAccessException("Only the team captain can remove other members");
 
-        boolean isSelf = callerId.equals(userId);
+        var member = teamRepo.getTeamMemberById(teamMemberId)
+                .orElseThrow(() -> new NotFoundException("Team member (" + teamMemberId + ") not found"));
+
+        if (!member.teamId().equals(teamId))
+            throw new NotFoundException("Team member is not part of this team (" + teamId + ")");
+
+        boolean isSelf = member.userId().equals(callerId);
 
         if(isSelf && onlyOneCaptain(teamId))
             throw new InvalidVariableException(onlyCaptainCannotRemoveSelfOutput());
 
-        if (!teamRepo.isUserIdPartOfTeam(userId, teamId))
-            throw new NotFoundException("User is not part of this team");
-
-        teamRepo.deleteMember(teamId, userId);
+        teamRepo.deleteTeamMember(teamMemberId);
     }
 
     @Override

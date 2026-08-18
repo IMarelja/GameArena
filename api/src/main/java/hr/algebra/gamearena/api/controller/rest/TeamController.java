@@ -92,13 +92,13 @@ public class TeamController {
 
 
     @PreAuthorize("isAuthenticated()")
-    @DeleteMapping("/{teamId}/user/{userId}")
+    @DeleteMapping("/{teamId}/member/{memberId}")
     public ResponseEntity<ApiResponse<Void>> removeTeamMember(
             @AuthenticationPrincipal JwtTokenClaim caller,
             @PathVariable Long teamId,
-            @PathVariable Long userId
+            @PathVariable Long memberId
     ){
-        teamService.removeTeamMember(caller.userId(), teamId, userId);
+        teamService.removeTeamMember(caller.userId(), teamId, memberId);
 
         return ResponseEntity.status(HttpStatus.NO_CONTENT).body(ApiResponse.success(null));
     }

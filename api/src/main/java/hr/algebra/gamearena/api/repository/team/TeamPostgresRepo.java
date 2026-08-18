@@ -99,6 +99,11 @@ public class TeamPostgresRepo implements ITeamRepo{
     }
 
     @Override
+    public void deleteTeamMember(Long teamMemberId) {
+        teamMemberPostgresSQLRepo.deleteById(teamMemberId);
+    }
+
+    @Override
     public List<TeamMember> getTeamMembers(Long teamId) {
         return teamMemberPostgresSQLRepo.findByTeamId(teamId)
                 .stream()
@@ -139,6 +144,12 @@ public class TeamPostgresRepo implements ITeamRepo{
     @Override
     public Optional<TeamMember> getTeamMember(Long teamId, Long userId) {
         return teamMemberPostgresSQLRepo.findByTeamIdAndUserId(teamId, userId)
+                .map(TeamMember::fromTeamMemberPostgres);
+    }
+
+    @Override
+    public Optional<TeamMember> getTeamMemberById(Long teamMemberId) {
+        return teamMemberPostgresSQLRepo.findById(teamMemberId)
                 .map(TeamMember::fromTeamMemberPostgres);
     }
 

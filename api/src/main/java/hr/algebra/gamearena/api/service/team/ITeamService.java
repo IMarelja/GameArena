@@ -25,7 +25,7 @@ public interface ITeamService {
 
     // Team member
     List<TeamMemberMinimalView> getTeamMembers(Long teamId);
-    void removeTeamMember(Long callerId, Long teamId, Long userId);
+    void removeTeamMember(Long callerId, Long teamId, Long teamMemberId);
     void leaveTeam(Long callerId, Long teamId);
     boolean isUserPartOfTeam(Long callerId, Long teamId);
 }
