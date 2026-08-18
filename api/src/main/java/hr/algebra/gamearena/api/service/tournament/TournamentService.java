@@ -6,7 +6,18 @@ import hr.algebra.gamearena.api.dto.tournament.TournamentFullView;
 import hr.algebra.gamearena.api.dto.tournament.member.TournamentMemberEditRequest;
 import hr.algebra.gamearena.api.dto.tournament.member.TournamentMemberHighPrivilegeAddRequest;
 import hr.algebra.gamearena.api.dto.tournament.member.TournamentMemberView;
+import hr.algebra.gamearena.api.exceptions.extenders.ConflictException;
+import hr.algebra.gamearena.api.exceptions.extenders.NotFoundException;
+import hr.algebra.gamearena.api.model.games.Games;
+import hr.algebra.gamearena.api.model.tournament.Tournament;
+import hr.algebra.gamearena.api.model.tournament.TournamentSave;
+import hr.algebra.gamearena.api.model.tournament.TournamentStatus;
+import hr.algebra.gamearena.api.model.tournament.member.TournamentMember;
+import hr.algebra.gamearena.api.model.tournament.member.TournamentMemberSave;
+import hr.algebra.gamearena.api.model.tournament.member.TournamentMemberUpdate;
+import hr.algebra.gamearena.api.repository.games.IGamesRepo;
 import hr.algebra.gamearena.api.repository.tournament.ITournamentRepo;
+import hr.algebra.gamearena.api.repository.user.IUserRepo;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -16,43 +27,104 @@ import java.util.Optional;
 public class TournamentService implements ITournamentService {
 
     private final ITournamentRepo tournamentRepo;
+    private final IGamesRepo gamesRepo;
+    private final IUserRepo userRepo;
 
-    public TournamentService(ITournamentRepo tournamentRepo) {
+    private static String tournamentNotFoundByIdOutput(Long id) {
+        return "Tournament not found with id: " + id;
+    }
+
+    private static String gameNotFoundByIdOutput(Long id) {
+        return "Game not found with id: " + id;
+    }
+
+    private static String userNotFoundByIdOutput(Long id) {
+        return "User not found with id: " + id;
+    }
+
+    private static String tournamentMemberNotFoundByIdOutput(Long id) {
+        return "Tournament member not found with id: " + id;
+    }
+
+    public TournamentService(ITournamentRepo tournamentRepo, IGamesRepo gamesRepo, IUserRepo userRepo) {
         this.tournamentRepo = tournamentRepo;
+        this.gamesRepo = gamesRepo;
+        this.userRepo = userRepo;
     }
 
     // Tournament
 
     @Override
     public List<TournamentFullView> getAllTournaments() {
-        return List.of();
+        return tournamentRepo.getAllTournament()
+                .stream()
+                .map(tournament -> TournamentFullView.fromTournamentAndGame(tournament, gameOf(tournament)))
+                .toList();
     }
 
     @Override
     public Optional<TournamentFullView> getTournament(Long id) {
-        return Optional.empty();
+        return tournamentRepo.getTournamentById(id)
+                .map(tournament -> TournamentFullView.fromTournamentAndGame(tournament, gameOf(tournament)));
     }
 
     @Override
     public TournamentFullView createTournament(TournamentCreateRequest request) {
-        return null;
+        var game = gamesRepo.getById(request.getGameId())
+                .orElseThrow(() -> new NotFoundException(gameNotFoundByIdOutput(request.getGameId())));
+
+        var tournamentSave = new TournamentSave();
+        tournamentSave.setName(request.getName());
+        tournamentSave.setDescription(request.getDescription());
+        tournamentSave.setGameId(request.getGameId());
+        tournamentSave.setStatus(TournamentStatus.SCHEDULED);
+        tournamentSave.setStartsAt(request.getStartsAt());
+        tournamentSave.setEndsAt(request.getEndsAt());
+
+        var created = tournamentRepo.createTournament(tournamentSave);
+        return TournamentFullView.fromTournamentAndGame(created, game);
     }
 
     @Override
     public TournamentFullView updateTournament(Long id, TournamentEditRequest request) {
-        return null;
+        var game = gamesRepo.getById(request.getGameId())
+                .orElseThrow(() -> new NotFoundException(gameNotFoundByIdOutput(request.getGameId())));
+
+        var tournamentSave = new TournamentSave();
+        tournamentSave.setName(request.getName());
+        tournamentSave.setDescription(request.getDescription());
+        tournamentSave.setGameId(request.getGameId());
+        tournamentSave.setStatus(request.getStatus());
+        tournamentSave.setStartsAt(request.getStartsAt());
+        tournamentSave.setEndsAt(request.getEndsAt());
+
+        var updated = tournamentRepo.updateTournament(id, tournamentSave)
+                .orElseThrow(() -> new NotFoundException(tournamentNotFoundByIdOutput(id)));
+
+        return TournamentFullView.fromTournamentAndGame(updated, game);
     }
 
     @Override
     public void deleteTournament(Long id) {
+        if (!tournamentRepo.tournamentExistsById(id)) {
+            throw new NotFoundException(tournamentNotFoundByIdOutput(id));
+        }
 
+        tournamentRepo.deleteTournament(id);
     }
 
     // Tournament member
 
     @Override
     public List<TournamentMemberView> getTournamentsMembers(Long tournamentId) {
-        return List.of();
+        if (!tournamentRepo.tournamentExistsById(tournamentId)) {
+            throw new NotFoundException(tournamentNotFoundByIdOutput(tournamentId));
+        }
+
+        return tournamentRepo.getAllTournamentMembersFromTournamentId(tournamentId)
+                .stream()
+                .map(TournamentMemberView::fromTournamentMember)
+                .toList();
     }
 
     @Override
@@ -62,16 +134,56 @@ public class TournamentService implements ITournamentService {
 
     @Override
     public TournamentMemberView addTournamentMemberAsAHighPrivilege(TournamentMemberHighPrivilegeAddRequest request) {
-        return null;
+        if (!tournamentRepo.tournamentExistsById(request.getTournamentId())) {
+            throw new NotFoundException(tournamentNotFoundByIdOutput(request.getTournamentId()));
+        }
+
+        if (!userRepo.existsByIdAndIsActive(request.getUserId())) {
+            throw new NotFoundException(userNotFoundByIdOutput(request.getUserId()));
+        }
+
+        if (tournamentRepo.isUserPartOfTournament(request.getUserId(), request.getTournamentId())) {
+            throw new ConflictException("User is already a member of this tournament");
+        }
+
+        var tournamentMemberSave = new TournamentMemberSave();
+        tournamentMemberSave.setUserId(request.getUserId());
+        tournamentMemberSave.setTournamentId(request.getTournamentId());
+        tournamentMemberSave.setRole(request.getRole());
+
+        var created = tournamentRepo.addTournamentMember(tournamentMemberSave);
+        return TournamentMemberView.fromTournamentMember(created);
     }
 
     @Override
     public TournamentMemberView editTournamentMember(Long tournamentMemberId, TournamentMemberEditRequest request) {
-        return null;
+        var member = tournamentRepo.getTournamentMemberById(tournamentMemberId)
+                .orElseThrow(() -> new NotFoundException(tournamentMemberNotFoundByIdOutput(tournamentMemberId)));
+
+        if (!member.tournamentId().equals(request.getTournamentId())) {
+            throw new NotFoundException(tournamentMemberNotFoundByIdOutput(tournamentMemberId));
+        }
+
+        var tournamentMemberUpdate = new TournamentMemberUpdate();
+        tournamentMemberUpdate.setRole(request.getRole());
+
+        var updated = tournamentRepo.updateTournamentMember(tournamentMemberId, tournamentMemberUpdate)
+                .orElseThrow(() -> new NotFoundException(tournamentMemberNotFoundByIdOutput(tournamentMemberId)));
+
+        return TournamentMemberView.fromTournamentMember(updated);
     }
 
     @Override
     public void removeTournamentMember(Long callerId, Long tournamentMemberId) {
+        if (!tournamentRepo.tournamentMemberExistsById(tournamentMemberId)) {
+            throw new NotFoundException(tournamentMemberNotFoundByIdOutput(tournamentMemberId));
+        }
 
+        tournamentRepo.deleteTournamentMember(tournamentMemberId);
+    }
+
+    private Games gameOf(Tournament tournament) {
+        return gamesRepo.getById(tournament.gameId())
+                .orElseThrow(() -> new NotFoundException(gameNotFoundByIdOutput(tournament.gameId())));
     }
 }

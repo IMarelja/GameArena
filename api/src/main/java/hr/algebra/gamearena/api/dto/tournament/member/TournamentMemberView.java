@@ -8,7 +8,7 @@ public record TournamentMemberView(
         Long userId,
         TournamentMemberRole role
 ) {
-    public TournamentMemberView fromTournamentMember(TournamentMember tournamentMember) {
+    public static TournamentMemberView fromTournamentMember(TournamentMember tournamentMember) {
         return new TournamentMemberView(
                 tournamentMember.id(),
                 tournamentMember.userId(),
