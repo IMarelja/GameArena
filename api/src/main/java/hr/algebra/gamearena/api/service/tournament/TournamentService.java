@@ -3,6 +3,7 @@ package hr.algebra.gamearena.api.service.tournament;
 import hr.algebra.gamearena.api.dto.tournament.TournamentCreateRequest;
 import hr.algebra.gamearena.api.dto.tournament.TournamentEditRequest;
 import hr.algebra.gamearena.api.dto.tournament.TournamentFullView;
+import hr.algebra.gamearena.api.dto.tournament.member.TournamentMemberEditRequest;
 import hr.algebra.gamearena.api.dto.tournament.member.TournamentMemberView;
 import hr.algebra.gamearena.api.repository.tournament.ITournamentRepo;
 import org.springframework.stereotype.Service;
@@ -51,5 +52,20 @@ public class TournamentService implements ITournamentService {
     @Override
     public List<TournamentMemberView> getTournamentsMembers(Long tournamentId) {
         return List.of();
+    }
+
+    @Override
+    public TournamentMemberView addRegularTournamentMemberAndPay(Long calledId) {
+        return null;
+    }
+
+    @Override
+    public TournamentMemberView editTournamentMember(Long tournamentMemberId, TournamentMemberEditRequest request) {
+        return null;
+    }
+
+    @Override
+    public void removeTournamentMember(Long tournamentId) {
+
     }
 }

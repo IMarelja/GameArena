@@ -3,6 +3,7 @@ package hr.algebra.gamearena.api.service.tournament;
 import hr.algebra.gamearena.api.dto.tournament.TournamentCreateRequest;
 import hr.algebra.gamearena.api.dto.tournament.TournamentEditRequest;
 import hr.algebra.gamearena.api.dto.tournament.TournamentFullView;
+import hr.algebra.gamearena.api.dto.tournament.member.TournamentMemberEditRequest;
 import hr.algebra.gamearena.api.dto.tournament.member.TournamentMemberView;
 
 import java.util.List;
@@ -18,4 +19,7 @@ public interface ITournamentService {
 
     // Tournament member
     List<TournamentMemberView> getTournamentsMembers(Long tournamentId);
+    TournamentMemberView addRegularTournamentMemberAndPay(Long calledId);
+    TournamentMemberView editTournamentMember(Long tournamentMemberId, TournamentMemberEditRequest request);
+    void removeTournamentMember(Long tournamentId);
 }
