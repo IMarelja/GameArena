@@ -24,7 +24,7 @@ public record User(
                 userPostgres.getPasswordSalt(),
                 userPostgres.getRole(),
                 userPostgres.getIsActive(),
-                userPostgres.getCreatedAt()
+                userPostgres.getCreatedAt().toLocalDateTime()
         );
     }
 }

@@ -21,7 +21,7 @@ public record Notification(
                 notification.getReferenceId(),
                 notification.getReferenceType(),
                 notification.isRead(),
-                notification.getCreatedAt()
+                notification.getCreatedAt().toLocalDateTime()
         );
     }
 }

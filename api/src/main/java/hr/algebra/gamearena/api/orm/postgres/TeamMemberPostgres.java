@@ -6,8 +6,8 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import org.hibernate.annotations.DynamicInsert;
 
-import java.time.LocalDateTime;
-import java.time.ZoneId;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 
 @Getter
 @Entity
@@ -30,13 +30,13 @@ public class TeamMemberPostgres {
     private TeamMemberRole role;
 
     @Column(name = "joined_at", nullable = false)
-    private LocalDateTime joinedAt;
+    private OffsetDateTime joinedAt;
 
     public TeamMemberPostgres fromTeamMemberSave(TeamMemberSave save) {
         this.teamId = save.getTeamId();
         this.userId = save.getUserId();
         this.role = save.getRole();
-        this.joinedAt = LocalDateTime.now(ZoneId.of("UTC"));
+        this.joinedAt = OffsetDateTime.now(ZoneOffset.UTC);
         return this;
     }
 }

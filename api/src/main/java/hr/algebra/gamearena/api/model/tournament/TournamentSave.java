@@ -3,7 +3,7 @@ package hr.algebra.gamearena.api.model.tournament;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
 @Getter
 @Setter
@@ -12,6 +12,6 @@ public class TournamentSave {
     private String description;
     private Long gameId;
     private TournamentStatus status;
-    private LocalDateTime startsAt;
-    private LocalDateTime endsAt;
+    private OffsetDateTime startsAt;
+    private OffsetDateTime endsAt;
 }

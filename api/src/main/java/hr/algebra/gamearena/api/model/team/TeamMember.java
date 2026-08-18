@@ -17,7 +17,7 @@ public record TeamMember (
                 teamMemberPostgres.getTeamId(),
                 teamMemberPostgres.getUserId(),
                 teamMemberPostgres.getRole(),
-                teamMemberPostgres.getJoinedAt()
+                teamMemberPostgres.getJoinedAt().toLocalDateTime()
         );
     }
 }

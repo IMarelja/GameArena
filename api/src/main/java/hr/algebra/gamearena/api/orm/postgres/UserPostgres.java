@@ -8,8 +8,8 @@ import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
-import java.time.LocalDateTime;
-import java.time.ZoneId;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 
 @Getter
 @Entity
@@ -42,7 +42,7 @@ public class UserPostgres {
     private Boolean isActive;
 
     @Column(name = "created_at", nullable = false)
-    private LocalDateTime createdAt;
+    private OffsetDateTime createdAt;
 
     public UserPostgres fromUserSave(
             UserSave userSave
@@ -53,7 +53,7 @@ public class UserPostgres {
         this.passwordSalt = userSave.getPasswordSalt();
         this.role = userSave.getRole();
         this.isActive = true;
-        this.createdAt = LocalDateTime.now(ZoneId.of("UTC"));
+        this.createdAt = OffsetDateTime.now(ZoneOffset.UTC);
         return this;
     }
 }

@@ -7,7 +7,8 @@ import lombok.Getter;
 import org.hibernate.annotations.DynamicInsert;
 import org.springframework.util.StringUtils;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 
 @Getter
 @Entity
@@ -33,13 +34,13 @@ public class TournamentPostgres {
     private TournamentStatus status;
 
     @Column(name = "starts_at", nullable = false)
-    private LocalDateTime startsAt;
+    private OffsetDateTime startsAt;
 
     @Column(name = "ends_at")
-    private LocalDateTime endsAt;
+    private OffsetDateTime endsAt;
 
     @Column(name = "created_at", nullable = false)
-    private LocalDateTime createdAt;
+    private OffsetDateTime createdAt;
 
     public TournamentPostgres fromTournamentSave(TournamentSave save) {
         this.name = save.getName();
@@ -50,6 +51,7 @@ public class TournamentPostgres {
         this.status = save.getStatus();
         this.startsAt = save.getStartsAt();
         this.endsAt = save.getEndsAt() != null ? save.getEndsAt() : null;
+        this.createdAt = OffsetDateTime.now(ZoneOffset.UTC);
         return this;
     }
 }

@@ -7,7 +7,7 @@ import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
 @Getter
 @Entity
@@ -46,11 +46,11 @@ public class MatchPostgres {
     private MatchStatus status;
 
     @Column(name = "scheduled_at")
-    private LocalDateTime scheduledAt;
+    private OffsetDateTime scheduledAt;
 
     @Column(name = "played_at")
-    private LocalDateTime playedAt;
+    private OffsetDateTime playedAt;
 
     @Column(name = "created_at", nullable = false)
-    private LocalDateTime createdAt;
+    private OffsetDateTime createdAt;
 }

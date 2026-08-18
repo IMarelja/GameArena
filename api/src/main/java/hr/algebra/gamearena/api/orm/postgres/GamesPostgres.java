@@ -7,8 +7,8 @@ import lombok.Getter;
 import org.hibernate.annotations.DynamicInsert;
 import org.springframework.util.StringUtils;
 
-import java.time.LocalDateTime;
-import java.time.ZoneId;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 
 @Getter
 @Entity
@@ -30,7 +30,7 @@ public class GamesPostgres {
     private Boolean isActive;
 
     @Column(name = "created_at", nullable = false)
-    private LocalDateTime createdAt;
+    private OffsetDateTime createdAt;
 
     public GamesPostgres fromGamesSave(
             GamesSave gamesSave
@@ -40,7 +40,7 @@ public class GamesPostgres {
                 ? gamesSave.getDescription()
                 : null;
         this.isActive = true;
-        this.createdAt = LocalDateTime.now(ZoneId.of("UTC"));
+        this.createdAt = OffsetDateTime.now(ZoneOffset.UTC);
         return this;
     }
 

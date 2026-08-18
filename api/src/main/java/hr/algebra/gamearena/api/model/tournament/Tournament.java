@@ -21,9 +21,11 @@ public record Tournament(
                 tournamentPostgres.getDescription(),
                 tournamentPostgres.getGameId(),
                 tournamentPostgres.getStatus(),
-                tournamentPostgres.getStartsAt(),
-                tournamentPostgres.getEndsAt(),
-                tournamentPostgres.getCreatedAt()
+                tournamentPostgres.getStartsAt().toLocalDateTime(),
+                tournamentPostgres.getEndsAt() != null
+                        ? tournamentPostgres.getEndsAt().toLocalDateTime()
+                        : null,
+                tournamentPostgres.getCreatedAt().toLocalDateTime()
         );
     }
 }

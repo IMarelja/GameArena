@@ -9,8 +9,8 @@ import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
-import java.time.LocalDateTime;
-import java.time.ZoneId;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 
 @Getter
 @Entity
@@ -37,24 +37,24 @@ public class TeamInvitationPostgres {
     private InviteStatus status;
 
     @Column(name = "created_at", nullable = false)
-    private LocalDateTime createdAt;
+    private OffsetDateTime createdAt;
 
     @Column(name = "responded_at")
-    private LocalDateTime respondedAt;
+    private OffsetDateTime respondedAt;
 
     public TeamInvitationPostgres fromTeamInvitationSave(TeamInvitationSave save) {
         this.teamId = save.getTeamId();
         this.inviteeId = save.getInviteeId();
         this.inviterId = save.getInviterId();
         this.status = save.getStatus();
-        this.createdAt = LocalDateTime.now(ZoneId.of("UTC"));
+        this.createdAt = OffsetDateTime.now(ZoneOffset.UTC);
         this.respondedAt = null;
         return this;
     }
 
     public TeamInvitationPostgres fromTeamInvitationUpdate(TeamInvitationUpdate update) {
         this.status = update.getStatus();
-        this.respondedAt = LocalDateTime.now(ZoneId.of("UTC"));
+        this.respondedAt = OffsetDateTime.now(ZoneOffset.UTC);
         return this;
     }
 }

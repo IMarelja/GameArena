@@ -17,7 +17,7 @@ public record TournamentMember(
                 tournamentMemberPostgres.getTournamentId(),
                 tournamentMemberPostgres.getUserId(),
                 tournamentMemberPostgres.getRole(),
-                tournamentMemberPostgres.getJoinedAt()
+                tournamentMemberPostgres.getJoinedAt().toLocalDateTime()
         );
     }
 }

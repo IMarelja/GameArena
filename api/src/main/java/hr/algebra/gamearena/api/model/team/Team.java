@@ -15,7 +15,7 @@ public record Team(
                 teamPostgres.getId(),
                 teamPostgres.getName(),
                 teamPostgres.getGameId(),
-                teamPostgres.getCreatedAt()
+                teamPostgres.getCreatedAt().toLocalDateTime()
         );
     }
 }

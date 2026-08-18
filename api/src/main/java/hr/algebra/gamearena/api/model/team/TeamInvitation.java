@@ -20,8 +20,10 @@ public record TeamInvitation(
                 teamInvitationPostgres.getInviterId(),
                 teamInvitationPostgres.getInviteeId(),
                 teamInvitationPostgres.getStatus(),
-                teamInvitationPostgres.getCreatedAt(),
-                teamInvitationPostgres.getRespondedAt()
+                teamInvitationPostgres.getCreatedAt().toLocalDateTime(),
+                teamInvitationPostgres.getRespondedAt() != null
+                        ? teamInvitationPostgres.getRespondedAt().toLocalDateTime()
+                        : null
         );
     }
 }

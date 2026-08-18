@@ -8,8 +8,8 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import org.hibernate.annotations.DynamicInsert;
 
-import java.time.LocalDateTime;
-import java.time.ZoneId;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 
 @Getter
 @Entity
@@ -39,7 +39,7 @@ public class NotificationPostgres {
     private boolean read;
 
     @Column(name = "created_at", nullable = false)
-    private LocalDateTime createdAt;
+    private OffsetDateTime createdAt;
 
     public NotificationPostgres fromNotificationSave(NotificationSave notificationSave) {
         this.type = notificationSave.getType();
@@ -47,7 +47,7 @@ public class NotificationPostgres {
         this.referenceId = notificationSave.getReferenceId();
         this.referenceType = notificationSave.getReferenceType();
         this.read = false;
-        this.createdAt = LocalDateTime.now(ZoneId.of("UTC"));
+        this.createdAt = OffsetDateTime.now(ZoneOffset.UTC);
         return this;
     }
 

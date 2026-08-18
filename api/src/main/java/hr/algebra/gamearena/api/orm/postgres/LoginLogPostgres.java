@@ -7,8 +7,8 @@ import lombok.Getter;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
-import java.time.LocalDateTime;
-import java.time.ZoneId;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 
 @Getter
 @Entity
@@ -34,14 +34,14 @@ public class LoginLogPostgres {
     private LoginLogType type;
 
     @Column(name = "created_at", nullable = false)
-    private LocalDateTime createdAt;
+    private OffsetDateTime createdAt;
 
     public LoginLogPostgres fromLoginLogSave(LoginLogSave loginLogSave) {
         this.credential = loginLogSave.getCredential();
         this.ipv4 = loginLogSave.getIpv4();
         this.ipv6 = loginLogSave.getIpv6();
         this.type = loginLogSave.getType();
-        this.createdAt = LocalDateTime.now(ZoneId.of("UTC"));
+        this.createdAt = OffsetDateTime.now(ZoneOffset.UTC);
         return this;
     }
 

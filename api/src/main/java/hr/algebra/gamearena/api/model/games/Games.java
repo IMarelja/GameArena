@@ -18,7 +18,7 @@ public record Games (
                 gamesPostgres.getName(),
                 Optional.ofNullable(gamesPostgres.getDescription()),
                 gamesPostgres.getIsActive(),
-                gamesPostgres.getCreatedAt()
+                gamesPostgres.getCreatedAt().toLocalDateTime()
         );
     }
 }
