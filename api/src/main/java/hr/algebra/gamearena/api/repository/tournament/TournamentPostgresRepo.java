@@ -105,7 +105,7 @@ public class TournamentPostgresRepo implements ITournamentRepo {
     }
 
     @Override
-    public boolean tournamentMemberPartOfTeamId(Long teamMemberId, Long teamId) {
-        return tournamentMemberPostgreSQLRepo.existsByTournamentIdAndUserId(teamId, teamMemberId);
+    public boolean isUserPartOfTournament(Long userId, Long tournamentId) {
+        return tournamentMemberPostgreSQLRepo.existsByTournamentIdAndUserId(tournamentId, userId);
     }
 }

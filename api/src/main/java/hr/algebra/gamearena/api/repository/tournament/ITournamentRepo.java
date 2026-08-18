@@ -25,6 +25,5 @@ public interface ITournamentRepo {
     Optional<TournamentMember> updateTournamentMember(Long id, TournamentMemberUpdate tournamentMemberUpdate);
     void deleteTournamentMember(Long id);
     boolean tournamentMemberExistsById(Long id);
-    boolean tournamentMemberPartOfTeamId(Long teamMemberId, Long teamId);
-
+    boolean isUserPartOfTournament(Long userId, Long tournamentId);
 }
