@@ -7,12 +7,13 @@ import hr.algebra.gamearena.api.dto.tournament.member.TournamentMemberEditReques
 import hr.algebra.gamearena.api.dto.tournament.member.TournamentMemberHighPrivilegeAddRequest;
 import hr.algebra.gamearena.api.dto.tournament.member.TournamentMemberView;
 import hr.algebra.gamearena.api.exceptions.extenders.ConflictException;
+import hr.algebra.gamearena.api.exceptions.extenders.InvalidVariableException;
 import hr.algebra.gamearena.api.exceptions.extenders.NotFoundException;
 import hr.algebra.gamearena.api.model.games.Games;
 import hr.algebra.gamearena.api.model.tournament.Tournament;
 import hr.algebra.gamearena.api.model.tournament.TournamentSave;
 import hr.algebra.gamearena.api.model.tournament.TournamentStatus;
-import hr.algebra.gamearena.api.model.tournament.member.TournamentMember;
+import hr.algebra.gamearena.api.model.tournament.member.TournamentMemberRole;
 import hr.algebra.gamearena.api.model.tournament.member.TournamentMemberSave;
 import hr.algebra.gamearena.api.model.tournament.member.TournamentMemberUpdate;
 import hr.algebra.gamearena.api.repository.games.IGamesRepo;
@@ -44,6 +45,16 @@ public class TournamentService implements ITournamentService {
 
     private static String tournamentMemberNotFoundByIdOutput(Long id) {
         return "Tournament member not found with id: " + id;
+    }
+
+    private static String onlyOrganizerCannotRemoveSelfOutput() {
+        return "You are the only Organizer in this Tournament, you can not remove yourself. "
+                + "Assign someone else to be the Organizer for this Tournament";
+    }
+
+    private static String onlyOrganizerCannotDemoteSelfOutput() {
+        return "You are the only Organizer in this Tournament, you can not demote yourself. "
+                + "Assign someone else to be the Organizer for this Tournament";
     }
 
     public TournamentService(ITournamentRepo tournamentRepo, IGamesRepo gamesRepo, IUserRepo userRepo) {
@@ -156,12 +167,20 @@ public class TournamentService implements ITournamentService {
     }
 
     @Override
-    public TournamentMemberView editTournamentMember(Long tournamentMemberId, TournamentMemberEditRequest request) {
+    public TournamentMemberView editTournamentMember(Long callerId, Long tournamentMemberId, TournamentMemberEditRequest request) {
         var member = tournamentRepo.getTournamentMemberById(tournamentMemberId)
                 .orElseThrow(() -> new NotFoundException(tournamentMemberNotFoundByIdOutput(tournamentMemberId)));
 
         if (!member.tournamentId().equals(request.getTournamentId())) {
             throw new NotFoundException(tournamentMemberNotFoundByIdOutput(tournamentMemberId));
+        }
+
+        boolean isSelf = member.userId().equals(callerId);
+        boolean isOrganizer = member.role() == TournamentMemberRole.ORGANIZER;
+        boolean demotingFromOrganizer = request.getRole() != TournamentMemberRole.ORGANIZER;
+
+        if (isSelf && isOrganizer && demotingFromOrganizer && onlyOneOrganizer(member.tournamentId())) {
+            throw new InvalidVariableException(onlyOrganizerCannotDemoteSelfOutput());
         }
 
         var tournamentMemberUpdate = new TournamentMemberUpdate();
@@ -175,11 +194,21 @@ public class TournamentService implements ITournamentService {
 
     @Override
     public void removeTournamentMember(Long callerId, Long tournamentMemberId) {
-        if (!tournamentRepo.tournamentMemberExistsById(tournamentMemberId)) {
-            throw new NotFoundException(tournamentMemberNotFoundByIdOutput(tournamentMemberId));
+        var member = tournamentRepo.getTournamentMemberById(tournamentMemberId)
+                .orElseThrow(() -> new NotFoundException(tournamentMemberNotFoundByIdOutput(tournamentMemberId)));
+
+        boolean isSelf = member.userId().equals(callerId);
+        boolean isOrganizer = member.role() == TournamentMemberRole.ORGANIZER;
+
+        if (isSelf && isOrganizer && onlyOneOrganizer(member.tournamentId())) {
+            throw new InvalidVariableException(onlyOrganizerCannotRemoveSelfOutput());
         }
 
         tournamentRepo.deleteTournamentMember(tournamentMemberId);
+    }
+
+    private boolean onlyOneOrganizer(Long tournamentId) {
+        return tournamentRepo.countTournamentMembersByRole(tournamentId, TournamentMemberRole.ORGANIZER) <= 1;
     }
 
     private Games gameOf(Tournament tournament) {

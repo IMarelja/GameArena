@@ -14,7 +14,6 @@ import hr.algebra.gamearena.api.exceptions.extenders.NotFoundException;
 import hr.algebra.gamearena.api.model.notification.NotificationType;
 import hr.algebra.gamearena.api.model.notification.ReferenceType;
 import hr.algebra.gamearena.api.model.team.InviteStatus;
-import hr.algebra.gamearena.api.model.team.TeamInvitation;
 import hr.algebra.gamearena.api.model.team.TeamInvitationSave;
 import hr.algebra.gamearena.api.model.team.TeamInvitationUpdate;
 import hr.algebra.gamearena.api.model.team.TeamMemberRole;
@@ -41,6 +40,16 @@ public class TeamService implements ITeamService {
 
     private String invitationNotFoundByIdOutput(Long id) {
         return "Team invitation not found with id: " + id;
+    }
+
+    private String onlyCaptainCannotRemoveSelfOutput() {
+        return "You are the only Captain in this Team, you can not remove yourself. "
+                + "Assign someone else to be the Captain for this Team";
+    }
+
+    private String onlyCaptainCannotDemoteSelfOutput() {
+        return "You are the only Captain in this Team, you can not demote yourself. "
+                + "Assign someone else to be the Captain for this Team";
     }
 
     public TeamService(ITeamRepo teamRepo, INotificationService notificationService, IUserRepo userRepo) {
@@ -230,8 +239,8 @@ public class TeamService implements ITeamService {
 
         boolean isSelf = callerId.equals(userId);
 
-        if(isSelf)
-            throw new InvalidVariableException("You can not remove self, you are the captain");
+        if(isSelf && onlyOneCaptain(teamId))
+            throw new InvalidVariableException(onlyCaptainCannotRemoveSelfOutput());
 
         if (!teamRepo.isUserIdPartOfTeam(userId, teamId))
             throw new NotFoundException("User is not part of this team");
@@ -249,8 +258,8 @@ public class TeamService implements ITeamService {
 
         boolean isCaptain = teamRepo.isUserTeamCaptain(callerId, teamId);
 
-        if (isCaptain)
-            throw new ForbiddenAccessException("You can not leave your team, you are the captain. Remove the team and end everyone");
+        if (isCaptain && onlyOneCaptain(teamId))
+            throw new InvalidVariableException(onlyCaptainCannotRemoveSelfOutput());
 
         teamRepo.deleteMember(teamId, callerId);
     }
@@ -262,6 +271,10 @@ public class TeamService implements ITeamService {
         }
 
         return teamRepo.isUserIdPartOfTeam(callerId, teamId);
+    }
+
+    private boolean onlyOneCaptain(Long teamId) {
+        return teamRepo.countTeamMembersByRole(teamId, TeamMemberRole.CAPTAIN) <= 1;
     }
 
     private void pushInvitationNotification(NotificationType type, Long recipientUserId, Long invitationId) {

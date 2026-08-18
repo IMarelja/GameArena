@@ -5,6 +5,7 @@ import hr.algebra.gamearena.api.dto.payment.PaymentRequest;
 import hr.algebra.gamearena.api.dto.tournament.TournamentCreateRequest;
 import hr.algebra.gamearena.api.dto.tournament.TournamentEditRequest;
 import hr.algebra.gamearena.api.dto.tournament.TournamentFullView;
+import hr.algebra.gamearena.api.dto.tournament.member.TournamentMemberEditRequest;
 import hr.algebra.gamearena.api.dto.tournament.member.TournamentMemberHighPrivilegeAddRequest;
 import hr.algebra.gamearena.api.dto.tournament.member.TournamentMemberView;
 import hr.algebra.gamearena.api.exceptions.extenders.NotFoundException;
@@ -92,6 +93,16 @@ public class TournamentController {
             @Valid @RequestBody TournamentMemberHighPrivilegeAddRequest request
     ){
         return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).build();
+    }
+
+    @PatchMapping("/member/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ApiResponse<TournamentMemberView>> editTournamentMember(
+            @PathVariable Long id,
+            @AuthenticationPrincipal JwtTokenClaim caller,
+            @Valid @RequestBody TournamentMemberEditRequest request
+    ){
+        return ResponseEntity.ok(ApiResponse.success(tournamentService.editTournamentMember(caller.userId(), id, request)));
     }
 
     @DeleteMapping("/member/{id}")

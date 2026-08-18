@@ -22,6 +22,6 @@ public interface ITournamentService {
     List<TournamentMemberView> getTournamentsMembers(Long tournamentId);
     void joinAsRegularTournamentMemberAndPay(Long calledId);
     TournamentMemberView addTournamentMemberAsAHighPrivilege(TournamentMemberHighPrivilegeAddRequest request);
-    TournamentMemberView editTournamentMember(Long tournamentMemberId, TournamentMemberEditRequest request);
+    TournamentMemberView editTournamentMember(Long callerId, Long tournamentMemberId, TournamentMemberEditRequest request);
     void removeTournamentMember(Long callerId, Long tournamentMemberId);
 }

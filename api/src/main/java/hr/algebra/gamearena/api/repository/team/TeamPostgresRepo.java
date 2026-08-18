@@ -132,6 +132,17 @@ public class TeamPostgresRepo implements ITeamRepo{
     }
 
     @Override
+    public long countTeamMembersByRole(Long teamId, TeamMemberRole role) {
+        return teamMemberPostgresSQLRepo.countByTeamIdAndRole(teamId, role);
+    }
+
+    @Override
+    public Optional<TeamMember> getTeamMember(Long teamId, Long userId) {
+        return teamMemberPostgresSQLRepo.findByTeamIdAndUserId(teamId, userId)
+                .map(TeamMember::fromTeamMemberPostgres);
+    }
+
+    @Override
     public boolean isUserAnInviteeOfInvitation(Long invitationId, Long userId) {
         return teamInvitationPostgresSQLRepo.existsByInvitationIdAndInviteeId(invitationId, userId);
     }

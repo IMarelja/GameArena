@@ -22,6 +22,8 @@ public interface ITeamRepo {
     boolean doesPendingTeamInvitationExist(Long teamId, Long inviteeId);
     boolean isUserIdPartOfTeam(Long userId, Long teamId);
     boolean isUserTeamCaptain(Long userId, Long teamId);
+    long countTeamMembersByRole(Long teamId, TeamMemberRole role);
+    Optional<TeamMember> getTeamMember(Long teamId, Long userId);
     boolean isUserAnInviteeOfInvitation(Long invitationId, Long userId);
     boolean isUserAnInviterOfInvitation(Long invitationId, Long userId);
 }

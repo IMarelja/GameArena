@@ -3,6 +3,7 @@ package hr.algebra.gamearena.api.repository.tournament;
 import hr.algebra.gamearena.api.model.tournament.Tournament;
 import hr.algebra.gamearena.api.model.tournament.TournamentSave;
 import hr.algebra.gamearena.api.model.tournament.member.TournamentMember;
+import hr.algebra.gamearena.api.model.tournament.member.TournamentMemberRole;
 import hr.algebra.gamearena.api.model.tournament.member.TournamentMemberSave;
 import hr.algebra.gamearena.api.model.tournament.member.TournamentMemberUpdate;
 import hr.algebra.gamearena.api.orm.postgres.TournamentMemberPostgres;
@@ -107,5 +108,10 @@ public class TournamentPostgresRepo implements ITournamentRepo {
     @Override
     public boolean isUserPartOfTournament(Long userId, Long tournamentId) {
         return tournamentMemberPostgreSQLRepo.existsByTournamentIdAndUserId(tournamentId, userId);
+    }
+
+    @Override
+    public long countTournamentMembersByRole(Long tournamentId, TournamentMemberRole role) {
+        return tournamentMemberPostgreSQLRepo.countByTournamentIdAndRole(tournamentId, role);
     }
 }
