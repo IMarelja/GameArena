@@ -4,6 +4,7 @@ import hr.algebra.gamearena.api.dto.tournament.TournamentCreateRequest;
 import hr.algebra.gamearena.api.dto.tournament.TournamentEditRequest;
 import hr.algebra.gamearena.api.dto.tournament.TournamentFullView;
 import hr.algebra.gamearena.api.dto.tournament.member.TournamentMemberEditRequest;
+import hr.algebra.gamearena.api.dto.tournament.member.TournamentMemberHighPrivilegeAddRequest;
 import hr.algebra.gamearena.api.dto.tournament.member.TournamentMemberView;
 import hr.algebra.gamearena.api.repository.tournament.ITournamentRepo;
 import org.springframework.stereotype.Service;
@@ -55,7 +56,12 @@ public class TournamentService implements ITournamentService {
     }
 
     @Override
-    public TournamentMemberView addRegularTournamentMemberAndPay(Long calledId) {
+    public void joinAsRegularTournamentMemberAndPay(Long calledId) {
+
+    }
+
+    @Override
+    public TournamentMemberView addTournamentMemberAsAHighPrivilege(TournamentMemberHighPrivilegeAddRequest request) {
         return null;
     }
 
@@ -65,7 +71,7 @@ public class TournamentService implements ITournamentService {
     }
 
     @Override
-    public void removeTournamentMember(Long tournamentId) {
+    public void removeTournamentMember(Long callerId, Long tournamentMemberId) {
 
     }
 }
