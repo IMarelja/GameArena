@@ -137,8 +137,6 @@ CREATE TABLE tournament_member (
 	joined_at	TIMESTAMPTZ	NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
--- ⚠️ Tournament participant table for later
-
 -- ---------------------------------------------------------------------
 -- MATCH
 -- ---------------------------------------------------------------------
@@ -180,12 +178,83 @@ CREATE TABLE notifications (
 	read_at			BOOL		NOT NULL,
 	type			VARCHAR(50)	NOT NULL,
 	recipient_user_id	BIGINT		NOT NULL REFERENCES users(id),
-	reference_id		BIGINT,
-	reference_type		VARCHAR(50),
+	match_id		BIGINT		REFERENCES matches(id),
+	team_invitation_id	BIGINT		REFERENCES team_invitations(invitation_id),
 	created_at		TIMESTAMPTZ	NOT NULL DEFAULT CURRENT_TIMESTAMP,
-	CONSTRAINT chk_null_or_nothing_reference CHECK (
-		(reference_id IS NULL) = (reference_type IS NULL)
+	CONSTRAINT chk_notifications_single_reference CHECK (
+		num_nonnulls(match_id, team_invitation_id) <= 1
 	)
 );
 
 CREATE INDEX idx_notifications_recipient_user_id ON notifications (recipient_user_id);
+CREATE INDEX idx_notifications_match_id ON notifications (match_id);
+CREATE INDEX idx_notifications_team_invitation_id ON notifications (team_invitation_id);
+
+-- ---------------------------------------------------------------------
+-- PAYMENT
+-- ---------------------------------------------------------------------
+
+
+CREATE TYPE payment_status AS ENUM (
+	'PENDING',
+	'PAID',
+	'FAILED',
+	'REFUNDED',
+	'CANCELLED'
+);
+
+CREATE TABLE payments (
+	id 			BIGINT 		GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+	type			payment_type	NOT NULL,
+	status			payment_status	NOT NULL DEFAULT 'PENDING',
+	amount 			NUMERIC(12, 2) 	NOT NULL CHECK (amount > 0),
+	currency 		CHAR(3) 	NOT NULL,
+	created_at		TIMESTAMPTZ	NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE paypal_payments (
+	id 			BIGINT 		GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+	payment_id 		BIGINT 		NOT NULL UNIQUE REFERENCES payments (id),
+	paypal_order_id 	VARCHAR(64) 	NOT NULL UNIQUE,
+	paypal_payer_id 	VARCHAR(64),
+	capture_id 		VARCHAR(64),
+	status 			VARCHAR(20) 	NOT NULL,
+	created_at 		TIMESTAMPTZ 	NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	updated_at 		TIMESTAMPTZ
+);
+
+CREATE INDEX idx_paypal_payments_capture_id ON paypal_payments (capture_id);
+CREATE INDEX idx_paypal_payments_paypal_payer_id ON paypal_payments (paypal_payer_id);
+
+-- --------------------------------------------------------------------- 
+-- BILLING INFORMATION
+-- ---------------------------------------------------------------------
+
+CREATE TABLE billing_info (
+	id 			BIGINT 		GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+	invoice_id 		BIGINT 		NOT NULL UNIQUE REFERENCES invoices (id),
+	full_name 		VARCHAR(150) 	NOT NULL,
+	email 			VARCHAR(255) 	NOT NULL,
+	address_line 		VARCHAR(255) 	NOT NULL,
+	city 			VARCHAR(100) 	NOT NULL,
+	state			VARCHAR(100),
+	zip_code		VARCHAR(20)	NOT NULL,
+	country 		CHAR(3) 	NOT NULL,
+	created_at 		TIMESTAMPTZ 	NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+-- ---------------------------------------------------------------------
+-- INVOICE
+-- ---------------------------------------------------------------------
+
+CREATE TABLE invoices (
+	id 			BIGINT 		GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+	user_id			BIGINT		NOT NULL REFERENCES users (id),
+	billing_info_id		BIGINT		NOT NULL REFERENCES billing_info (id),
+	--tournament_id 	BIGINT 		NOT NULL REFERENCES tournaments (id),
+    	created_at 		TIMESTAMPTZ 	NOT NULL DEFAULT CURRENT_TIMESTAMP,
+);
+
+CREATE INDEX idx_invoices_user_id ON invoices (user_id);
+CREATE INDEX idx_invoices_billing_info_id ON invoices (billing_info_id);
+--CREATE INDEX idx_invoices_tournament_id ON invoices (tournament_id);
