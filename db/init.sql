@@ -178,17 +178,15 @@ CREATE TABLE notifications (
 	read_at			BOOL		NOT NULL,
 	type			VARCHAR(50)	NOT NULL,
 	recipient_user_id	BIGINT		NOT NULL REFERENCES users(id),
-	match_id		BIGINT		REFERENCES matches(id),
-	team_invitation_id	BIGINT		REFERENCES team_invitations(invitation_id),
+	reference_id		BIGINT,
+	reference_type		VARCHAR(50),
 	created_at		TIMESTAMPTZ	NOT NULL DEFAULT CURRENT_TIMESTAMP,
-	CONSTRAINT chk_notifications_single_reference CHECK (
-		num_nonnulls(match_id, team_invitation_id) <= 1
+	CONSTRAINT chk_null_or_nothing_reference CHECK (
+		(reference_id IS NULL) = (reference_type IS NULL)
 	)
 );
 
 CREATE INDEX idx_notifications_recipient_user_id ON notifications (recipient_user_id);
-CREATE INDEX idx_notifications_match_id ON notifications (match_id);
-CREATE INDEX idx_notifications_team_invitation_id ON notifications (team_invitation_id);
 
 -- ---------------------------------------------------------------------
 -- PAYMENT
