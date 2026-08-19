@@ -108,6 +108,71 @@ CREATE INDEX idx_login_logs_credentials ON login_logs (credential);
 CREATE INDEX idx_login_logs_type ON login_logs (type);
 
 -- ---------------------------------------------------------------------
+-- PAYMENT
+-- ---------------------------------------------------------------------
+
+CREATE TYPE payment_status AS ENUM (
+	'PENDING',
+	'PAID',
+	'FAILED',
+	'REFUNDED',
+	'CANCELLED'
+);
+
+CREATE TABLE payments (
+	id 			BIGINT 		GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+	status			payment_status	NOT NULL DEFAULT 'PENDING',
+	amount 			NUMERIC(12, 2) 	NOT NULL CHECK (amount >= 0),
+	currency 		CHAR(3) 	NOT NULL,
+	created_at		TIMESTAMPTZ	NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE paypal_payments (
+	id 			BIGINT 		GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+	payment_id 		BIGINT 		NOT NULL UNIQUE REFERENCES payments (id),
+	paypal_order_id 	VARCHAR(64) 	NOT NULL UNIQUE,
+	paypal_payer_id 	VARCHAR(64),
+	capture_id 		VARCHAR(64),
+	status 			VARCHAR(20) 	NOT NULL,
+	created_at 		TIMESTAMPTZ 	NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	updated_at 		TIMESTAMPTZ
+);
+
+CREATE INDEX idx_paypal_payments_capture_id ON paypal_payments (capture_id);
+CREATE INDEX idx_paypal_payments_paypal_payer_id ON paypal_payments (paypal_payer_id);
+
+-- --------------------------------------------------------------------- 
+-- BILLING INFORMATION
+-- ---------------------------------------------------------------------
+
+CREATE TABLE billing_info (
+	id 			BIGINT 		GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+	full_name 		VARCHAR(150) 	NOT NULL,
+	email 			VARCHAR(255) 	NOT NULL,
+	address_line 		VARCHAR(255) 	NOT NULL,
+	city 			VARCHAR(100) 	NOT NULL,
+	state			VARCHAR(100),
+	zip_code		VARCHAR(20)	NOT NULL,
+	country 		CHAR(3) 	NOT NULL,
+	created_at 		TIMESTAMPTZ 	NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+-- ---------------------------------------------------------------------
+-- INVOICE
+-- ---------------------------------------------------------------------
+
+CREATE TABLE invoices (
+	id 			BIGINT 		GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+	user_id			BIGINT		NOT NULL REFERENCES users (id),
+	billing_info_id		BIGINT		NOT NULL UNIQUE REFERENCES billing_info (id),
+	payment_id		BIGINT		NOT NULL UNIQUE REFERENCES payments (id),
+    	created_at 		TIMESTAMPTZ 	NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX idx_invoices_user_id ON invoices (user_id);
+CREATE INDEX idx_invoices_billing_info_id ON invoices (billing_info_id);
+
+-- ---------------------------------------------------------------------
 -- TOURNAMENT
 -- ---------------------------------------------------------------------
 
@@ -119,14 +184,17 @@ CREATE INDEX idx_login_logs_type ON login_logs (type);
 --);
 
 CREATE TABLE tournaments (
-	id 		BIGINT 			GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-	name 		VARCHAR(255) 		NOT NULL,
-	description 	TEXT,
-	game_id 	BIGINT 			NOT NULL REFERENCES games(id),
-	status 		VARCHAR(20)		NOT NULL, --tournament_status 	NOT NULL,
-	starts_at 	TIMESTAMPTZ 		NOT NULL,
-	ends_at 	TIMESTAMPTZ,
-	created_at 	TIMESTAMPTZ 		NOT NULL DEFAULT CURRENT_TIMESTAMP
+	id 			BIGINT 			GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+	name 			VARCHAR(255) 		NOT NULL,
+	description 		TEXT,
+	game_id 		BIGINT 			NOT NULL REFERENCES games(id),
+	status 			VARCHAR(20)		NOT NULL, --tournament_status 	NOT NULL,
+	price_solo 		NUMERIC(12, 2) 		NOT NULL CHECK (price_solo >= 0),
+	price_group 		NUMERIC(12, 2) 		NOT NULL CHECK (price_group >= 0),
+	currency 		CHAR(3) 		NOT NULL,
+	starts_at 		TIMESTAMPTZ 		NOT NULL,
+	ends_at 		TIMESTAMPTZ,
+	created_at 		TIMESTAMPTZ 		NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE tournament_groups (
@@ -146,10 +214,17 @@ CREATE TABLE tournament_member (
 	joined_at	TIMESTAMPTZ	NOT NULL DEFAULT CURRENT_TIMESTAMP,
 	payer_id	BIGINT		REFERENCES users (id),
 	group_id	BIGINT		REFERENCES tournament_groups (id),
+	payment_id 	BIGINT 		REFERENCES payments (id),
+	confirmed 	BOOLEAN 	NOT NULL DEFAULT FALSE,
 	CONSTRAINT chk_tournament_member_distinct_payer CHECK (
 		payer_id IS NULL OR payer_id <> user_id
 	)
 );
+
+CREATE INDEX idx_tournament_member_payment_id ON tournament_member (payment_id);
+CREATE UNIQUE INDEX uq_tournament_member_confirmed_once
+	ON tournament_member (tournament_id, user_id)
+	WHERE confirmed;
 
 -- ---------------------------------------------------------------------
 -- MATCH
@@ -201,72 +276,4 @@ CREATE TABLE notifications (
 );
 
 CREATE INDEX idx_notifications_recipient_user_id ON notifications (recipient_user_id);
-
--- ---------------------------------------------------------------------
--- PAYMENT
--- ---------------------------------------------------------------------
-
-
-CREATE TYPE payment_status AS ENUM (
-	'PENDING',
-	'PAID',
-	'FAILED',
-	'REFUNDED',
-	'CANCELLED'
-);
-
-CREATE TABLE payments (
-	id 			BIGINT 		GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-	type			payment_type	NOT NULL,
-	status			payment_status	NOT NULL DEFAULT 'PENDING',
-	amount 			NUMERIC(12, 2) 	NOT NULL CHECK (amount > 0),
-	currency 		CHAR(3) 	NOT NULL,
-	created_at		TIMESTAMPTZ	NOT NULL DEFAULT CURRENT_TIMESTAMP
-);
-
-CREATE TABLE paypal_payments (
-	id 			BIGINT 		GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-	payment_id 		BIGINT 		NOT NULL UNIQUE REFERENCES payments (id),
-	paypal_order_id 	VARCHAR(64) 	NOT NULL UNIQUE,
-	paypal_payer_id 	VARCHAR(64),
-	capture_id 		VARCHAR(64),
-	status 			VARCHAR(20) 	NOT NULL,
-	created_at 		TIMESTAMPTZ 	NOT NULL DEFAULT CURRENT_TIMESTAMP,
-	updated_at 		TIMESTAMPTZ
-);
-
-CREATE INDEX idx_paypal_payments_capture_id ON paypal_payments (capture_id);
-CREATE INDEX idx_paypal_payments_paypal_payer_id ON paypal_payments (paypal_payer_id);
-
--- --------------------------------------------------------------------- 
--- BILLING INFORMATION
--- ---------------------------------------------------------------------
-
-CREATE TABLE billing_info (
-	id 			BIGINT 		GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-	invoice_id 		BIGINT 		NOT NULL UNIQUE REFERENCES invoices (id),
-	full_name 		VARCHAR(150) 	NOT NULL,
-	email 			VARCHAR(255) 	NOT NULL,
-	address_line 		VARCHAR(255) 	NOT NULL,
-	city 			VARCHAR(100) 	NOT NULL,
-	state			VARCHAR(100),
-	zip_code		VARCHAR(20)	NOT NULL,
-	country 		CHAR(3) 	NOT NULL,
-	created_at 		TIMESTAMPTZ 	NOT NULL DEFAULT CURRENT_TIMESTAMP
-);
-
--- ---------------------------------------------------------------------
--- INVOICE
--- ---------------------------------------------------------------------
-
-CREATE TABLE invoices (
-	id 			BIGINT 		GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-	user_id			BIGINT		NOT NULL REFERENCES users (id),
-	billing_info_id		BIGINT		NOT NULL REFERENCES billing_info (id),
-	payment_id		BIGINT		NOT NULL REFERENCES payments (id),
-    	created_at 		TIMESTAMPTZ 	NOT NULL DEFAULT CURRENT_TIMESTAMP,
-);
-
-CREATE INDEX idx_invoices_user_id ON invoices (user_id);
-CREATE INDEX idx_invoices_billing_info_id ON invoices (billing_info_id);
 
