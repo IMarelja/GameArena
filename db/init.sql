@@ -129,12 +129,26 @@ CREATE TABLE tournaments (
 	created_at 	TIMESTAMPTZ 		NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TABLE tournament_groups (
+ 	id 		BIGINT		GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+ 	tournament_id	BIGINT		NOT NULL REFERENCES tournaments (id),
+ 	name		VARCHAR(100)	NOT NULL,
+ 	created_by	BIGINT		NOT NULL REFERENCES users (id),
+ 	created_at	TIMESTAMPTZ	NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ 	UNIQUE (tournament_id, name)
+);
+
 CREATE TABLE tournament_member (
 	id		BIGINT		GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
 	tournament_id	BIGINT		NOT NULL REFERENCES tournaments(id),
 	user_id		BIGINT		NOT NULL REFERENCES users(id),
 	role		VARCHAR(20)	NOT NULL,
-	joined_at	TIMESTAMPTZ	NOT NULL DEFAULT CURRENT_TIMESTAMP
+	joined_at	TIMESTAMPTZ	NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	payer_id	BIGINT		REFERENCES users (id),
+	group_id	BIGINT		REFERENCES tournament_groups (id),
+	CONSTRAINT chk_tournament_member_distinct_payer CHECK (
+		payer_id IS NULL OR payer_id <> user_id
+	)
 );
 
 -- ---------------------------------------------------------------------
@@ -249,10 +263,10 @@ CREATE TABLE invoices (
 	id 			BIGINT 		GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
 	user_id			BIGINT		NOT NULL REFERENCES users (id),
 	billing_info_id		BIGINT		NOT NULL REFERENCES billing_info (id),
-	--tournament_id 	BIGINT 		NOT NULL REFERENCES tournaments (id),
+	payment_id		BIGINT		NOT NULL REFERENCES payments (id),
     	created_at 		TIMESTAMPTZ 	NOT NULL DEFAULT CURRENT_TIMESTAMP,
 );
 
 CREATE INDEX idx_invoices_user_id ON invoices (user_id);
 CREATE INDEX idx_invoices_billing_info_id ON invoices (billing_info_id);
---CREATE INDEX idx_invoices_tournament_id ON invoices (tournament_id);
+
