@@ -1,10 +1,12 @@
 package hr.algebra.gamearena.api.orm.postgres.tournament;
 
+import hr.algebra.gamearena.api.model.tournament.TournamentGroupSave;
 import jakarta.persistence.*;
 import lombok.Getter;
 import org.hibernate.annotations.DynamicInsert;
 
 import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 
 @Getter
 @Entity
@@ -27,4 +29,12 @@ public class TournamentGroupPostgres {
 
     @Column(name = "created_at", nullable = false)
     private OffsetDateTime createdAt;
+
+    public TournamentGroupPostgres fromTournamentGroupSave(TournamentGroupSave save) {
+        this.tournamentId = save.getTournamentId();
+        this.name = save.getName();
+        this.createdBy = save.getCreatedBy();
+        this.createdAt = OffsetDateTime.now(ZoneOffset.UTC);
+        return this;
+    }
 }

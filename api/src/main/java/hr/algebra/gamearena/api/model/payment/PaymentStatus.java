@@ -12,4 +12,8 @@ public enum PaymentStatus {
     public static PaymentStatus fromPaymentStatusPostgres(PaymentStatusPostgres paymentStatusPostgres) {
         return PaymentStatus.valueOf(paymentStatusPostgres.name());
     }
+
+    public PaymentStatusPostgres toPaymentStatusPostgres() {
+        return PaymentStatusPostgres.valueOf(this.name());
+    }
 }

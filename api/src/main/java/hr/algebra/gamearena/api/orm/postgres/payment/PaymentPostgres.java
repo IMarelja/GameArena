@@ -1,5 +1,7 @@
 package hr.algebra.gamearena.api.orm.postgres.payment;
 
+import hr.algebra.gamearena.api.model.payment.PaymentSave;
+import hr.algebra.gamearena.api.model.payment.PaymentUpdate;
 import jakarta.persistence.*;
 import lombok.Getter;
 import org.hibernate.annotations.DynamicInsert;
@@ -8,6 +10,7 @@ import org.hibernate.type.SqlTypes;
 
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 
 @Getter
 @Entity
@@ -32,4 +35,17 @@ public class PaymentPostgres {
 
     @Column(name = "created_at", nullable = false)
     private OffsetDateTime createdAt;
+
+    public PaymentPostgres fromPaymentSave(PaymentSave save) {
+        this.status = PaymentStatusPostgres.PENDING;
+        this.amount = save.getAmount();
+        this.currency = save.getCurrency();
+        this.createdAt = OffsetDateTime.now(ZoneOffset.UTC);
+        return this;
+    }
+
+    public PaymentPostgres fromPaymentUpdate(PaymentUpdate update) {
+        this.status = update.getStatus().toPaymentStatusPostgres();
+        return this;
+    }
 }

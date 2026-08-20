@@ -1,10 +1,13 @@
 package hr.algebra.gamearena.api.orm.postgres.payment;
 
+import hr.algebra.gamearena.api.model.payment.paypal.PaypalPaymentSave;
+import hr.algebra.gamearena.api.model.payment.paypal.PaypalPaymentUpdate;
 import jakarta.persistence.*;
 import lombok.Getter;
 import org.hibernate.annotations.DynamicInsert;
 
 import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 
 @Getter
 @Entity
@@ -39,4 +42,20 @@ public class PaypalPaymentPostgres {
 
     @Column(name = "updated_at")
     private OffsetDateTime updatedAt;
+
+    public PaypalPaymentPostgres fromPaypalPaymentSave(PaypalPaymentSave save) {
+        this.paymentId = save.getPaymentId();
+        this.paypalOrderId = save.getPaypalOrderId();
+        this.status = save.getStatus();
+        this.createdAt = OffsetDateTime.now(ZoneOffset.UTC);
+        return this;
+    }
+
+    public PaypalPaymentPostgres fromPaypalPaymentUpdate(PaypalPaymentUpdate update) {
+        this.paypalPayerId = update.getPaypalPayerId();
+        this.captureId = update.getCaptureId();
+        this.status = update.getStatus();
+        this.updatedAt = OffsetDateTime.now(ZoneOffset.UTC);
+        return this;
+    }
 }

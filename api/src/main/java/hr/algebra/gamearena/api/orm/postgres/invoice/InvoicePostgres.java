@@ -1,10 +1,12 @@
 package hr.algebra.gamearena.api.orm.postgres.invoice;
 
+import hr.algebra.gamearena.api.model.invoice.InvoiceSave;
 import jakarta.persistence.*;
 import lombok.Getter;
 import org.hibernate.annotations.DynamicInsert;
 
 import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 
 @Getter
 @Entity
@@ -27,4 +29,12 @@ public class InvoicePostgres {
 
     @Column(name = "created_at", nullable = false)
     private OffsetDateTime createdAt;
+
+    public InvoicePostgres fromInvoiceSave(InvoiceSave save) {
+        this.userId = save.getUserId();
+        this.billingInfoId = save.getBillingInfoId();
+        this.paymentId = save.getPaymentId();
+        this.createdAt = OffsetDateTime.now(ZoneOffset.UTC);
+        return this;
+    }
 }

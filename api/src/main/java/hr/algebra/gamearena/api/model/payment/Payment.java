@@ -3,6 +3,7 @@ package hr.algebra.gamearena.api.model.payment;
 import hr.algebra.gamearena.api.orm.postgres.payment.PaymentPostgres;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 
 public record Payment(
@@ -10,9 +11,9 @@ public record Payment(
         PaymentStatus status,
         BigDecimal amount,
         String currency,
-        OffsetDateTime created_at
+        OffsetDateTime createdAt
 ) {
-    public static Payment fromPaymentPostgres(final PaymentPostgres paymentPostgres) {
+    public static Payment fromPaymentPostgres(PaymentPostgres paymentPostgres) {
         return new Payment(
                 paymentPostgres.getId(),
                 PaymentStatus.fromPaymentStatusPostgres(paymentPostgres.getStatus()),
