@@ -6,8 +6,8 @@ import hr.algebra.gamearena.api.model.tournament.member.TournamentMember;
 import hr.algebra.gamearena.api.model.tournament.member.TournamentMemberRole;
 import hr.algebra.gamearena.api.model.tournament.member.TournamentMemberSave;
 import hr.algebra.gamearena.api.model.tournament.member.TournamentMemberUpdate;
-import hr.algebra.gamearena.api.orm.postgres.TournamentMemberPostgres;
-import hr.algebra.gamearena.api.orm.postgres.TournamentPostgres;
+import hr.algebra.gamearena.api.orm.postgres.tournament.TournamentMemberPostgres;
+import hr.algebra.gamearena.api.orm.postgres.tournament.TournamentPostgres;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;

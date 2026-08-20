@@ -1,7 +1,7 @@
 package hr.algebra.gamearena.api.repository.tournament;
 
 import hr.algebra.gamearena.api.model.tournament.member.TournamentMemberRole;
-import hr.algebra.gamearena.api.orm.postgres.TournamentMemberPostgres;
+import hr.algebra.gamearena.api.orm.postgres.tournament.TournamentMemberPostgres;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

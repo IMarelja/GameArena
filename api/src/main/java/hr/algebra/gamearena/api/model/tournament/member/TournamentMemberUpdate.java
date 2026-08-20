@@ -6,5 +6,6 @@ import lombok.Setter;
 @Getter
 @Setter
 public class TournamentMemberUpdate {
-    TournamentMemberRole role;
+    private TournamentMemberRole role;
+    private Long groupId;
 }

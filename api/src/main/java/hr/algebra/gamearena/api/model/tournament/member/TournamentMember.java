@@ -1,6 +1,6 @@
 package hr.algebra.gamearena.api.model.tournament.member;
 
-import hr.algebra.gamearena.api.orm.postgres.TournamentMemberPostgres;
+import hr.algebra.gamearena.api.orm.postgres.tournament.TournamentMemberPostgres;
 
 import java.time.LocalDateTime;
 

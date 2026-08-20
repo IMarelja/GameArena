@@ -1,0 +1,42 @@
+package hr.algebra.gamearena.api.orm.postgres.invoice;
+
+import jakarta.persistence.*;
+import lombok.Getter;
+import org.hibernate.annotations.DynamicInsert;
+
+import java.time.OffsetDateTime;
+
+@Getter
+@Entity
+@Table(name = "billing_info")
+@DynamicInsert
+public class BillingInfoPostgres {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
+    private Long id;
+
+    @Column(name = "full_name", nullable = false, length = 150)
+    private String fullName;
+
+    @Column(name = "email", nullable = false)
+    private String email;
+
+    @Column(name = "address_line", nullable = false)
+    private String addressLine;
+
+    @Column(name = "city", nullable = false, length = 100)
+    private String city;
+
+    @Column(name = "state", length = 100)
+    private String state;
+
+    @Column(name = "zip_code", nullable = false, length = 20)
+    private String zipCode;
+
+    @Column(name = "country", nullable = false, length = 3)
+    private String country;
+
+    @Column(name = "created_at", nullable = false)
+    private OffsetDateTime createdAt;
+}

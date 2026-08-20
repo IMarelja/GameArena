@@ -176,13 +176,6 @@ CREATE INDEX idx_invoices_billing_info_id ON invoices (billing_info_id);
 -- TOURNAMENT
 -- ---------------------------------------------------------------------
 
---CREATE TYPE tournament_status AS ENUM (
---	'SCHEDULED',
---	'LIVE',
---	'ENDED',
---	'CANCELED'
---);
-
 CREATE TABLE tournaments (
 	id 			BIGINT 			GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
 	name 			VARCHAR(255) 		NOT NULL,

@@ -10,4 +10,7 @@ public class TournamentMemberSave {
     private Long userId;
     private Long tournamentId;
     private TournamentMemberRole role;
+    private Long payerId;
+    private Long groupId;
+    private Long paymentId;
 }

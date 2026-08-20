@@ -1,4 +1,4 @@
-package hr.algebra.gamearena.api.orm.postgres;
+package hr.algebra.gamearena.api.orm.postgres.tournament;
 
 import hr.algebra.gamearena.api.model.tournament.TournamentSave;
 import hr.algebra.gamearena.api.model.tournament.TournamentStatus;
@@ -7,6 +7,7 @@ import lombok.Getter;
 import org.hibernate.annotations.DynamicInsert;
 import org.springframework.util.StringUtils;
 
+import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 
@@ -33,6 +34,15 @@ public class TournamentPostgres {
     @Column(name = "status", nullable = false, length = 20)
     private TournamentStatus status;
 
+    @Column(name = "price_solo", nullable = false, precision = 12, scale = 2)
+    private BigDecimal priceSolo;
+
+    @Column(name = "price_group", nullable = false, precision = 12, scale = 2)
+    private BigDecimal priceGroup;
+
+    @Column(name = "currency", nullable = false, length = 3)
+    private String currency;
+
     @Column(name = "starts_at", nullable = false)
     private OffsetDateTime startsAt;
 
@@ -49,6 +59,11 @@ public class TournamentPostgres {
                 : null;
         this.gameId = save.getGameId();
         this.status = save.getStatus();
+
+        this.priceSolo = save.getPriceSolo();
+        this.priceGroup = save.getPriceGroup();
+        this.currency = save.getCurrency();
+
         this.startsAt = save.getStartsAt();
         this.endsAt = save.getEndsAt() != null ? save.getEndsAt() : null;
         this.createdAt = OffsetDateTime.now(ZoneOffset.UTC);
