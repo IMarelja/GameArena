@@ -50,13 +50,13 @@ public class TournamentController {
     @PostMapping
     @PreAuthorize("permitAll()") // later ADMIN only
     public ResponseEntity<ApiResponse<TournamentFullView>> createTournament(@Valid @RequestBody TournamentCreateRequest request) {
-        return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).build();
+        return ResponseEntity.ok(ApiResponse.success(tournamentService.createTournament(request)));
     }
 
     @PutMapping("/{id}")
     @PreAuthorize("permitAll()") // later ADMIN only
     public ResponseEntity<ApiResponse<TournamentFullView>> updateTournament(@PathVariable Long id, @Valid @RequestBody TournamentEditRequest request) {
-        return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).build();
+        return ResponseEntity.ok(ApiResponse.success(tournamentService.updateTournament(id, request)));
     }
 
     @DeleteMapping("/{id}")
@@ -91,7 +91,9 @@ public class TournamentController {
             @PathVariable Long tournamentId,
             @Valid @RequestBody TournamentMemberHighPrivilegeAddRequest request
     ){
-        return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).build();
+        request.setTournamentId(tournamentId);
+
+        return ResponseEntity.ok(ApiResponse.success(tournamentService.addTournamentMemberAsAHighPrivilege(request)));
     }
 
     @PatchMapping("/member/{id}")
