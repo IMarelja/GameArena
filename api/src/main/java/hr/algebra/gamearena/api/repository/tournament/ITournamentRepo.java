@@ -1,6 +1,7 @@
 package hr.algebra.gamearena.api.repository.tournament;
 
 import hr.algebra.gamearena.api.model.tournament.Tournament;
+import hr.algebra.gamearena.api.model.tournament.TournamentUpdate;
 import hr.algebra.gamearena.api.model.tournament.member.TournamentMember;
 import hr.algebra.gamearena.api.model.tournament.member.TournamentMemberRole;
 import hr.algebra.gamearena.api.model.tournament.member.TournamentMemberSave;
@@ -15,7 +16,7 @@ public interface ITournamentRepo {
     List<Tournament> getAllTournament();
     Optional<Tournament> getTournamentById(Long id);
     Tournament createTournament(TournamentSave tournamentSave);
-    Optional<Tournament> updateTournament(Long id, TournamentSave tournamentUpdate);
+    Optional<Tournament> updateTournament(Long id, TournamentUpdate tournamentUpdate);
     void deleteTournament(Long id);
     boolean tournamentExistsById(Long id);
 

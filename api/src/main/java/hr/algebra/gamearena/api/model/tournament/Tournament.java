@@ -2,6 +2,7 @@ package hr.algebra.gamearena.api.model.tournament;
 
 import hr.algebra.gamearena.api.orm.postgres.tournament.TournamentPostgres;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 public record Tournament(
@@ -9,6 +10,9 @@ public record Tournament(
         String name,
         String description,
         Long gameId,
+        BigDecimal soloPrice,
+        BigDecimal groupPrice,
+        String currency,
         TournamentStatus status,
         LocalDateTime startsAt,
         LocalDateTime endsAt,
@@ -20,6 +24,11 @@ public record Tournament(
                 tournamentPostgres.getName(),
                 tournamentPostgres.getDescription(),
                 tournamentPostgres.getGameId(),
+
+                tournamentPostgres.getPriceSolo(),
+                tournamentPostgres.getPriceGroup(),
+                tournamentPostgres.getCurrency(),
+
                 tournamentPostgres.getStatus(),
                 tournamentPostgres.getStartsAt().toLocalDateTime(),
                 tournamentPostgres.getEndsAt() != null

@@ -2,6 +2,7 @@ package hr.algebra.gamearena.api.orm.postgres.tournament;
 
 import hr.algebra.gamearena.api.model.tournament.TournamentSave;
 import hr.algebra.gamearena.api.model.tournament.TournamentStatus;
+import hr.algebra.gamearena.api.model.tournament.TournamentUpdate;
 import jakarta.persistence.*;
 import lombok.Getter;
 import org.hibernate.annotations.DynamicInsert;
@@ -67,6 +68,23 @@ public class TournamentPostgres {
         this.startsAt = save.getStartsAt();
         this.endsAt = save.getEndsAt() != null ? save.getEndsAt() : null;
         this.createdAt = OffsetDateTime.now(ZoneOffset.UTC);
+        return this;
+    }
+
+    public TournamentPostgres fromTournamentUpdate(TournamentUpdate update) {
+        this.name = update.getName();
+        this.description = StringUtils.hasText(update.getDescription())
+                ? update.getDescription()
+                : null;
+        this.gameId = update.getGameId();
+        this.status = update.getStatus();
+
+        this.priceSolo = update.getPriceSolo();
+        this.priceGroup = update.getPriceGroup();
+        this.currency = update.getCurrency();
+
+        this.startsAt = update.getStartsAt();
+        this.endsAt = update.getEndsAt() != null ? update.getEndsAt() : null;
         return this;
     }
 }

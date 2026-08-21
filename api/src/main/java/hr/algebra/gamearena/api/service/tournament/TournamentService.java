@@ -13,6 +13,7 @@ import hr.algebra.gamearena.api.model.games.Games;
 import hr.algebra.gamearena.api.model.tournament.Tournament;
 import hr.algebra.gamearena.api.model.tournament.TournamentSave;
 import hr.algebra.gamearena.api.model.tournament.TournamentStatus;
+import hr.algebra.gamearena.api.model.tournament.TournamentUpdate;
 import hr.algebra.gamearena.api.model.tournament.member.TournamentMemberRole;
 import hr.algebra.gamearena.api.model.tournament.member.TournamentMemberSave;
 import hr.algebra.gamearena.api.model.tournament.member.TournamentMemberUpdate;
@@ -57,7 +58,11 @@ public class TournamentService implements ITournamentService {
                 + "Assign someone else to be the Organizer for this Tournament";
     }
 
-    public TournamentService(ITournamentRepo tournamentRepo, IGamesRepo gamesRepo, IUserRepo userRepo) {
+    public TournamentService(
+            ITournamentRepo tournamentRepo,
+            IGamesRepo gamesRepo,
+            IUserRepo userRepo
+    ) {
         this.tournamentRepo = tournamentRepo;
         this.gamesRepo = gamesRepo;
         this.userRepo = userRepo;
@@ -85,12 +90,17 @@ public class TournamentService implements ITournamentService {
                 .orElseThrow(() -> new NotFoundException(gameNotFoundByIdOutput(request.getGameId())));
 
         var tournamentSave = new TournamentSave();
+
         tournamentSave.setName(request.getName());
         tournamentSave.setDescription(request.getDescription());
         tournamentSave.setGameId(request.getGameId());
         tournamentSave.setStatus(TournamentStatus.SCHEDULED);
         tournamentSave.setStartsAt(request.getStartsAt());
         tournamentSave.setEndsAt(request.getEndsAt());
+
+        tournamentSave.setPriceSolo(request.getPrice().getSoloPrice());
+        tournamentSave.setPriceGroup(request.getPrice().getGroupPrice());
+        tournamentSave.setCurrency(request.getPrice().getCurrency());
 
         var created = tournamentRepo.createTournament(tournamentSave);
         return TournamentFullView.fromTournamentAndGame(created, game);
@@ -101,15 +111,21 @@ public class TournamentService implements ITournamentService {
         var game = gamesRepo.getById(request.getGameId())
                 .orElseThrow(() -> new NotFoundException(gameNotFoundByIdOutput(request.getGameId())));
 
-        var tournamentSave = new TournamentSave();
-        tournamentSave.setName(request.getName());
-        tournamentSave.setDescription(request.getDescription());
-        tournamentSave.setGameId(request.getGameId());
-        tournamentSave.setStatus(request.getStatus());
-        tournamentSave.setStartsAt(request.getStartsAt());
-        tournamentSave.setEndsAt(request.getEndsAt());
+        var tournamentUpdate = new TournamentUpdate();
 
-        var updated = tournamentRepo.updateTournament(id, tournamentSave)
+        tournamentUpdate.setName(request.getName());
+        tournamentUpdate.setDescription(request.getDescription());
+        tournamentUpdate.setGameId(request.getGameId());
+        tournamentUpdate.setStatus(request.getStatus());
+
+        tournamentUpdate.setPriceSolo(request.getPrice().getSoloPrice());
+        tournamentUpdate.setPriceGroup(request.getPrice().getGroupPrice());
+        tournamentUpdate.setCurrency(request.getPrice().getCurrency());
+
+        tournamentUpdate.setStartsAt(request.getStartsAt());
+        tournamentUpdate.setEndsAt(request.getEndsAt());
+
+        var updated = tournamentRepo.updateTournament(id, tournamentUpdate)
                 .orElseThrow(() -> new NotFoundException(tournamentNotFoundByIdOutput(id)));
 
         return TournamentFullView.fromTournamentAndGame(updated, game);

@@ -1,6 +1,8 @@
 package hr.algebra.gamearena.api.dto.tournament;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import hr.algebra.gamearena.api.dto.tournament.price.PriceCreateRequest;
+import hr.algebra.gamearena.api.dto.tournament.price.PriceEditRequest;
 import hr.algebra.gamearena.api.model.tournament.TournamentStatus;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -24,6 +26,9 @@ public class TournamentEditRequest {
 
     @NotNull(message = "Status is required")
     private TournamentStatus status;
+
+    @NotNull(message = "Price is required")
+    private PriceEditRequest price;
 
     @NotNull(message = "Start date is required")
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ssXXX")

@@ -2,6 +2,7 @@ package hr.algebra.gamearena.api.repository.tournament;
 
 import hr.algebra.gamearena.api.model.tournament.Tournament;
 import hr.algebra.gamearena.api.model.tournament.TournamentSave;
+import hr.algebra.gamearena.api.model.tournament.TournamentUpdate;
 import hr.algebra.gamearena.api.model.tournament.member.TournamentMember;
 import hr.algebra.gamearena.api.model.tournament.member.TournamentMemberRole;
 import hr.algebra.gamearena.api.model.tournament.member.TournamentMemberSave;
@@ -47,9 +48,9 @@ public class TournamentPostgresRepo implements ITournamentRepo {
     }
 
     @Override
-    public Optional<Tournament> updateTournament(Long id, TournamentSave tournamentUpdate) {
+    public Optional<Tournament> updateTournament(Long id, TournamentUpdate tournamentUpdate) {
         return tournamentPostgreSQLRepo.findById(id)
-                .map(existing -> existing.fromTournamentSave(tournamentUpdate))
+                .map(existing -> existing.fromTournamentUpdate(tournamentUpdate))
                 .map(tournamentPostgreSQLRepo::save)
                 .map(Tournament::fromTournamentPostgres);
     }
