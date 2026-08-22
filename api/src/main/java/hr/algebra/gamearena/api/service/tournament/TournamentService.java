@@ -44,6 +44,8 @@ public class TournamentService implements ITournamentService {
     private final IInvoiceRepo invoiceRepo;
     private final IPaymentRepo paymentRepo;
 
+    private static final String USER_NOT_FOUND_OR_NOT_ACTIVE = "User not found or not active";
+
     private static String tournamentNotFoundByIdOutput(Long id) {
         return "Tournament not found with id: " + id;
     }
@@ -51,8 +53,6 @@ public class TournamentService implements ITournamentService {
     private static String gameNotFoundByIdOutput(Long id) {
         return "Game not found with id: " + id;
     }
-
-    private static final String USER_NOT_FOUND_OR_NOT_ACTIVE = "User not found or not active";
 
     private static String tournamentMemberNotFoundByIdOutput(Long id) {
         return "Tournament member not found with id: " + id;
