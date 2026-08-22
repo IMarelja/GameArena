@@ -6,7 +6,7 @@ import hr.algebra.gamearena.api.service.payment.IPaymentService;
 import org.springframework.stereotype.Service;
 
 @Service
-public class TestPayService implements IPaymentService<TestPayResponseView> {
+public class TestPayService implements IPaymentService {
 
     @Override
     public TestPayResponseView pay(Long id, PaymentRequest paymentRequest) {

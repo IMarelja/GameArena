@@ -81,7 +81,7 @@ public class TournamentController {
 
     @PostMapping("/{tournamentId}/join")
     @PreAuthorize("isAuthenticated()")
-    public Flux<ServerSentEvent<ApiResponse<PaymentResponseView<?>>>> joinTournament(
+    public Flux<ServerSentEvent<ApiResponse<PaymentResponseView>>> joinTournament(
             @AuthenticationPrincipal JwtTokenClaim caller,
             @PathVariable Long tournamentId,
             @Valid @RequestBody PaymentRequest paymentRequest
@@ -91,14 +91,14 @@ public class TournamentController {
                     boolean isTransactionError = status.stage() == PaymentStagesView.FAILED
                             || status.stage() == PaymentStagesView.TIME_OUT;
 
-                    ApiResponse<PaymentResponseView<?>> response;
+                    ApiResponse<PaymentResponseView> response;
                     if (isTransactionError) {
                         response = ApiResponse.errorDataOnly(status);
                     } else {
                         response = ApiResponse.success(status);
                     }
 
-                    return ServerSentEvent.<ApiResponse<PaymentResponseView<?>>>builder(response)
+                    return ServerSentEvent.<ApiResponse<PaymentResponseView>>builder(response)
                             .event("tournament-join-status")
                             .build();
                 });

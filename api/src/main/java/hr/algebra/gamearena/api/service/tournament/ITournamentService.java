@@ -23,7 +23,7 @@ public interface ITournamentService {
 
     // Tournament member
     List<TournamentMemberView> getTournamentsMembers(Long tournamentId);
-    Flux<PaymentResponseView<?>> joinAsRegularTournamentMemberAndPay(Long callerId, Long tournamentId, PaymentRequest paymentRequest);
+    Flux<PaymentResponseView> joinAsRegularTournamentMemberAndPay(Long callerId, Long tournamentId, PaymentRequest paymentRequest);
     TournamentMemberView addTournamentMemberAsAHighPrivilege(TournamentMemberHighPrivilegeAddRequest request);
     TournamentMemberView editTournamentMember(Long callerId, Long tournamentMemberId, TournamentMemberEditRequest request);
     void removeTournamentMember(Long callerId, Long tournamentMemberId);

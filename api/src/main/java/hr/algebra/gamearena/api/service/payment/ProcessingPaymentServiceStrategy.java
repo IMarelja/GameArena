@@ -11,7 +11,7 @@ import java.util.Map;
 @Component
 public class ProcessingPaymentServiceStrategy {
 
-    private final Map<PaymentTypes, IPaymentService<?>> paymentServicesByType;
+    private final Map<PaymentTypes, IPaymentService> paymentServicesByType;
 
     public ProcessingPaymentServiceStrategy(
             PaypalService paypalService,
@@ -23,7 +23,7 @@ public class ProcessingPaymentServiceStrategy {
         );
     }
 
-    public IPaymentService<?> resolve(PaymentTypes paymentType) {
+    public IPaymentService resolve(PaymentTypes paymentType) {
         var paymentService = paymentServicesByType.get(paymentType);
         if (paymentService == null) {
             throw new InvalidVariableException("Unsupported payment type: " + paymentType);

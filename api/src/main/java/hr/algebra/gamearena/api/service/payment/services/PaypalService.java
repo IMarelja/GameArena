@@ -6,7 +6,7 @@ import hr.algebra.gamearena.api.service.payment.IPaymentService;
 import org.springframework.stereotype.Service;
 
 @Service
-public class PaypalService implements IPaymentService<PaypalResponseView> {
+public class PaypalService implements IPaymentService {
 
 
     @Override

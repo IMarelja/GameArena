@@ -172,7 +172,7 @@ public class TournamentService implements ITournamentService {
     }
 
     @Override
-    public Flux<PaymentResponseView<?>> joinAsRegularTournamentMemberAndPay(Long callerId, Long tournamentId, PaymentRequest paymentRequest) {
+    public Flux<PaymentResponseView> joinAsRegularTournamentMemberAndPay(Long callerId, Long tournamentId, PaymentRequest paymentRequest) {
         return Mono.fromRunnable(() -> validateJoinEligibility(callerId, tournamentId))
                     .subscribeOn(Schedulers.boundedElastic())
                 .then(Mono.fromCallable(() -> createPaymentRecords(callerId, tournamentId, paymentRequest))
@@ -180,7 +180,7 @@ public class TournamentService implements ITournamentService {
                 .flatMapMany(records -> {
                     var paymentId = records.payment().id();
 
-                    return Flux.<PaymentResponseView<?>>create(sink -> {
+                    return Flux.<PaymentResponseView>create(sink -> {
                         try {
                             sink.next(PaymentResponseView.justStatus(PaymentStagesView.PROCESSING_PAYMENT));
 
