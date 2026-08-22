@@ -9,7 +9,9 @@ public record TournamentMember(
         Long tournamentId,
         Long userId,
         TournamentMemberRole role,
-        LocalDateTime joinedAt
+        LocalDateTime joinedAt,
+        Long paymentId,
+        Boolean confirmed
 ) {
     public static TournamentMember fromTournamentMemberPostgres(TournamentMemberPostgres tournamentMemberPostgres) {
         return new TournamentMember(
@@ -17,7 +19,9 @@ public record TournamentMember(
                 tournamentMemberPostgres.getTournamentId(),
                 tournamentMemberPostgres.getUserId(),
                 tournamentMemberPostgres.getRole(),
-                tournamentMemberPostgres.getJoinedAt().toLocalDateTime()
+                tournamentMemberPostgres.getJoinedAt().toLocalDateTime(),
+                tournamentMemberPostgres.getPaymentId(),
+                tournamentMemberPostgres.getConfirmed()
         );
     }
 }

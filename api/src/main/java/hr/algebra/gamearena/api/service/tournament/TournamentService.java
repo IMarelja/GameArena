@@ -1,14 +1,16 @@
 package hr.algebra.gamearena.api.service.tournament;
 
+import hr.algebra.gamearena.api.dto.payment.PaymentRequest;
 import hr.algebra.gamearena.api.dto.tournament.TournamentCreateRequest;
 import hr.algebra.gamearena.api.dto.tournament.TournamentEditRequest;
 import hr.algebra.gamearena.api.dto.tournament.TournamentFullView;
+import hr.algebra.gamearena.api.dto.payment.responce.PaymentStagesView;
+import hr.algebra.gamearena.api.dto.payment.responce.PaymentResponseView;
 import hr.algebra.gamearena.api.dto.tournament.member.TournamentMemberEditRequest;
 import hr.algebra.gamearena.api.dto.tournament.member.TournamentMemberHighPrivilegeAddRequest;
 import hr.algebra.gamearena.api.dto.tournament.member.TournamentMemberView;
-import hr.algebra.gamearena.api.exceptions.extenders.ConflictException;
-import hr.algebra.gamearena.api.exceptions.extenders.InvalidVariableException;
-import hr.algebra.gamearena.api.exceptions.extenders.NotFoundException;
+import hr.algebra.gamearena.api.exceptions.GameArenaApiException;
+import hr.algebra.gamearena.api.exceptions.extenders.*;
 import hr.algebra.gamearena.api.model.games.Games;
 import hr.algebra.gamearena.api.model.tournament.Tournament;
 import hr.algebra.gamearena.api.model.tournament.TournamentSave;
@@ -20,7 +22,10 @@ import hr.algebra.gamearena.api.model.tournament.member.TournamentMemberUpdate;
 import hr.algebra.gamearena.api.repository.games.IGamesRepo;
 import hr.algebra.gamearena.api.repository.tournament.ITournamentRepo;
 import hr.algebra.gamearena.api.repository.user.IUserRepo;
+import org.apache.coyote.BadRequestException;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
+import reactor.core.scheduler.Schedulers;
 
 import java.util.List;
 import java.util.Optional;
@@ -41,7 +46,7 @@ public class TournamentService implements ITournamentService {
     }
 
     private static String userNotFoundByIdOutput(Long id) {
-        return "User not found with id: " + id;
+        return "User not found or not active";
     }
 
     private static String tournamentMemberNotFoundByIdOutput(Long id) {
@@ -155,8 +160,44 @@ public class TournamentService implements ITournamentService {
     }
 
     @Override
-    public void joinAsRegularTournamentMemberAndPay(Long calledId) {
+    public Flux<PaymentResponseView<?>> joinAsRegularTournamentMemberAndPay(Long callerId, Long tournamentId, PaymentRequest paymentRequest) {
+        return Flux.<PaymentResponseView<?>>create(sink -> {
+            //try {
+                sink.next(PaymentResponseView.justStatus(PaymentStagesView.VALIDATING));
 
+                var caller = userRepo.findById(callerId)
+                        .filter(user -> Boolean.TRUE.equals(user.isActive()))
+                        .orElseThrow(() -> new UserNotFoundException(userNotFoundByIdOutput(callerId)));
+
+                var tournament = tournamentRepo.getTournamentById(tournamentId)
+                        .orElseThrow(() -> new NotFoundException(tournamentNotFoundByIdOutput(tournamentId)));
+
+                if (tournament.status() != TournamentStatus.SCHEDULED) {
+                    throw new BadRequestedException("Tournament is not open for new members");
+                }
+
+                if (tournamentRepo.isUserPartOfTournament(callerId, tournamentId)) {
+                    throw new ConflictException("You are already a member of this tournament");
+                }
+
+                if(tournamentRepo.isUserPaymentPending(callerId, tournamentId)) {
+                    throw new ConflictException("You already requested another payment to join this tournament, finish it or wait it to timeout");
+                }
+
+                sink.next(PaymentResponseView.justStatus(PaymentStagesView.PROCESSING_PAYMENT));
+
+                // Processing stuff
+
+                sink.complete();
+            /*
+            } catch (GameArenaApiException ex) {
+                sink.next(PaymentResponseView.failure(null, ex.getMessage()));
+                sink.complete();
+            } catch (Exception ex) {
+                sink.next(PaymentResponseView.failure(null, "Payment could not be completed: " + ex.getMessage()));
+                sink.complete();
+            }*/
+        }).subscribeOn(Schedulers.boundedElastic());
     }
 
     @Override

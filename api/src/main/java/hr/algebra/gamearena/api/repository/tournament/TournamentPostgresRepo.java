@@ -7,11 +7,14 @@ import hr.algebra.gamearena.api.model.tournament.member.TournamentMember;
 import hr.algebra.gamearena.api.model.tournament.member.TournamentMemberRole;
 import hr.algebra.gamearena.api.model.tournament.member.TournamentMemberSave;
 import hr.algebra.gamearena.api.model.tournament.member.TournamentMemberUpdate;
+import hr.algebra.gamearena.api.model.payment.PaymentStatus;
 import hr.algebra.gamearena.api.orm.postgres.tournament.TournamentMemberPostgres;
 import hr.algebra.gamearena.api.orm.postgres.tournament.TournamentPostgres;
+import hr.algebra.gamearena.api.repository.payment.IPaymentRepo;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Repository
@@ -19,10 +22,16 @@ public class TournamentPostgresRepo implements ITournamentRepo {
 
     private final ITournamentPostgreSQLRepo tournamentPostgreSQLRepo;
     private final ITournamentMemberPostgreSQLRepo tournamentMemberPostgreSQLRepo;
+    private final IPaymentRepo paymentRepo;
 
-    public TournamentPostgresRepo(ITournamentPostgreSQLRepo tournamentPostgreSQLRepo, ITournamentMemberPostgreSQLRepo tournamentMemberPostgreSQLRepo) {
+    public TournamentPostgresRepo(
+            ITournamentPostgreSQLRepo tournamentPostgreSQLRepo,
+            ITournamentMemberPostgreSQLRepo tournamentMemberPostgreSQLRepo,
+            IPaymentRepo paymentRepo
+    ) {
         this.tournamentPostgreSQLRepo = tournamentPostgreSQLRepo;
         this.tournamentMemberPostgreSQLRepo = tournamentMemberPostgreSQLRepo;
+        this.paymentRepo = paymentRepo;
     }
 
     // Tournament
@@ -109,6 +118,22 @@ public class TournamentPostgresRepo implements ITournamentRepo {
     @Override
     public boolean isUserPartOfTournament(Long userId, Long tournamentId) {
         return tournamentMemberPostgreSQLRepo.existsByTournamentIdAndUserId(tournamentId, userId);
+    }
+
+    @Override
+    public boolean isUserPartOfTournamentAndActive(Long userId, Long tournamentId) {
+        return tournamentMemberPostgreSQLRepo.existsByTournamentIdAndUserIdAndConfirmedTrue(tournamentId, userId);
+    }
+
+    @Override
+    public boolean isUserPaymentPending(Long userId, Long tournamentId) {
+        return tournamentMemberPostgreSQLRepo.findByTournamentIdAndUserId(tournamentId, userId)
+                .stream()
+                .map(TournamentMemberPostgres::getPaymentId)
+                .filter(Objects::nonNull)
+                .map(paymentRepo::findPaymentById)
+                .flatMap(Optional::stream)
+                .anyMatch(payment -> payment.status() == PaymentStatus.PENDING);
     }
 
     @Override

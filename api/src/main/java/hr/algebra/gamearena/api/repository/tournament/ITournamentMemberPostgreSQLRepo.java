@@ -8,6 +8,8 @@ import java.util.List;
 
 public interface ITournamentMemberPostgreSQLRepo extends JpaRepository<TournamentMemberPostgres, Long> {
     List<TournamentMemberPostgres> findByTournamentId(Long tournamentId);
+    List<TournamentMemberPostgres> findByTournamentIdAndUserId(Long tournamentId, Long userId);
     boolean existsByTournamentIdAndUserId(Long tournamentId, Long userId);
+    boolean existsByTournamentIdAndUserIdAndConfirmedTrue(Long tournamentId, Long userId);
     long countByTournamentIdAndRole(Long tournamentId, TournamentMemberRole role);
 }

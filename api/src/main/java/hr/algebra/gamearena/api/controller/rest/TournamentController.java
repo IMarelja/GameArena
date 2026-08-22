@@ -5,6 +5,8 @@ import hr.algebra.gamearena.api.dto.payment.PaymentRequest;
 import hr.algebra.gamearena.api.dto.tournament.TournamentCreateRequest;
 import hr.algebra.gamearena.api.dto.tournament.TournamentEditRequest;
 import hr.algebra.gamearena.api.dto.tournament.TournamentFullView;
+import hr.algebra.gamearena.api.dto.payment.responce.PaymentResponseView;
+import hr.algebra.gamearena.api.dto.payment.responce.PaymentStagesView;
 import hr.algebra.gamearena.api.dto.tournament.member.TournamentMemberEditRequest;
 import hr.algebra.gamearena.api.dto.tournament.member.TournamentMemberHighPrivilegeAddRequest;
 import hr.algebra.gamearena.api.dto.tournament.member.TournamentMemberView;
@@ -13,9 +15,11 @@ import hr.algebra.gamearena.api.service.tournament.ITournamentService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.codec.ServerSentEvent;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Flux;
 
 import java.util.List;
 
@@ -77,12 +81,27 @@ public class TournamentController {
 
     @PostMapping("/{tournamentId}/join")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<ApiResponse<Void>> joinTournament(
+    public Flux<ServerSentEvent<ApiResponse<PaymentResponseView<?>>>> joinTournament(
             @AuthenticationPrincipal JwtTokenClaim caller,
             @PathVariable Long tournamentId,
             @Valid @RequestBody PaymentRequest paymentRequest
     ) {
-        return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).build();
+        return tournamentService.joinAsRegularTournamentMemberAndPay(caller.userId(), tournamentId, paymentRequest)
+                .map(status -> {
+                    boolean isTransactionError = status.stage() == PaymentStagesView.FAILED
+                            || status.stage() == PaymentStagesView.TIME_OUT;
+
+                    ApiResponse<PaymentResponseView<?>> response;
+                    if (isTransactionError) {
+                        response = ApiResponse.errorDataOnly(status);
+                    } else {
+                        response = ApiResponse.success(status);
+                    }
+
+                    return ServerSentEvent.<ApiResponse<PaymentResponseView<?>>>builder(response)
+                            .event("tournament-join-status")
+                            .build();
+                });
     }
 
     @PostMapping("/{tournamentId}/member")
