@@ -1,6 +1,6 @@
 package hr.algebra.gamearena.api.orm.postgres.tournament;
 
-import hr.algebra.gamearena.api.model.tournament.TournamentGroupSave;
+import hr.algebra.gamearena.api.model.tournament.group.TournamentGroupSave;
 import jakarta.persistence.*;
 import lombok.Getter;
 import org.hibernate.annotations.DynamicInsert;

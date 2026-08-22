@@ -1,4 +1,4 @@
-package hr.algebra.gamearena.api.model.tournament;
+package hr.algebra.gamearena.api.model.tournament.group;
 
 import lombok.Getter;
 import lombok.Setter;

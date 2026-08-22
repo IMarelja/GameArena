@@ -13,4 +13,5 @@ public class TournamentMemberSave {
     private Long payerId;
     private Long groupId;
     private Long paymentId;
+    private Boolean confirmed;
 }

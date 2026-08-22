@@ -59,7 +59,7 @@ public class TournamentMemberPostgres {
         this.paymentId = (save.getPaymentId() != null)
                 ? save.getPaymentId()
                 : null;
-        this.confirmed = false;
+        this.confirmed = save.getConfirmed();
         return this;
     }
 
