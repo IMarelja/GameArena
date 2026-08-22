@@ -4,5 +4,5 @@ import hr.algebra.gamearena.api.model.invoice.BillingInfo;
 import hr.algebra.gamearena.api.model.invoice.BillingInfoSave;
 
 public interface IBillingInfoRepo {
-    BillingInfo createBillingInfo(BillingInfoSave billingInfoSave);
+    BillingInfo save(BillingInfoSave billingInfoSave);
 }

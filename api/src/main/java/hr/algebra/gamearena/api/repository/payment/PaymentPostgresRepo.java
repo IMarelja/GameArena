@@ -24,14 +24,14 @@ public class PaymentPostgresRepo implements IPaymentRepo {
     }
 
     @Override
-    public Payment createPayment(PaymentSave paymentSave) {
+    public Payment save(PaymentSave paymentSave) {
         var paymentPostgres = new PaymentPostgres().fromPaymentSave(paymentSave);
         var saved = paymentPostgreSQLRepo.save(paymentPostgres);
         return Payment.fromPaymentPostgres(saved);
     }
 
     @Override
-    public Optional<Payment> updatePayment(Long id, PaymentUpdate paymentUpdate) {
+    public Optional<Payment> update(Long id, PaymentUpdate paymentUpdate) {
         return paymentPostgreSQLRepo.findById(id)
                 .map(existing -> existing.fromPaymentUpdate(paymentUpdate))
                 .map(paymentPostgreSQLRepo::save)

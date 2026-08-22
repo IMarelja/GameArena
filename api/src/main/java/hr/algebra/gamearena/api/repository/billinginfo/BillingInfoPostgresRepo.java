@@ -15,7 +15,7 @@ public class BillingInfoPostgresRepo implements IBillingInfoRepo {
     }
 
     @Override
-    public BillingInfo createBillingInfo(BillingInfoSave billingInfoSave) {
+    public BillingInfo save(BillingInfoSave billingInfoSave) {
         var billingInfoPostgres = new BillingInfoPostgres().fromBillingInfoSave(billingInfoSave);
         var saved = billingInfoPostgreSQLRepo.save(billingInfoPostgres);
         return BillingInfo.fromBillingInfoPostgres(saved);

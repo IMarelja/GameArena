@@ -8,6 +8,6 @@ import java.util.Optional;
 
 public interface IPaymentRepo {
     Optional<Payment> findPaymentById(Long id);
-    Payment createPayment(PaymentSave paymentSave);
-    Optional<Payment> updatePayment(Long id, PaymentUpdate paymentUpdate);
+    Payment save(PaymentSave paymentSave);
+    Optional<Payment> update(Long id, PaymentUpdate paymentUpdate);
 }

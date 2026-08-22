@@ -9,22 +9,28 @@ import hr.algebra.gamearena.api.dto.payment.responce.PaymentResponseView;
 import hr.algebra.gamearena.api.dto.tournament.member.TournamentMemberEditRequest;
 import hr.algebra.gamearena.api.dto.tournament.member.TournamentMemberHighPrivilegeAddRequest;
 import hr.algebra.gamearena.api.dto.tournament.member.TournamentMemberView;
-import hr.algebra.gamearena.api.exceptions.GameArenaApiException;
 import hr.algebra.gamearena.api.exceptions.extenders.*;
 import hr.algebra.gamearena.api.model.games.Games;
+import hr.algebra.gamearena.api.model.invoice.BillingInfoSave;
+import hr.algebra.gamearena.api.model.payment.Payment;
+import hr.algebra.gamearena.api.model.payment.PaymentSave;
 import hr.algebra.gamearena.api.model.tournament.Tournament;
 import hr.algebra.gamearena.api.model.tournament.TournamentSave;
 import hr.algebra.gamearena.api.model.tournament.TournamentStatus;
 import hr.algebra.gamearena.api.model.tournament.TournamentUpdate;
+import hr.algebra.gamearena.api.model.tournament.member.TournamentMember;
 import hr.algebra.gamearena.api.model.tournament.member.TournamentMemberRole;
 import hr.algebra.gamearena.api.model.tournament.member.TournamentMemberSave;
 import hr.algebra.gamearena.api.model.tournament.member.TournamentMemberUpdate;
 import hr.algebra.gamearena.api.repository.games.IGamesRepo;
+import hr.algebra.gamearena.api.repository.invoice.IInvoiceRepo;
+import hr.algebra.gamearena.api.repository.payment.IPaymentRepo;
+import hr.algebra.gamearena.api.repository.payment.PaymentPostgresRepo;
 import hr.algebra.gamearena.api.repository.tournament.ITournamentRepo;
 import hr.algebra.gamearena.api.repository.user.IUserRepo;
-import org.apache.coyote.BadRequestException;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
 import java.util.List;
@@ -36,6 +42,8 @@ public class TournamentService implements ITournamentService {
     private final ITournamentRepo tournamentRepo;
     private final IGamesRepo gamesRepo;
     private final IUserRepo userRepo;
+    private final IInvoiceRepo invoiceRepo;
+    private final IPaymentRepo paymentRepo;
 
     private static String tournamentNotFoundByIdOutput(Long id) {
         return "Tournament not found with id: " + id;
@@ -66,11 +74,14 @@ public class TournamentService implements ITournamentService {
     public TournamentService(
             ITournamentRepo tournamentRepo,
             IGamesRepo gamesRepo,
-            IUserRepo userRepo
-    ) {
+            IUserRepo userRepo,
+            IInvoiceRepo invoiceRepo,
+            IPaymentRepo paymentRepo) {
         this.tournamentRepo = tournamentRepo;
         this.gamesRepo = gamesRepo;
         this.userRepo = userRepo;
+        this.invoiceRepo = invoiceRepo;
+        this.paymentRepo = paymentRepo;
     }
 
     // Tournament
@@ -161,43 +172,91 @@ public class TournamentService implements ITournamentService {
 
     @Override
     public Flux<PaymentResponseView<?>> joinAsRegularTournamentMemberAndPay(Long callerId, Long tournamentId, PaymentRequest paymentRequest) {
-        return Flux.<PaymentResponseView<?>>create(sink -> {
-            //try {
-                sink.next(PaymentResponseView.justStatus(PaymentStagesView.VALIDATING));
+        return Mono.fromRunnable(() -> validateJoinEligibility(callerId, tournamentId))
+                .subscribeOn(Schedulers.boundedElastic())
+                .then(Mono.fromCallable(() -> createPaymentRecords(callerId, tournamentId, paymentRequest))
+                        .subscribeOn(Schedulers.boundedElastic()))
+                .flatMapMany(records -> {
+                    var paymentId = records.payment().id();
 
-                var caller = userRepo.findById(callerId)
-                        .filter(user -> Boolean.TRUE.equals(user.isActive()))
-                        .orElseThrow(() -> new UserNotFoundException(userNotFoundByIdOutput(callerId)));
+                    return Flux.<PaymentResponseView<?>>create(sink -> {
+                        try {
+                            sink.next(PaymentResponseView.justStatus(PaymentStagesView.PROCESSING_PAYMENT));
 
-                var tournament = tournamentRepo.getTournamentById(tournamentId)
-                        .orElseThrow(() -> new NotFoundException(tournamentNotFoundByIdOutput(tournamentId)));
+                            // Processing stuff
 
-                if (tournament.status() != TournamentStatus.SCHEDULED) {
-                    throw new BadRequestedException("Tournament is not open for new members");
-                }
+                            sink.complete();
+                        } catch (Exception ex) {
+                            sink.next(PaymentResponseView.failure(paymentId, "Payment could not be completed: " + ex.getMessage()));
+                            sink.complete();
+                        }
+                    }).subscribeOn(Schedulers.boundedElastic());
+                });
+    }
 
-                if (tournamentRepo.isUserPartOfTournament(callerId, tournamentId)) {
-                    throw new ConflictException("You are already a member of this tournament");
-                }
+    private record TournamentJoinRecords(
+            Payment payment,
+            TournamentMember member
+    ) {
+    }
 
-                if(tournamentRepo.isUserPaymentPending(callerId, tournamentId)) {
-                    throw new ConflictException("You already requested another payment to join this tournament, finish it or wait it to timeout");
-                }
+    private void validateJoinEligibility(Long callerId, Long tournamentId) {
+        userRepo.findById(callerId)
+                .filter(user -> Boolean.TRUE.equals(user.isActive()))
+                .orElseThrow(() -> new UserNotFoundException(userNotFoundByIdOutput(callerId)));
 
-                sink.next(PaymentResponseView.justStatus(PaymentStagesView.PROCESSING_PAYMENT));
+        var tournament = tournamentRepo.getTournamentById(tournamentId)
+                .orElseThrow(() -> new NotFoundException(tournamentNotFoundByIdOutput(tournamentId)));
 
-                // Processing stuff
+        if (tournament.status() != TournamentStatus.SCHEDULED) {
+            throw new BadRequestedException("Tournament is not open for new members");
+        }
 
-                sink.complete();
-            /*
-            } catch (GameArenaApiException ex) {
-                sink.next(PaymentResponseView.failure(null, ex.getMessage()));
-                sink.complete();
-            } catch (Exception ex) {
-                sink.next(PaymentResponseView.failure(null, "Payment could not be completed: " + ex.getMessage()));
-                sink.complete();
-            }*/
-        }).subscribeOn(Schedulers.boundedElastic());
+        if (tournamentRepo.isUserPartOfTournament(callerId, tournamentId)) {
+            throw new ConflictException("You are already a member of this tournament");
+        }
+
+        if (tournamentRepo.isUserPaymentPending(callerId, tournamentId)) {
+            throw new ConflictException("You already requested another payment to join this tournament, finish it or wait it to timeout");
+        }
+    }
+
+    private TournamentJoinRecords createPaymentRecords(Long callerId, Long tournamentId, PaymentRequest paymentRequest) {
+        var caller = userRepo.findById(callerId)
+                .orElseThrow(() -> new UserNotFoundException(userNotFoundByIdOutput(callerId)));
+
+        var tournament = tournamentRepo.getTournamentById(tournamentId)
+                .orElseThrow(() -> new NotFoundException(tournamentNotFoundByIdOutput(tournamentId)));
+
+        var billingDetails = paymentRequest.getPaymentDetails();
+
+        var billingInfoSave = new BillingInfoSave();
+        billingInfoSave.setFullName(billingDetails.getFullName());
+        billingInfoSave.setEmail(caller.email());
+        billingInfoSave.setAddressLine(billingDetails.getAddress());
+        billingInfoSave.setCity(billingDetails.getCity());
+        billingInfoSave.setState(billingDetails.getState());
+        billingInfoSave.setZipCode(billingDetails.getZipCode());
+        billingInfoSave.setCountry(billingDetails.getCountryCode());
+
+        var paymentSave = new PaymentSave();
+        paymentSave.setAmount(tournament.soloPrice());
+        paymentSave.setCurrency(tournament.currency());
+
+        var invoice = invoiceRepo.saveWithBillingInfoAndPaymentTransactional(callerId, billingInfoSave, paymentSave);
+
+        var payment = paymentRepo.findPaymentById(invoice.paymentId())
+                .orElseThrow(() -> new NotFoundException("Payment not found"));
+
+        var tournamentMemberSave = new TournamentMemberSave();
+        tournamentMemberSave.setUserId(callerId);
+        tournamentMemberSave.setTournamentId(tournamentId);
+        tournamentMemberSave.setRole(TournamentMemberRole.PARTICIPANTS);
+        tournamentMemberSave.setPaymentId(payment.id());
+        tournamentMemberSave.setConfirmed(false);
+        var member = tournamentRepo.addTournamentMember(tournamentMemberSave);
+
+        return new TournamentJoinRecords(payment, member);
     }
 
     @Override
@@ -218,6 +277,7 @@ public class TournamentService implements ITournamentService {
         tournamentMemberSave.setUserId(request.getUserId());
         tournamentMemberSave.setTournamentId(request.getTournamentId());
         tournamentMemberSave.setRole(request.getRole());
+        tournamentMemberSave.setConfirmed(true);
 
         var created = tournamentRepo.addTournamentMember(tournamentMemberSave);
         return TournamentMemberView.fromTournamentMember(created);
