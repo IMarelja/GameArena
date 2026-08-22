@@ -27,6 +27,8 @@ import hr.algebra.gamearena.api.repository.invoice.IInvoiceRepo;
 import hr.algebra.gamearena.api.repository.payment.IPaymentRepo;
 import hr.algebra.gamearena.api.repository.tournament.ITournamentRepo;
 import hr.algebra.gamearena.api.repository.user.IUserRepo;
+import hr.algebra.gamearena.api.service.payment.ProcessingPaymentServiceStrategy;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -35,6 +37,7 @@ import reactor.core.scheduler.Schedulers;
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @Service
 public class TournamentService implements ITournamentService {
 
@@ -73,7 +76,8 @@ public class TournamentService implements ITournamentService {
             IGamesRepo gamesRepo,
             IUserRepo userRepo,
             IInvoiceRepo invoiceRepo,
-            IPaymentRepo paymentRepo) {
+            IPaymentRepo paymentRepo,
+            ProcessingPaymentServiceStrategy processingPaymentServiceStrategy) {
         this.tournamentRepo = tournamentRepo;
         this.gamesRepo = gamesRepo;
         this.userRepo = userRepo;
@@ -170,7 +174,7 @@ public class TournamentService implements ITournamentService {
     @Override
     public Flux<PaymentResponseView<?>> joinAsRegularTournamentMemberAndPay(Long callerId, Long tournamentId, PaymentRequest paymentRequest) {
         return Mono.fromRunnable(() -> validateJoinEligibility(callerId, tournamentId))
-                .subscribeOn(Schedulers.boundedElastic())
+                    .subscribeOn(Schedulers.boundedElastic())
                 .then(Mono.fromCallable(() -> createPaymentRecords(callerId, tournamentId, paymentRequest))
                         .subscribeOn(Schedulers.boundedElastic()))
                 .flatMapMany(records -> {
@@ -209,12 +213,12 @@ public class TournamentService implements ITournamentService {
             throw new BadRequestedException("Tournament is not open for new members");
         }
 
-        if (tournamentRepo.isUserPartOfTournament(callerId, tournamentId)) {
-            throw new ConflictException("You are already a member of this tournament");
-        }
-
         if (tournamentRepo.isUserPaymentPending(callerId, tournamentId)) {
             throw new ConflictException("You already requested another payment to join this tournament, finish it or wait it to timeout");
+        }
+
+        if (tournamentRepo.isUserPartOfTournament(callerId, tournamentId)) {
+            throw new ConflictException("You are already a member of this tournament");
         }
     }
 
