@@ -219,8 +219,6 @@ public class TournamentService implements ITournamentService {
     }
 
     private TournamentJoinRecords createPaymentRecords(Long callerId, Long tournamentId, PaymentRequest paymentRequest) {
-        var caller = userRepo.findById(callerId)
-                .orElseThrow(() -> new UserNotFoundException(USER_NOT_FOUND_OR_NOT_ACTIVE));
 
         var tournament = tournamentRepo.getTournamentById(tournamentId)
                 .orElseThrow(() -> new NotFoundException(tournamentNotFoundByIdOutput(tournamentId)));
@@ -229,7 +227,7 @@ public class TournamentService implements ITournamentService {
 
         var billingInfoSave = new BillingInfoSave();
         billingInfoSave.setFullName(billingDetails.getFullName());
-        billingInfoSave.setEmail(caller.email());
+        billingInfoSave.setEmail(billingDetails.getEmail());
         billingInfoSave.setAddressLine(billingDetails.getAddress());
         billingInfoSave.setCity(billingDetails.getCity());
         billingInfoSave.setState(billingDetails.getState());

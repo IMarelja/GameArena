@@ -1,5 +1,6 @@
 package hr.algebra.gamearena.api.dto.payment;
 
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -12,6 +13,10 @@ import org.hibernate.validator.constraints.Length;
 public class BillingDetails {
     @NotBlank(message = "Your full name is required")
     private String fullName;
+
+    @Email
+    @NotBlank(message = "Email is required")
+    private String email;
 
     @NotBlank(message = "Address is required")
     private String address;
