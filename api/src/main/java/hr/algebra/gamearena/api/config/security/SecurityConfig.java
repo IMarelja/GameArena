@@ -1,4 +1,4 @@
-package hr.algebra.gamearena.api.config;
+package hr.algebra.gamearena.api.config.security;
 
 import hr.algebra.gamearena.api.filter.JwtAuthenticationFilter;
 import hr.algebra.gamearena.api.filter.UnconfiguredEndpointDenier;

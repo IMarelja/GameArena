@@ -1,4 +1,4 @@
-package hr.algebra.gamearena.api.config;
+package hr.algebra.gamearena.api.config.security;
 
 import hr.algebra.gamearena.api.dto.other.ApiError;
 import hr.algebra.gamearena.api.dto.other.ApiResponse;
