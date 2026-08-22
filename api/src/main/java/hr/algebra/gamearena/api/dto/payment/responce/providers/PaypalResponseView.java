@@ -1,4 +1,4 @@
-package hr.algebra.gamearena.api.dto.payment.providers;
+package hr.algebra.gamearena.api.dto.payment.responce.providers;
 
 import hr.algebra.gamearena.api.model.payment.paypal.PaypalPayment;
 

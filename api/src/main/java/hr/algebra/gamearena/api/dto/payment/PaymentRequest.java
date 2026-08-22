@@ -13,5 +13,5 @@ public class PaymentRequest {
     private PaymentTypes paymentType;
 
     @NotNull(message = "Billing details are required")
-    private BillingDetails paymentDetails;
+    private BillingDetailsRequest paymentDetails;
 }

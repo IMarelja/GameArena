@@ -6,7 +6,7 @@ import java.util.Optional;
 
 public record PaymentResponseView<T>(
         Long paymentId,
-        Optional<T> data,
+        Optional<T> provider,
         PaymentStagesView stage
 ) {
     public static PaymentResponseView<Void> justStatus(PaymentStagesView stage) {

@@ -10,7 +10,7 @@ import org.hibernate.validator.constraints.Length;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class BillingDetails {
+public class BillingDetailsRequest {
     @NotBlank(message = "Your full name is required")
     private String fullName;
 
