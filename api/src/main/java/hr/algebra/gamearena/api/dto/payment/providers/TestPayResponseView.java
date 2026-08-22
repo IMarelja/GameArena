@@ -1,4 +1,4 @@
-package hr.algebra.gamearena.api.dto.payment.paypal;
+package hr.algebra.gamearena.api.dto.payment.providers;
 
 public record TestPayResponseView(
         String testId,
