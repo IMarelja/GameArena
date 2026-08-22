@@ -13,10 +13,6 @@ public record PaymentResponseView<T>(
         return new PaymentResponseView<>(null, Optional.empty(), stage);
     }
 
-    public static PaymentResponseView<Void> justStatus(Payment payment, PaymentStagesView stage) {
-        return new PaymentResponseView<>(payment.id(), Optional.empty(), stage);
-    }
-
     public static <T> PaymentResponseView<T> actionRequired(Payment payment, T data) {
         return new PaymentResponseView<>(payment.id(), Optional.ofNullable(data), PaymentStagesView.PROCESSING_PAYMENT);
     }
