@@ -26,6 +26,9 @@ DECLARE
 
 	-- Team
 	legion_team_id	BIGINT;
+
+	-- Tournament
+	lime_tournament_id	BIGINT;
 BEGIN
 	-- ------------
 	-- 👤 USERS
@@ -133,7 +136,25 @@ BEGIN
 		(legion_team_id, nikolina_id, 'REGULAR', CURRENT_TIMESTAMP - INTERVAL '8 days'),
 		(legion_team_id, mvidovic_id, 'REGULAR', CURRENT_TIMESTAMP - INTERVAL '8 days'),
 		(legion_team_id, domagoj_id, 'REGULAR', CURRENT_TIMESTAMP - INTERVAL '3 days');
-		
-		
+
+	-- -----------------
+	-- 🏆 TOURNAMENT
+	-- -----------------
+	-- Tournament: Lime tournament 2026 (organizer: admin)
+	INSERT INTO tournaments (name, description, game_id, status, price_solo, price_group, currency, starts_at, ends_at)
+	VALUES ('Lime tournament 2026',
+		'Yearly TF2 MGE tournament leaderboard',
+		tf2_id,
+		'SCHEDULED',
+		10.00,
+		8.00,
+		'EUR',
+		TIMESTAMPTZ '2026-09-11 12:00:00+00',
+		TIMESTAMPTZ '2026-09-15 18:00:00+00')
+	RETURNING id INTO lime_tournament_id;
+
+	INSERT INTO tournament_member (tournament_id, user_id, role, joined_at, confirmed)
+	VALUES (lime_tournament_id, admin_id, 'ORGANIZER', CURRENT_TIMESTAMP, TRUE);
+
 END $$;
 
