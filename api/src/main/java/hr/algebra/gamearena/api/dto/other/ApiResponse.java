@@ -29,11 +29,6 @@ public class ApiResponse<T> {
         this.errors = errors;
     }
 
-    private ApiResponse(T data, ApiError error) {
-        this.data = data;
-        this.errors = List.of(error);
-    }
-
     public static <T> ApiResponse<T> success(T data) {
         return new ApiResponse<>(data);
     }

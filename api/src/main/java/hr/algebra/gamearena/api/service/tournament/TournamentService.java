@@ -25,7 +25,6 @@ import hr.algebra.gamearena.api.model.tournament.member.TournamentMemberUpdate;
 import hr.algebra.gamearena.api.repository.games.IGamesRepo;
 import hr.algebra.gamearena.api.repository.invoice.IInvoiceRepo;
 import hr.algebra.gamearena.api.repository.payment.IPaymentRepo;
-import hr.algebra.gamearena.api.repository.payment.PaymentPostgresRepo;
 import hr.algebra.gamearena.api.repository.tournament.ITournamentRepo;
 import hr.algebra.gamearena.api.repository.user.IUserRepo;
 import org.springframework.stereotype.Service;
@@ -53,9 +52,7 @@ public class TournamentService implements ITournamentService {
         return "Game not found with id: " + id;
     }
 
-    private static String userNotFoundByIdOutput(Long id) {
-        return "User not found or not active";
-    }
+    private static final String USER_NOT_FOUND_OR_NOT_ACTIVE = "User not found or not active";
 
     private static String tournamentMemberNotFoundByIdOutput(Long id) {
         return "Tournament member not found with id: " + id;
@@ -203,7 +200,7 @@ public class TournamentService implements ITournamentService {
     private void validateJoinEligibility(Long callerId, Long tournamentId) {
         userRepo.findById(callerId)
                 .filter(user -> Boolean.TRUE.equals(user.isActive()))
-                .orElseThrow(() -> new UserNotFoundException(userNotFoundByIdOutput(callerId)));
+                .orElseThrow(() -> new UserNotFoundException(USER_NOT_FOUND_OR_NOT_ACTIVE));
 
         var tournament = tournamentRepo.getTournamentById(tournamentId)
                 .orElseThrow(() -> new NotFoundException(tournamentNotFoundByIdOutput(tournamentId)));
@@ -223,7 +220,7 @@ public class TournamentService implements ITournamentService {
 
     private TournamentJoinRecords createPaymentRecords(Long callerId, Long tournamentId, PaymentRequest paymentRequest) {
         var caller = userRepo.findById(callerId)
-                .orElseThrow(() -> new UserNotFoundException(userNotFoundByIdOutput(callerId)));
+                .orElseThrow(() -> new UserNotFoundException(USER_NOT_FOUND_OR_NOT_ACTIVE));
 
         var tournament = tournamentRepo.getTournamentById(tournamentId)
                 .orElseThrow(() -> new NotFoundException(tournamentNotFoundByIdOutput(tournamentId)));
@@ -266,7 +263,7 @@ public class TournamentService implements ITournamentService {
         }
 
         if (!userRepo.existsByIdAndIsActive(request.getUserId())) {
-            throw new NotFoundException(userNotFoundByIdOutput(request.getUserId()));
+            throw new NotFoundException(USER_NOT_FOUND_OR_NOT_ACTIVE);
         }
 
         if (tournamentRepo.isUserPartOfTournament(request.getUserId(), request.getTournamentId())) {

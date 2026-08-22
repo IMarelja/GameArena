@@ -1,7 +1,6 @@
 package hr.algebra.gamearena.api.dto.tournament;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import hr.algebra.gamearena.api.dto.tournament.price.PriceCreateRequest;
 import hr.algebra.gamearena.api.dto.tournament.price.PriceEditRequest;
 import hr.algebra.gamearena.api.model.tournament.TournamentStatus;
 import jakarta.validation.constraints.NotBlank;
