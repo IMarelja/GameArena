@@ -47,7 +47,13 @@ public class TournamentController {
     @GetMapping("/me")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<ApiResponse<List<TournamentFullView>>> getMyTournaments(@AuthenticationPrincipal JwtTokenClaim caller) {
-        return ResponseEntity.ok(ApiResponse.success(tournamentService.getMyTournaments(caller.userId())));
+        return ResponseEntity.ok(ApiResponse.success(tournamentService.getTournamentsFromUserId(caller.userId())));
+    }
+
+    @GetMapping("/user/{id}")
+    @PreAuthorize("permitAll()")
+    public ResponseEntity<ApiResponse<List<TournamentFullView>>> getTournamentsForUser(@PathVariable Long id) {
+        return ResponseEntity.ok(ApiResponse.success(tournamentService.getTournamentsFromUserId(id)));
     }
 
     @GetMapping("/{id}")

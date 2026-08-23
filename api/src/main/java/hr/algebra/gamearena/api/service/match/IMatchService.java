@@ -8,6 +8,6 @@ import java.util.Optional;
 
 public interface IMatchService {
     Optional<MatchFullView> getById(Long id);
-    List<MatchFullView> getMyMatches(Long callerId);
+    List<MatchFullView> getMatchesByUserId(Long userId);
     MatchFullView createMatchAndPushNotification(Long callerId, MatchCreateRequest request);
 }

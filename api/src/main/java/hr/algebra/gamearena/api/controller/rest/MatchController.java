@@ -31,10 +31,16 @@ public class MatchController {
         this.matchService = matchService;
     }
 
-    @GetMapping("/me")
+    @GetMapping("/user/me")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<ApiResponse<List<MatchFullView>>> getMyMatches(@AuthenticationPrincipal JwtTokenClaim caller) {
-        return ResponseEntity.ok(ApiResponse.success(matchService.getMyMatches(caller.userId())));
+        return ResponseEntity.ok(ApiResponse.success(matchService.getMatchesByUserId(caller.userId())));
+    }
+
+    @GetMapping("/user/{id}")
+    @PreAuthorize("permitAll()")
+    public ResponseEntity<ApiResponse<List<MatchFullView>>> getMatchesForUser(@PathVariable Long id) {
+        return ResponseEntity.ok(ApiResponse.success(matchService.getMatchesByUserId(id)));
     }
 
     @GetMapping("/{id}")

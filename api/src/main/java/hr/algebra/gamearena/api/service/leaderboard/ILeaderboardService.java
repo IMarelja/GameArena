@@ -7,5 +7,5 @@ import java.util.List;
 
 public interface ILeaderboardService {
     List<TournamentMemberStatsEntryView> getTournamentLeaderboard(Long tournamentId);
-    List<TournamentStatsEntryView> getMyStats(Long callerId);
+    List<TournamentStatsEntryView> getStatsFromUserId(Long userId);
 }

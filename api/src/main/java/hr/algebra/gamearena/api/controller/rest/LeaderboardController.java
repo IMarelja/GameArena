@@ -31,9 +31,15 @@ public class LeaderboardController {
         return ResponseEntity.ok(ApiResponse.success(leaderboardService.getTournamentLeaderboard(id)));
     }
 
-    @GetMapping("/me")
+    @GetMapping("/user/me")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<ApiResponse<List<TournamentStatsEntryView>>> getMyStats(@AuthenticationPrincipal JwtTokenClaim caller) {
-        return ResponseEntity.ok(ApiResponse.success(leaderboardService.getMyStats(caller.userId())));
+        return ResponseEntity.ok(ApiResponse.success(leaderboardService.getStatsFromUserId(caller.userId())));
+    }
+
+    @GetMapping("/user/{id}")
+    @PreAuthorize("permitAll()")
+    public ResponseEntity<ApiResponse<List<TournamentStatsEntryView>>> getStatsForUser(@PathVariable Long id) {
+        return ResponseEntity.ok(ApiResponse.success(leaderboardService.getStatsFromUserId(id)));
     }
 }

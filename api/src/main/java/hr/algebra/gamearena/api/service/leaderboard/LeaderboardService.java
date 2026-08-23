@@ -58,8 +58,8 @@ public class LeaderboardService implements ILeaderboardService {
     }
 
     @Override
-    public List<TournamentStatsEntryView> getMyStats(Long callerId) {
-        var matchesByTournament = matchRepo.getAllByPlayerId(callerId)
+    public List<TournamentStatsEntryView> getStatsFromUserId(Long userId) {
+        var matchesByTournament = matchRepo.getAllByPlayerId(userId)
                             .stream()
                             .filter(match -> match.status() == MatchStatus.COMPLETED)
                             .filter(match -> match.tournamentId() != null)
@@ -67,7 +67,7 @@ public class LeaderboardService implements ILeaderboardService {
 
         var entries = new ArrayList<TournamentStatsEntryView>();
         for (var tournamentMatches : matchesByTournament.entrySet()) {
-            var stats = computeStats(callerId, tournamentMatches.getValue());
+            var stats = computeStats(userId, tournamentMatches.getValue());
             var tournament = tournamentRepo.getTournamentById(tournamentMatches.getKey()).orElse(null);
 
             entries.add(tournament != null

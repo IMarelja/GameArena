@@ -92,8 +92,8 @@ public class TournamentService implements ITournamentService {
     }
 
     @Override
-    public List<TournamentFullView> getMyTournaments(Long callerId) {
-        return tournamentRepo.getAllTournamentMembersForUser(callerId)
+    public List<TournamentFullView> getTournamentsFromUserId(Long userId) {
+        return tournamentRepo.getAllTournamentMembersForUser(userId)
                 .stream()
                 .map(TournamentMember::tournamentId)
                 .distinct()
@@ -101,7 +101,7 @@ public class TournamentService implements ITournamentService {
                 .flatMap(Optional::stream)
                 .map(tournament -> TournamentFullView.fromTournamentAndGame(tournament, gameOf(tournament)))
                 .toList();
-    } // getMyTournaments
+    } // getTournamentsForUser
 
     @Override
     public TournamentFullView createTournament(Long callerId, TournamentCreateRequest request) {

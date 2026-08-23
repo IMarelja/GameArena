@@ -39,8 +39,8 @@ public class MatchService implements IMatchService {
     }
 
     @Override
-    public List<MatchFullView> getMyMatches(Long callerId) {
-        return matchRepo.getAllByPlayerId(callerId)
+    public List<MatchFullView> getMatchesByUserId(Long userId) {
+        return matchRepo.getAllByPlayerId(userId)
                 .stream()
                 .map(MatchFullView::fromMatch)
                 .toList();
