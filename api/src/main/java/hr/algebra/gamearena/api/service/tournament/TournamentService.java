@@ -92,6 +92,18 @@ public class TournamentService implements ITournamentService {
     }
 
     @Override
+    public List<TournamentFullView> getMyTournaments(Long callerId) {
+        return tournamentRepo.getAllTournamentMembersForUser(callerId)
+                .stream()
+                .map(TournamentMember::tournamentId)
+                .distinct()
+                .map(tournamentRepo::getTournamentById)
+                .flatMap(Optional::stream)
+                .map(tournament -> TournamentFullView.fromTournamentAndGame(tournament, gameOf(tournament)))
+                .toList();
+    } // getMyTournaments
+
+    @Override
     public TournamentFullView createTournament(Long callerId, TournamentCreateRequest request) {
         var game = gamesRepo.getById(request.getGameId())
                 .orElseThrow(() -> new NotFoundException(gameNotFoundByIdOutput(request.getGameId())));

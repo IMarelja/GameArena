@@ -215,6 +215,7 @@ CREATE TABLE tournament_member (
 );
 
 CREATE INDEX idx_tournament_member_payment_id ON tournament_member (payment_id);
+CREATE INDEX idx_tournament_member_user_id ON tournament_member (user_id);
 CREATE UNIQUE INDEX uq_tournament_member_confirmed_once
 	ON tournament_member (tournament_id, user_id)
 	WHERE confirmed;

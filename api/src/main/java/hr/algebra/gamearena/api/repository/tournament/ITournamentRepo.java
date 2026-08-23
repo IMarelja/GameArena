@@ -24,6 +24,7 @@ public interface ITournamentRepo {
 
     // Tournament member
     List<TournamentMember> getAllTournamentMembersFromTournamentId(Long tournamentId);
+    List<TournamentMember> getAllTournamentMembersForUser(Long userId);
     Optional<TournamentMember> getTournamentMemberById(Long tournamentMemberId);
     TournamentMember addTournamentMember(TournamentMemberSave tournamentMemberSave);
     Optional<TournamentMember> updateTournamentMember(Long id, TournamentMemberUpdate tournamentMemberUpdate);

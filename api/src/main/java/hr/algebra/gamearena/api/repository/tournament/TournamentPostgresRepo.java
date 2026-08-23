@@ -99,6 +99,14 @@ public class TournamentPostgresRepo implements ITournamentRepo {
     }
 
     @Override
+    public List<TournamentMember> getAllTournamentMembersForUser(Long userId) {
+        return tournamentMemberPostgreSQLRepo.findByUserId(userId)
+                .stream()
+                .map(TournamentMember::fromTournamentMemberPostgres)
+                .toList();
+    }
+
+    @Override
     public Optional<TournamentMember> getTournamentMemberById(Long tournamentMemberId) {
         return tournamentMemberPostgreSQLRepo.findById(tournamentMemberId)
                 .map(TournamentMember::fromTournamentMemberPostgres);
