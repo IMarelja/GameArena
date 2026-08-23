@@ -1,10 +1,12 @@
 package hr.algebra.gamearena.api.orm.postgres.match;
 
+import hr.algebra.gamearena.api.model.match.MatchSave;
 import jakarta.persistence.*;
 import lombok.Getter;
 import org.hibernate.annotations.DynamicInsert;
 
 import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 
 @Getter
 @Entity
@@ -37,7 +39,7 @@ public class MatchPostgres {
     @Column(name = "winner_id")
     private Long winnerId;
 
-    @Column(name = "status", nullable = false, columnDefinition = "match_status")
+    @Column(name = "status", nullable = false, length = 20)
     private String status;
 
     @Column(name = "scheduled_at")
@@ -48,4 +50,15 @@ public class MatchPostgres {
 
     @Column(name = "created_at", nullable = false)
     private OffsetDateTime createdAt;
+
+    public MatchPostgres fromMatchSave(MatchSave save) {
+        this.tournamentId = save.getTournamentId();
+        this.gameId = save.getGameId();
+        this.playerOneId = save.getPlayerOneId();
+        this.playerTwoId = save.getPlayerTwoId();
+        this.status = save.getStatus().toString();
+        this.scheduledAt = save.getScheduledAt();
+        this.createdAt = OffsetDateTime.now(ZoneOffset.UTC);
+        return this;
+    }
 }
