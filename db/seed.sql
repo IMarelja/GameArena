@@ -11,13 +11,13 @@ DECLARE
 	ivan_m_id	BIGINT;
 	super_gamer_id	BIGINT;
 	evil_gamer_id	BIGINT;
-	mvidovic_id	BIGINT;
-	ana_horvat_id	BIGINT;
-	ivan_k_id	BIGINT;
-	petra99_id	BIGINT;
-	domagoj_id	BIGINT;
-	luka_b_id	BIGINT;
-	nikolina_id	BIGINT;
+	hampterboy7_id	BIGINT;
+	david2014_id	BIGINT;
+	ultra_marine_id	BIGINT;
+	kissermaxxer_id	BIGINT;
+	girl_cooler_id	BIGINT;
+	basilplayer_id	BIGINT;
+	lubantrg_id	BIGINT;
 
 	-- Games
 	smbm_id		BIGINT;
@@ -28,7 +28,14 @@ DECLARE
 	legion_team_id	BIGINT;
 
 	-- Tournament
-	lime_tournament_id	BIGINT;
+	lime_tournament_id		BIGINT;
+	ballbrothers_tournament_id	BIGINT;
+
+	-- Dates
+	specific_date_time	TIMESTAMPTZ := TIMESTAMPTZ '2026-08-01 14:00:00+00';
+	now_utc			TIMESTAMPTZ := CURRENT_TIMESTAMP;
+
+	--
 BEGIN
 	-- ------------
 	-- 👤 USERS
@@ -41,7 +48,7 @@ BEGIN
 		'cd7cbc9f2abd7cefec5c22a9f2fe1373',
 		'ADMIN',
 		TRUE,
-		CURRENT_TIMESTAMP - INTERVAL '5 days')
+		specific_date_time - INTERVAL '110 days')
 	RETURNING id INTO admin_id;
 
 	-- First regular user account
@@ -52,7 +59,7 @@ BEGIN
 		'1a51f517df9e1e639559e29d63ab8346',
 		'USER',
 		TRUE,
-		CURRENT_TIMESTAMP - INTERVAL '60 days')
+		specific_date_time - INTERVAL '100 days')
 	RETURNING id INTO ivan_m_id;
 
 	-- Second regular user account
@@ -63,7 +70,7 @@ BEGIN
 		'0de7d7410e404cf59fa375defec8070b',
 		'USER',
 		TRUE,
-		CURRENT_TIMESTAMP - INTERVAL '45 days')
+		specific_date_time - INTERVAL '90 days')
 	RETURNING id INTO super_gamer_id;
 
 	-- Suspended account
@@ -74,51 +81,51 @@ BEGIN
 		'dad660e9c4f09da2d877495c2de0c200',
 		'USER',
 		FALSE,
-		CURRENT_TIMESTAMP - INTERVAL '5 days')
+		specific_date_time - INTERVAL '80 days')
 	RETURNING id INTO evil_gamer_id;
 
 	-- Seed dummy data
 	INSERT INTO users (username, email, password_hash, password_salt, role, is_active, created_at)
-	VALUES ('mvidovic', 'mvidovic@example.com', 'seed$hash$0001', 'seed$salt$0001', 'USER', TRUE, CURRENT_TIMESTAMP - INTERVAL '90 days')
-	RETURNING id INTO mvidovic_id;
+	VALUES ('hampterboy7', 'keepitreal@mail.com', 'seed$hash$0001', 'seed$salt$0001', 'USER', TRUE, specific_date_time - INTERVAL '70 days')
+	RETURNING id INTO hampterboy7_id;
 
 	INSERT INTO users (username, email, password_hash, password_salt, role, is_active, created_at)
-	VALUES ('ana.horvat', 'ana.horvat@example.com', 'seVLUESed$hash$0002', 'seed$salt$0002', 'USER', TRUE, CURRENT_TIMESTAMP - INTERVAL '75 days')
-	RETURNING id INTO ana_horvat_id;
+	VALUES ('david2014', 'david.tettersen@icloud.com', 'seVLUESed$hash$0002', 'seed$salt$0002', 'USER', TRUE, specific_date_time - INTERVAL '60 days')
+	RETURNING id INTO david2014_id;
 
 	INSERT INTO users (username, email, password_hash, password_salt, role, is_active, created_at)
-	VALUES ('ivan_k', 'ivan.k@example.com', 'seed$hash$0003', 'seed$salt$0003', 'USER', TRUE, CURRENT_TIMESTAMP - INTERVAL '60 days')
-	RETURNING id INTO ivan_k_id;
+	VALUES ('UltraMarine', 'alient.death@hotmail.com', 'seed$hash$0003', 'seed$salt$0003', 'USER', TRUE, specific_date_time - INTERVAL '50 days')
+	RETURNING id INTO ultra_marine_id;
 
 	INSERT INTO users (username, email, password_hash, password_salt, role, is_active, created_at)
-	VALUES ('petra99', 'petra99@example.com', 'seed$hash$0004', 'seed$salt$0004', 'USER', TRUE, CURRENT_TIMESTAMP - INTERVAL '45 days')
-	RETURNING id INTO petra99_id;
+	VALUES ('kissermaxxer', 'jugio.killer@gmail.com', 'seed$hash$0004', 'seed$salt$0004', 'USER', TRUE, specific_date_time - INTERVAL '40 days')
+	RETURNING id INTO kissermaxxer_id;
 
 	INSERT INTO users (username, email, password_hash, password_salt, role, is_active, created_at)
-	VALUES ('domagoj', 'domagoj@example.com', 'seed$hash$0005', 'seed$salt$0005', 'USER', FALSE, CURRENT_TIMESTAMP - INTERVAL '30 days')
-	RETURNING id INTO domagoj_id;
+	VALUES ('girl_cooler', 'trans.supporter889@trans_move.com', 'seed$hash$0005', 'seed$salt$0005', 'USER', FALSE, specific_date_time - INTERVAL '30 days')
+	RETURNING id INTO girl_cooler_id;
 
 	INSERT INTO users (username, email, password_hash, password_salt, role, is_active, created_at)
-	VALUES ('luka.b', 'luka.b@example.com', 'seed$hash$0006', 'seed$salt$0006', 'USER', TRUE, CURRENT_TIMESTAMP - INTERVAL '20 days')
-	RETURNING id INTO luka_b_id;
+	VALUES ('BasilPrayer', 'marte_tranic@gmail.com', 'seed$hash$0006', 'seed$salt$0006', 'USER', TRUE, specific_date_time - INTERVAL '20 days')
+	RETURNING id INTO basilplayer_id;
 
 	INSERT INTO users (username, email, password_hash, password_salt, role, is_active, created_at)
-	VALUES ('nikolina', 'nikolina@example.com', 'seed$hash$0007', 'seed$salt$0007', 'USER', TRUE, CURRENT_TIMESTAMP - INTERVAL '10 days')
-	RETURNING id INTO nikolina_id;
+	VALUES ('lubantrg54', '798hgha541jg678af@crocmail.com', 'seed$hash$0007', 'seed$salt$0007', 'USER', TRUE, specific_date_time - INTERVAL '10 days')
+	RETURNING id INTO lubantrg_id;
 
 	-- -----------
 	-- 🎮 GAMES
 	-- -----------
 	INSERT INTO games (name, description, is_active, created_at) VALUES
-	('Super Smash Bros Melee',	NULL,						TRUE,	CURRENT_TIMESTAMP - INTERVAL '100 days')
+	('Super Smash Bros Melee',	NULL,						TRUE,	specific_date_time - INTERVAL '100 days')
 	RETURNING id INTO smbm_id;
 	
 	INSERT INTO games (name, description, is_active, created_at) VALUES
-	('Team Fortress 2 MGE',		'1v1 Hatconomy first person shooter',		TRUE,	CURRENT_TIMESTAMP - INTERVAL '50 days')
+	('Team Fortress 2 MGE',		'1v1 Hatconomy first person shooter',		TRUE,	specific_date_time - INTERVAL '50 days')
 	RETURNING id INTO tf2_id;
 	
 	INSERT INTO games (name, description, is_active, created_at) VALUES
-	('Fortnite 1v1',		'Battle royal FPS',				FALSE,	CURRENT_TIMESTAMP - INTERVAL '10 days')
+	('Fortnite 1v1',		'Battle royal FPS',				FALSE,	specific_date_time - INTERVAL '10 days')
 	RETURNING id INTO fortnite_id;
 
 	-- ----------
@@ -132,10 +139,10 @@ BEGIN
 	RETURNING id INTO legion_team_id;
 
 	INSERT INTO team_members (team_id, user_id, role, joined_at) VALUES
-		(legion_team_id, ivan_m_id, 'CAPTAIN', CURRENT_TIMESTAMP - INTERVAL '10 days'),
-		(legion_team_id, nikolina_id, 'REGULAR', CURRENT_TIMESTAMP - INTERVAL '8 days'),
-		(legion_team_id, mvidovic_id, 'REGULAR', CURRENT_TIMESTAMP - INTERVAL '8 days'),
-		(legion_team_id, domagoj_id, 'REGULAR', CURRENT_TIMESTAMP - INTERVAL '3 days');
+		(legion_team_id, ivan_m_id, 'CAPTAIN', specific_date_time - INTERVAL '10 days'),
+		(legion_team_id, hampterboy7_id, 'REGULAR', specific_date_time - INTERVAL '8 days'),
+		(legion_team_id, girl_cooler_id, 'REGULAR', specific_date_time - INTERVAL '8 days'),
+		(legion_team_id, ultra_marine_id, 'REGULAR', specific_date_time - INTERVAL '3 days');
 
 	-- -----------------
 	-- 🏆 TOURNAMENT
@@ -145,12 +152,12 @@ BEGIN
 	VALUES ('Lime tournament 2026',
 		'Yearly TF2 MGE tournament leaderboard',
 		tf2_id,
-		'SCHEDULED',
+		'ENDED',
 		10.00,
 		8.00,
 		'EUR',
-		TIMESTAMPTZ '2026-09-11 12:00:00+00',
-		TIMESTAMPTZ '2026-09-15 18:00:00+00')
+		TIMESTAMPTZ '2026-08-11 12:00:00+00',
+		TIMESTAMPTZ '2026-08-15 18:00:00+00')
 	RETURNING id INTO lime_tournament_id;
 
 	INSERT INTO tournament_member (tournament_id, user_id, role, joined_at, confirmed)
