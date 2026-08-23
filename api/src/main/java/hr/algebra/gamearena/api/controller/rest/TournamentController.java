@@ -10,9 +10,11 @@ import hr.algebra.gamearena.api.dto.payment.responce.PaymentStagesView;
 import hr.algebra.gamearena.api.dto.tournament.member.TournamentMemberEditRequest;
 import hr.algebra.gamearena.api.dto.tournament.member.TournamentMemberHighPrivilegeAddRequest;
 import hr.algebra.gamearena.api.dto.tournament.member.TournamentMemberView;
+import hr.algebra.gamearena.api.exceptions.extenders.BadRequestedException;
 import hr.algebra.gamearena.api.exceptions.extenders.NotFoundException;
 import hr.algebra.gamearena.api.service.tournament.ITournamentService;
 import jakarta.validation.Valid;
+import org.apache.coyote.BadRequestException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.codec.ServerSentEvent;
@@ -21,6 +23,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 
+import java.time.ZoneOffset;
 import java.util.List;
 
 @RestController
@@ -53,19 +56,38 @@ public class TournamentController {
 
     @PostMapping
     @PreAuthorize("permitAll()") // later ADMIN only
-    public ResponseEntity<ApiResponse<TournamentFullView>> createTournament(@Valid @RequestBody TournamentCreateRequest request) {
+    public ResponseEntity<ApiResponse<TournamentFullView>> createTournament(
+            @Valid @RequestBody TournamentCreateRequest request
+    ) {
+        if(!request.getStartsAt().getOffset().equals(ZoneOffset.UTC))
+            throw new BadRequestedException("Starts at offset is not UTC or 00+00, it is: " + request.getStartsAt().getOffset());
+
+        if(request.getEndsAt() != null && !request.getEndsAt().getOffset().equals(ZoneOffset.UTC))
+            throw new BadRequestedException("Ends at offset is not UTC or 00+00, it is: " + request.getEndsAt().getOffset());
+
         return ResponseEntity.ok(ApiResponse.success(tournamentService.createTournament(request)));
     }
 
     @PutMapping("/{id}")
     @PreAuthorize("permitAll()") // later ADMIN only
-    public ResponseEntity<ApiResponse<TournamentFullView>> updateTournament(@PathVariable Long id, @Valid @RequestBody TournamentEditRequest request) {
+    public ResponseEntity<ApiResponse<TournamentFullView>> updateTournament(
+            @PathVariable Long id,
+            @Valid @RequestBody TournamentEditRequest request
+    ) {
+        if(!request.getStartsAt().getOffset().equals(ZoneOffset.UTC))
+            throw new BadRequestedException("Starts at offset is not UTC or 00+00, it is: " + request.getStartsAt().getOffset());
+
+        if(request.getEndsAt() != null && !request.getEndsAt().getOffset().equals(ZoneOffset.UTC))
+            throw new BadRequestedException("Ends at offset is not UTC or 00+00, it is: " + request.getEndsAt().getOffset());
+
         return ResponseEntity.ok(ApiResponse.success(tournamentService.updateTournament(id, request)));
     }
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ApiResponse<Void>> deleteTournament(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<Void>> deleteTournament(
+            @PathVariable Long id
+    ) {
         this.tournamentService.deleteTournament(id);
 
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
