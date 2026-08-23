@@ -19,6 +19,8 @@ public interface ITournamentRepo {
     Optional<Tournament> updateTournament(Long id, TournamentUpdate tournamentUpdate);
     void deleteTournament(Long id);
     boolean tournamentExistsById(Long id);
+    /* Transaction */
+    Tournament createTournamentAndTournamentMemberTransactional(TournamentSave tournamentSave, TournamentMemberSave tournamentMemberSave);
 
     // Tournament member
     List<TournamentMember> getAllTournamentMembersFromTournamentId(Long tournamentId);

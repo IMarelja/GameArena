@@ -102,7 +102,7 @@ public class TournamentService implements ITournamentService {
     }
 
     @Override
-    public TournamentFullView createTournament(TournamentCreateRequest request) {
+    public TournamentFullView createTournament(Long callerId, TournamentCreateRequest request) {
         var game = gamesRepo.getById(request.getGameId())
                 .orElseThrow(() -> new NotFoundException(gameNotFoundByIdOutput(request.getGameId())));
 
@@ -119,7 +119,13 @@ public class TournamentService implements ITournamentService {
         tournamentSave.setPriceGroup(request.getPrice().getGroupPrice());
         tournamentSave.setCurrency(request.getPrice().getCurrency());
 
-        var created = tournamentRepo.createTournament(tournamentSave);
+        var organizerSave = new TournamentMemberSave();
+        organizerSave.setUserId(callerId);
+        organizerSave.setRole(TournamentMemberRole.ORGANIZER);
+        organizerSave.setConfirmed(true);
+
+        var created = tournamentRepo.createTournamentAndTournamentMemberTransactional(tournamentSave, organizerSave);
+
         return TournamentFullView.fromTournamentAndGame(created, game);
     }
 

@@ -17,7 +17,7 @@ public interface ITournamentService {
     // Tournament
     List<TournamentFullView> getAllTournaments();
     Optional<TournamentFullView> getTournament(Long id);
-    TournamentFullView createTournament(TournamentCreateRequest request);
+    TournamentFullView createTournament(Long callerId, TournamentCreateRequest request);
     TournamentFullView updateTournament(Long id, TournamentEditRequest request);
     void deleteTournament(Long id);
 

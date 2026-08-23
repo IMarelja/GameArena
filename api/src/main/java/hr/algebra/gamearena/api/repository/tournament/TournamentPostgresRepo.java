@@ -12,6 +12,7 @@ import hr.algebra.gamearena.api.orm.postgres.tournament.TournamentMemberPostgres
 import hr.algebra.gamearena.api.orm.postgres.tournament.TournamentPostgres;
 import hr.algebra.gamearena.api.repository.payment.IPaymentRepo;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Objects;
@@ -72,6 +73,19 @@ public class TournamentPostgresRepo implements ITournamentRepo {
     @Override
     public boolean tournamentExistsById(Long id) {
         return tournamentPostgreSQLRepo.existsById(id);
+    }
+
+    @Override
+    @Transactional
+    public Tournament createTournamentAndTournamentMemberTransactional(TournamentSave tournamentSave, TournamentMemberSave tournamentMemberSave) {
+        var tournamentPostgres = new TournamentPostgres().fromTournamentSave(tournamentSave);
+        var savedTournament = tournamentPostgreSQLRepo.save(tournamentPostgres);
+
+        tournamentMemberSave.setTournamentId(savedTournament.getId());
+        var tournamentMemberPostgres = new TournamentMemberPostgres().fromTournamentMemberSave(tournamentMemberSave);
+        tournamentMemberPostgreSQLRepo.save(tournamentMemberPostgres);
+
+        return Tournament.fromTournamentPostgres(savedTournament);
     }
 
     // Tournament member

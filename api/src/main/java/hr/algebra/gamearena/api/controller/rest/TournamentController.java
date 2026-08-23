@@ -55,8 +55,9 @@ public class TournamentController {
     }
 
     @PostMapping
-    @PreAuthorize("permitAll()") // later ADMIN only
+    @PreAuthorize("hasRole('ADMIN')") // later ADMIN only
     public ResponseEntity<ApiResponse<TournamentFullView>> createTournament(
+            @AuthenticationPrincipal JwtTokenClaim caller,
             @Valid @RequestBody TournamentCreateRequest request
     ) {
         if(!request.getStartsAt().getOffset().equals(ZoneOffset.UTC))
@@ -65,12 +66,13 @@ public class TournamentController {
         if(request.getEndsAt() != null && !request.getEndsAt().getOffset().equals(ZoneOffset.UTC))
             throw new BadRequestedException("Ends at offset is not UTC or 00+00, it is: " + request.getEndsAt().getOffset());
 
-        return ResponseEntity.ok(ApiResponse.success(tournamentService.createTournament(request)));
+        return ResponseEntity.ok(ApiResponse.success(tournamentService.createTournament(caller.userId(), request)));
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("permitAll()") // later ADMIN only
+    @PreAuthorize("hasRole('ADMIN')") // later ADMIN only
     public ResponseEntity<ApiResponse<TournamentFullView>> updateTournament(
+            @AuthenticationPrincipal JwtTokenClaim caller,
             @PathVariable Long id,
             @Valid @RequestBody TournamentEditRequest request
     ) {
