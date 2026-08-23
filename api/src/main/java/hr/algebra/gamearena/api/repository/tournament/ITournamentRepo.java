@@ -31,6 +31,7 @@ public interface ITournamentRepo {
     boolean tournamentMemberExistsById(Long id);
     boolean isUserPartOfTournament(Long userId, Long tournamentId);
     boolean isUserPartOfTournamentAndActive(Long userId, Long tournamentId);
+    boolean isUserPartOfTournamentActiveAndOrganizer(Long userId, Long tournamentId);
     boolean isUserPaymentPending(Long userId, Long tournamentId);
     long countTournamentMembersByRole(Long tournamentId, TournamentMemberRole role);
 }

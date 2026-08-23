@@ -8,14 +8,12 @@ import hr.algebra.gamearena.api.dto.tournament.TournamentFullView;
 import hr.algebra.gamearena.api.dto.payment.responce.PaymentResponseView;
 import hr.algebra.gamearena.api.dto.payment.responce.PaymentStagesView;
 import hr.algebra.gamearena.api.dto.tournament.member.TournamentMemberEditRequest;
-import hr.algebra.gamearena.api.dto.tournament.member.TournamentMemberHighPrivilegeAddRequest;
+import hr.algebra.gamearena.api.dto.tournament.member.TournamentMemberCreateRequest;
 import hr.algebra.gamearena.api.dto.tournament.member.TournamentMemberView;
 import hr.algebra.gamearena.api.exceptions.extenders.BadRequestedException;
 import hr.algebra.gamearena.api.exceptions.extenders.NotFoundException;
 import hr.algebra.gamearena.api.service.tournament.ITournamentService;
 import jakarta.validation.Valid;
-import org.apache.coyote.BadRequestException;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.codec.ServerSentEvent;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -37,6 +35,7 @@ public class TournamentController {
     }
 
     // Tournament
+    // BEGIN
 
     @GetMapping
     @PreAuthorize("permitAll()")
@@ -55,7 +54,7 @@ public class TournamentController {
     }
 
     @PostMapping
-    @PreAuthorize("hasRole('ADMIN')") // later ADMIN only
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<TournamentFullView>> createTournament(
             @AuthenticationPrincipal JwtTokenClaim caller,
             @Valid @RequestBody TournamentCreateRequest request
@@ -69,9 +68,24 @@ public class TournamentController {
         return ResponseEntity.ok(ApiResponse.success(tournamentService.createTournament(caller.userId(), request)));
     }
 
-    @PutMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')") // later ADMIN only
-    public ResponseEntity<ApiResponse<TournamentFullView>> updateTournament(
+    @PutMapping("/{id}/admin")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<ApiResponse<TournamentFullView>> editTournamentAsAdmin(
+            @PathVariable Long id,
+            @Valid @RequestBody TournamentEditRequest request
+    ) {
+        if(!request.getStartsAt().getOffset().equals(ZoneOffset.UTC))
+            throw new BadRequestedException("Starts at offset is not UTC or 00+00, it is: " + request.getStartsAt().getOffset());
+
+        if(request.getEndsAt() != null && !request.getEndsAt().getOffset().equals(ZoneOffset.UTC))
+            throw new BadRequestedException("Ends at offset is not UTC or 00+00, it is: " + request.getEndsAt().getOffset());
+
+        return ResponseEntity.ok(ApiResponse.success(tournamentService.editTournamentAsAdmin(id, request)));
+    }
+
+    @PutMapping("/{id}/organizer")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<ApiResponse<TournamentFullView>> editTournamentAsOrganizer(
             @AuthenticationPrincipal JwtTokenClaim caller,
             @PathVariable Long id,
             @Valid @RequestBody TournamentEditRequest request
@@ -82,21 +96,14 @@ public class TournamentController {
         if(request.getEndsAt() != null && !request.getEndsAt().getOffset().equals(ZoneOffset.UTC))
             throw new BadRequestedException("Ends at offset is not UTC or 00+00, it is: " + request.getEndsAt().getOffset());
 
-        return ResponseEntity.ok(ApiResponse.success(tournamentService.updateTournament(id, request)));
+        return ResponseEntity.ok(ApiResponse.success(tournamentService.editTournamentAsOrganizer(caller.userId(), id, request)));
     }
 
-    @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ApiResponse<Void>> deleteTournament(
-            @PathVariable Long id
-    ) {
-        this.tournamentService.deleteTournament(id);
-
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-    }
+    // END
+    // Tournament
 
     // Tournament Member's
-
+    // BEGIN
     @GetMapping("/{tournamentId}/members")
     @PreAuthorize("permitAll()")
     public ResponseEntity<ApiResponse<List<TournamentMemberView>>> getMembersOfTournament(@PathVariable Long tournamentId) {
@@ -128,37 +135,44 @@ public class TournamentController {
                 });
     }
 
-    @PostMapping("/{tournamentId}/member")
+    @PostMapping("/{tournamentId}/member/admin")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ApiResponse<TournamentMemberView>> addTournamentMember(
+    public ResponseEntity<ApiResponse<TournamentMemberView>> addTournamentMemberAsAdmin(
             @PathVariable Long tournamentId,
-            @Valid @RequestBody TournamentMemberHighPrivilegeAddRequest request
+            @Valid @RequestBody TournamentMemberCreateRequest request
     ){
-        request.setTournamentId(tournamentId);
-
-        return ResponseEntity.ok(ApiResponse.success(tournamentService.addTournamentMemberAsAHighPrivilege(request)));
+        return ResponseEntity.ok(ApiResponse.success(tournamentService.addTournamentMemberAsAdmin(tournamentId, request)));
     }
 
-    @PatchMapping("/member/{id}")
+    @PatchMapping("/member/{id}/admin")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ApiResponse<TournamentMemberView>> editTournamentMember(
+    public ResponseEntity<ApiResponse<TournamentMemberView>> editTournamentMemberAsAdmin(
+            @PathVariable Long id,
+            @Valid @RequestBody TournamentMemberEditRequest request
+    ){
+        return ResponseEntity.ok(ApiResponse.success(tournamentService.editTournamentMemberAsAdmin(id, request)));
+    }
+
+    @PostMapping("/{tournamentId}/member/organizer")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<ApiResponse<TournamentMemberView>> addTournamentMemberAsOrganizer(
+            @AuthenticationPrincipal JwtTokenClaim caller,
+            @PathVariable Long tournamentId,
+            @Valid @RequestBody TournamentMemberCreateRequest request
+    ){
+        return ResponseEntity.ok(ApiResponse.success(tournamentService.addTournamentMemberAsOrganizer(caller.userId(), tournamentId, request)));
+    }
+
+    @PatchMapping("/member/{id}/organizer")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<ApiResponse<TournamentMemberView>> editTournamentMemberAsOrganizer(
             @PathVariable Long id,
             @AuthenticationPrincipal JwtTokenClaim caller,
             @Valid @RequestBody TournamentMemberEditRequest request
     ){
-        return ResponseEntity.ok(ApiResponse.success(tournamentService.editTournamentMember(caller.userId(), id, request)));
+        return ResponseEntity.ok(ApiResponse.success(tournamentService.editTournamentMemberAsOrganizer(caller.userId(), id, request)));
     }
 
-    @DeleteMapping("/member/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ApiResponse<Void>> removeTournamentMember(
-            @PathVariable Long id,
-            @AuthenticationPrincipal JwtTokenClaim caller
-    ){
-        tournamentService.removeTournamentMember(caller.userId(), id);
-
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-    }
-
-
+    //END
+    // Tournament Member's
 }

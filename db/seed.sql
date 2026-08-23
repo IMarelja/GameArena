@@ -471,31 +471,20 @@ BEGIN
 	-- > 👊 Matches 👊 < --
 
 	-- kissermaxxer VS basilplayer (scheduled, not yet played)
-	INSERT INTO matches (
-		tournament_id,
-		game_id,
-		player_one_id,
-		player_two_id,
-		player_one_score,
-		player_two_score,
-		winner_id,
-		status,
-		scheduled_at,
-		played_at,
-		created_at)
-	VALUES(
-		ballsmash_tournament_id,
-		smbm_id,
-		kissermaxxer_id,
-		basilplayer_id,
-		NULL,
-		NULL,
-		NULL,
-		'SCHEDULED',
-		now_utc + INTERVAL '2 days 2 hours',
-		NULL,
-		now_utc - INTERVAL '1 days'
-	);
+	-- INSERT INTO matches(tournament_id,game_id,player_one_id,player_two_id,player_one_score,player_two_score,winner_id,status,scheduled_at,played_at,created_at)
+	--VALUES(
+	--	ballsmash_tournament_id,
+	--	smbm_id,
+	--	kissermaxxer_id,
+	--	basilplayer_id,
+	--	NULL,
+	--	NULL,
+	--	NULL,
+	--	'SCHEDULED',
+	--	now_utc + INTERVAL '2 days 1 hours',
+	--	NULL,
+	--	now_utc - INTERVAL '1 days'
+	--);*/
 
 END $$;
 

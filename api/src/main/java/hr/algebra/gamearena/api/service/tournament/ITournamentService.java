@@ -6,7 +6,7 @@ import hr.algebra.gamearena.api.dto.tournament.TournamentEditRequest;
 import hr.algebra.gamearena.api.dto.tournament.TournamentFullView;
 import hr.algebra.gamearena.api.dto.payment.responce.PaymentResponseView;
 import hr.algebra.gamearena.api.dto.tournament.member.TournamentMemberEditRequest;
-import hr.algebra.gamearena.api.dto.tournament.member.TournamentMemberHighPrivilegeAddRequest;
+import hr.algebra.gamearena.api.dto.tournament.member.TournamentMemberCreateRequest;
 import hr.algebra.gamearena.api.dto.tournament.member.TournamentMemberView;
 import reactor.core.publisher.Flux;
 
@@ -18,13 +18,30 @@ public interface ITournamentService {
     List<TournamentFullView> getAllTournaments();
     Optional<TournamentFullView> getTournament(Long id);
     TournamentFullView createTournament(Long callerId, TournamentCreateRequest request);
-    TournamentFullView updateTournament(Long id, TournamentEditRequest request);
-    void deleteTournament(Long id);
+
+    /* Admin only (NO role checker) */
+    // BEGIN
+    TournamentFullView editTournamentAsAdmin(Long tournamentId, TournamentEditRequest request);
+    // END
+
+    /* Organizer only (checker) */
+    // BEGIN
+    TournamentFullView editTournamentAsOrganizer(Long callerId, Long tournamentId, TournamentEditRequest request);
+    // END
 
     // Tournament member
     List<TournamentMemberView> getTournamentsMembers(Long tournamentId);
     Flux<PaymentResponseView> joinAsRegularTournamentMemberAndPay(Long callerId, Long tournamentId, PaymentRequest paymentRequest);
-    TournamentMemberView addTournamentMemberAsAHighPrivilege(TournamentMemberHighPrivilegeAddRequest request);
-    TournamentMemberView editTournamentMember(Long callerId, Long tournamentMemberId, TournamentMemberEditRequest request);
-    void removeTournamentMember(Long callerId, Long tournamentMemberId);
+
+    /* Admin only (NO role checker) */
+    // BEGIN
+    TournamentMemberView addTournamentMemberAsAdmin(Long tournamentId, TournamentMemberCreateRequest request);
+    TournamentMemberView editTournamentMemberAsAdmin(Long tournamentMemberId, TournamentMemberEditRequest request);
+    // END
+
+    /* Organizer only (checker) */
+    // BEGIN
+    TournamentMemberView addTournamentMemberAsOrganizer(Long callerId, Long tournamentId, TournamentMemberCreateRequest request);
+    TournamentMemberView editTournamentMemberAsOrganizer(Long callerId, Long tournamentMemberId, TournamentMemberEditRequest request);
+    // END
 }

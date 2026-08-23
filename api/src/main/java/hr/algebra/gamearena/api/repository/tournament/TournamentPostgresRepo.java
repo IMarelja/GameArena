@@ -140,6 +140,12 @@ public class TournamentPostgresRepo implements ITournamentRepo {
     }
 
     @Override
+    public boolean isUserPartOfTournamentActiveAndOrganizer(Long userId, Long tournamentId) {
+        return tournamentMemberPostgreSQLRepo.existsByTournamentIdAndUserIdAndConfirmedTrueAndRole(
+                tournamentId, userId, TournamentMemberRole.ORGANIZER.name());
+    }
+
+    @Override
     public boolean isUserPaymentPending(Long userId, Long tournamentId) {
         return tournamentMemberPostgreSQLRepo.findByTournamentIdAndUserId(tournamentId, userId)
                 .stream()
@@ -152,6 +158,6 @@ public class TournamentPostgresRepo implements ITournamentRepo {
 
     @Override
     public long countTournamentMembersByRole(Long tournamentId, TournamentMemberRole role) {
-        return tournamentMemberPostgreSQLRepo.countByTournamentIdAndRole(tournamentId, role);
+        return tournamentMemberPostgreSQLRepo.countByTournamentIdAndRole(tournamentId, role.name());
     }
 }
