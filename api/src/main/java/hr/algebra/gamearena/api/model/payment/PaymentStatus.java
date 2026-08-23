@@ -1,6 +1,6 @@
 package hr.algebra.gamearena.api.model.payment;
 
-import hr.algebra.gamearena.api.orm.postgres.payment.PaymentStatusPostgres;
+import hr.algebra.gamearena.api.orm.postgres.payment.payment_status;
 
 public enum PaymentStatus {
     PENDING,
@@ -9,11 +9,11 @@ public enum PaymentStatus {
     REFUNDED,
     CANCELLED;
 
-    public static PaymentStatus fromPaymentStatusPostgres(PaymentStatusPostgres paymentStatusPostgres) {
+    public static PaymentStatus fromPaymentStatus(payment_status paymentStatusPostgres) {
         return PaymentStatus.valueOf(paymentStatusPostgres.name());
     }
 
-    public PaymentStatusPostgres toPaymentStatusPostgres() {
-        return PaymentStatusPostgres.valueOf(this.name());
+    public payment_status toPaymentStatus() {
+        return payment_status.valueOf(this.name());
     }
 }

@@ -33,7 +33,7 @@ public class TeamInvitationPostgres {
     @Enumerated(EnumType.STRING)
     @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     @Column(name = "status", nullable = false, columnDefinition = "invite_status")
-    private InvitationStatusPostgres status;
+    private invite_status status;
 
     @Column(name = "created_at", nullable = false)
     private OffsetDateTime createdAt;
@@ -45,14 +45,14 @@ public class TeamInvitationPostgres {
         this.teamId = save.getTeamId();
         this.inviteeId = save.getInviteeId();
         this.inviterId = save.getInviterId();
-        this.status = InvitationStatusPostgres.fromInviteStatus(save.getStatus());
+        this.status = invite_status.fromInviteStatus(save.getStatus());
         this.createdAt = OffsetDateTime.now(ZoneOffset.UTC);
         this.respondedAt = null;
         return this;
     }
 
     public TeamInvitationPostgres fromTeamInvitationUpdate(TeamInvitationUpdate update) {
-        this.status = InvitationStatusPostgres.fromInviteStatus(update.getStatus());
+        this.status = invite_status.fromInviteStatus(update.getStatus());
         this.respondedAt = OffsetDateTime.now(ZoneOffset.UTC);
         return this;
     }

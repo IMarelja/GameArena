@@ -25,7 +25,7 @@ public class PaymentPostgres {
     @Enumerated(EnumType.STRING)
     @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     @Column(name = "status", nullable = false, columnDefinition = "payment_status")
-    private PaymentStatusPostgres status;
+    private payment_status status;
 
     @Column(name = "amount", nullable = false, precision = 12, scale = 2)
     private BigDecimal amount;
@@ -37,7 +37,7 @@ public class PaymentPostgres {
     private OffsetDateTime createdAt;
 
     public PaymentPostgres fromPaymentSave(PaymentSave save) {
-        this.status = PaymentStatusPostgres.PENDING;
+        this.status = payment_status.PENDING;
         this.amount = save.getAmount();
         this.currency = save.getCurrency();
         this.createdAt = OffsetDateTime.now(ZoneOffset.UTC);
@@ -45,7 +45,7 @@ public class PaymentPostgres {
     }
 
     public PaymentPostgres fromPaymentUpdate(PaymentUpdate update) {
-        this.status = update.getStatus().toPaymentStatusPostgres();
+        this.status = update.getStatus().toPaymentStatus();
         return this;
     }
 }

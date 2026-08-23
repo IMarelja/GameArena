@@ -1,6 +1,6 @@
 package hr.algebra.gamearena.api.orm.postgres.payment;
 
-public enum PaymentStatusPostgres {
+public enum payment_status {
     PENDING,
     PAID,
     FAILED,

@@ -16,7 +16,7 @@ public record Payment(
     public static Payment fromPaymentPostgres(PaymentPostgres paymentPostgres) {
         return new Payment(
                 paymentPostgres.getId(),
-                PaymentStatus.fromPaymentStatusPostgres(paymentPostgres.getStatus()),
+                PaymentStatus.fromPaymentStatus(paymentPostgres.getStatus()),
                 paymentPostgres.getAmount(),
                 paymentPostgres.getCurrency(),
                 paymentPostgres.getCreatedAt()

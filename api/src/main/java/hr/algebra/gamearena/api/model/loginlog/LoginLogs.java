@@ -19,7 +19,7 @@ public record LoginLogs(
                 loginLogPostgres.getCredential(),
                 Optional.ofNullable(loginLogPostgres.getIpv4()),
                 Optional.ofNullable(loginLogPostgres.getIpv6()),
-                LoginLogType.fromLoginLogTypePostgres(loginLogPostgres.getType()),
+                LoginLogType.fromLoginLogType(loginLogPostgres.getType()),
                 loginLogPostgres.getCreatedAt().toLocalDateTime()
         );
     }

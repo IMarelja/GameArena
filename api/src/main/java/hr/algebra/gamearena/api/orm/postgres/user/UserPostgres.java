@@ -36,7 +36,7 @@ public class UserPostgres {
     @Enumerated(EnumType.STRING)
     @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     @Column(name = "role", nullable = false, columnDefinition = "user_role")
-    private UserRolePostgres role;
+    private user_role role;
 
     @Column(name = "is_active", nullable = false)
     private Boolean isActive;
@@ -51,7 +51,7 @@ public class UserPostgres {
         this.username = userSave.getUsername();
         this.passwordHash = userSave.getPasswordHash();
         this.passwordSalt = userSave.getPasswordSalt();
-        this.role = UserRolePostgres.fromRole(userSave.getRole());
+        this.role = user_role.fromRole(userSave.getRole());
         this.isActive = true;
         this.createdAt = OffsetDateTime.now(ZoneOffset.UTC);
         return this;

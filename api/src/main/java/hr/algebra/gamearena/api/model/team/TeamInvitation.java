@@ -19,7 +19,7 @@ public record TeamInvitation(
                 teamInvitationPostgres.getTeamId(),
                 teamInvitationPostgres.getInviterId(),
                 teamInvitationPostgres.getInviteeId(),
-                InviteStatus.fromInvitationStatusPostgres(teamInvitationPostgres.getStatus()),
+                InviteStatus.fromInviteStatus(teamInvitationPostgres.getStatus()),
                 teamInvitationPostgres.getCreatedAt().toLocalDateTime(),
                 teamInvitationPostgres.getRespondedAt() != null
                         ? teamInvitationPostgres.getRespondedAt().toLocalDateTime()

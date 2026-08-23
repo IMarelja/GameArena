@@ -1,6 +1,6 @@
 package hr.algebra.gamearena.api.model.loginlog;
 
-import hr.algebra.gamearena.api.orm.postgres.loginlog.LoginLogTypePostgres;
+import hr.algebra.gamearena.api.orm.postgres.loginlog.login_log_type;
 
 public enum LoginLogType {
     SUCCESS,
@@ -9,7 +9,7 @@ public enum LoginLogType {
     DISABLED_ACCOUNT,
     UNEXPECTED_FAILURE;
 
-    public static LoginLogType fromLoginLogTypePostgres(LoginLogTypePostgres typePostgres) {
+    public static LoginLogType fromLoginLogType(login_log_type typePostgres) {
         return switch (typePostgres) {
             case SUCCESS -> SUCCESS;
             case BAD_PASSWORD -> BAD_PASSWORD;
