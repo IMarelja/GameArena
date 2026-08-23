@@ -29,7 +29,7 @@ DECLARE
 
 	-- Tournament
 	lime_tournament_id		BIGINT;
-	ballbrothers_tournament_id	BIGINT;
+	ballsmash_tournament_id		BIGINT;
 
 	-- Dates
 	specific_date_time	TIMESTAMPTZ := TIMESTAMPTZ '2026-08-01 14:00:00+00';
@@ -167,7 +167,7 @@ BEGIN
 	RETURNING id INTO lime_tournament_id;
 
 	INSERT INTO tournament_member (tournament_id, user_id, role, joined_at, confirmed)
-	VALUES (lime_tournament_id, admin_id, 'ORGANIZER', CURRENT_TIMESTAMP, TRUE);
+	VALUES (lime_tournament_id, admin_id, 'ORGANIZER', tournament_lime_date - INTERVAL '30 days', TRUE);
 
 	-- 📝🤚 Lime tournament participants (each: billing info, payment, PayPal payment, invoice and tournament member)
 
@@ -405,6 +405,96 @@ BEGIN
 		tournament_lime_date + INTERVAL '5 hour + 30 minutes',
 		tournament_lime_date + INTERVAL '5 hour + 35 minutes',
 		tournament_lime_date - INTERVAL '5 days'
+	);
+	
+	-- -----------------
+	-- 🏆 TOURNAMENT (BallSmash)
+	-- -----------------
+	
+	-- Tournament: BallSmash tournament Summer (organizer: admin, super_gamer)
+	INSERT INTO tournaments (name, description, game_id, status, price_solo, price_group, currency, starts_at, ends_at, created_at)
+	VALUES ('BallSmash tournament Summer',
+		'Summer Seasonal Super Smash Bros Melee mini tournament',
+		smbm_id,
+		'SCHEDULED',
+		10.00,
+		8.00,
+		'EUR',
+		now_utc + INTERVAL '2 days',
+		now_utc + INTERVAL '2 days 10 hours',
+		now_utc - INTERVAL '30 days')
+	RETURNING id INTO ballsmash_tournament_id;
+	
+	INSERT INTO tournament_member (tournament_id, user_id, role, joined_at, confirmed)
+	VALUES (ballsmash_tournament_id, admin_id, 'ORGANIZER', now_utc - INTERVAL '30 days', TRUE);
+	INSERT INTO tournament_member (tournament_id, user_id, role, joined_at, confirmed)
+	VALUES (ballsmash_tournament_id, super_gamer_id, 'ORGANIZER', now_utc - INTERVAL '29 days', TRUE);
+
+	-- 📝🤚 BallSmash tournament participants (each: billing info, payment, PayPal payment, invoice and tournament member)
+
+	-- Participant: kissermaxxer
+	INSERT INTO billing_info (full_name, email, address_line, city, state, zip_code, country, created_at)
+	VALUES ('Kisser Maxxer', 'jugio.killer@gmail.com', 'Karlova 15', 'Ljubljana', NULL, '1000', 'SVN', now_utc - INTERVAL '5 days')
+	RETURNING id INTO new_billing_info_id;
+
+	INSERT INTO payments (status, amount, currency, created_at)
+	VALUES ('PAID', 10.00, 'EUR', now_utc - INTERVAL '5 days')
+	RETURNING id INTO new_payment_id;
+
+	INSERT INTO paypal_payments (payment_id, paypal_order_id, paypal_payer_id, capture_id, status, created_at, updated_at)
+	VALUES (new_payment_id, 'PAYPAL-ORDER-KISSERMAXXER-0005', 'PAYPAL-PAYER-KISSERMAXXER-0005', 'PAYPAL-CAPTURE-KISSERMAXXER-0005', 'COMPLETED', now_utc - INTERVAL '5 days', now_utc - INTERVAL '5 days');
+
+	INSERT INTO invoices (user_id, billing_info_id, payment_id, created_at)
+	VALUES (kissermaxxer_id, new_billing_info_id, new_payment_id, now_utc - INTERVAL '5 days');
+
+	INSERT INTO tournament_member (tournament_id, user_id, role, joined_at, payer_id, group_id, payment_id, confirmed)
+	VALUES (ballsmash_tournament_id, kissermaxxer_id, 'PARTICIPANTS', now_utc - INTERVAL '5 days', NULL, NULL, new_payment_id, TRUE);
+
+	-- Participant: basilplayer
+	INSERT INTO billing_info (full_name, email, address_line, city, state, zip_code, country, created_at)
+	VALUES ('Marte Tranic', 'marte_tranic@gmail.com', 'Via Roma 12', 'Milano', NULL, '20121', 'ITA', now_utc - INTERVAL '3 days')
+	RETURNING id INTO new_billing_info_id;
+
+	INSERT INTO payments (status, amount, currency, created_at)
+	VALUES ('PAID', 10.00, 'EUR', now_utc - INTERVAL '3 days')
+	RETURNING id INTO new_payment_id;
+
+	INSERT INTO paypal_payments (payment_id, paypal_order_id, paypal_payer_id, capture_id, status, created_at, updated_at)
+	VALUES (new_payment_id, 'PAYPAL-ORDER-BASILPLAYER-0006', 'PAYPAL-PAYER-BASILPLAYER-0006', 'PAYPAL-CAPTURE-BASILPLAYER-0006', 'COMPLETED', now_utc - INTERVAL '3 days', now_utc - INTERVAL '3 days');
+
+	INSERT INTO invoices (user_id, billing_info_id, payment_id, created_at)
+	VALUES (basilplayer_id, new_billing_info_id, new_payment_id, now_utc - INTERVAL '3 days');
+
+	INSERT INTO tournament_member (tournament_id, user_id, role, joined_at, payer_id, group_id, payment_id, confirmed)
+	VALUES (ballsmash_tournament_id, basilplayer_id, 'PARTICIPANTS', now_utc - INTERVAL '3 days', NULL, NULL, new_payment_id, TRUE);
+	
+	-- > 👊 Matches 👊 < --
+
+	-- kissermaxxer VS basilplayer (scheduled, not yet played)
+	INSERT INTO matches (
+		tournament_id,
+		game_id,
+		player_one_id,
+		player_two_id,
+		player_one_score,
+		player_two_score,
+		winner_id,
+		status,
+		scheduled_at,
+		played_at,
+		created_at)
+	VALUES(
+		ballsmash_tournament_id,
+		smbm_id,
+		kissermaxxer_id,
+		basilplayer_id,
+		NULL,
+		NULL,
+		NULL,
+		'SCHEDULED',
+		now_utc + INTERVAL '2 days 2 hours',
+		NULL,
+		now_utc - INTERVAL '1 days'
 	);
 
 END $$;
