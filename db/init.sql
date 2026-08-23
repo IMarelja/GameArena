@@ -251,6 +251,10 @@ CREATE TABLE matches (
 	)
 );
 
+CREATE INDEX idx_matches_tournament_id ON matches (tournament_id);
+CREATE INDEX idx_matches_player_one_id ON matches (player_one_id);
+CREATE INDEX idx_matches_player_two_id ON matches (player_two_id);
+
 -- ---------------------------------------------------------------------
 -- NOTIFICATION
 -- ---------------------------------------------------------------------

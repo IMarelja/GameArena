@@ -16,6 +16,7 @@ import hr.algebra.gamearena.api.repository.tournament.ITournamentRepo;
 import hr.algebra.gamearena.api.service.notification.INotificationService;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -35,6 +36,14 @@ public class MatchService implements IMatchService {
     public Optional<MatchFullView> getById(Long id) {
         return matchRepo.getById(id)
                 .map(MatchFullView::fromMatch);
+    }
+
+    @Override
+    public List<MatchFullView> getMyMatches(Long callerId) {
+        return matchRepo.getAllByPlayerId(callerId)
+                .stream()
+                .map(MatchFullView::fromMatch)
+                .toList();
     }
 
     @Override

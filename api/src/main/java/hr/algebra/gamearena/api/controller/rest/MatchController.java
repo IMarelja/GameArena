@@ -14,6 +14,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.ZoneOffset;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/match")
@@ -28,6 +29,12 @@ public class MatchController {
 
     public MatchController(IMatchService matchService) {
         this.matchService = matchService;
+    }
+
+    @GetMapping("/me")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<ApiResponse<List<MatchFullView>>> getMyMatches(@AuthenticationPrincipal JwtTokenClaim caller) {
+        return ResponseEntity.ok(ApiResponse.success(matchService.getMyMatches(caller.userId())));
     }
 
     @GetMapping("/{id}")
