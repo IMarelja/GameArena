@@ -4,6 +4,8 @@ import hr.algebra.gamearena.api.model.invoice.BillingInfoSave;
 import jakarta.persistence.*;
 import lombok.Getter;
 import org.hibernate.annotations.DynamicInsert;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 import org.springframework.util.StringUtils;
 
 import java.time.OffsetDateTime;
@@ -37,6 +39,7 @@ public class BillingInfoPostgres {
     @Column(name = "zip_code", nullable = false, length = 20)
     private String zipCode;
 
+    @JdbcTypeCode(SqlTypes.CHAR)
     @Column(name = "country", nullable = false, length = 3)
     private String country;
 

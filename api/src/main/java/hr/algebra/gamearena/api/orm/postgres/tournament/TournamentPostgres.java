@@ -5,6 +5,8 @@ import hr.algebra.gamearena.api.model.tournament.TournamentUpdate;
 import jakarta.persistence.*;
 import lombok.Getter;
 import org.hibernate.annotations.DynamicInsert;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 import org.springframework.util.StringUtils;
 
 import java.math.BigDecimal;
@@ -39,6 +41,7 @@ public class TournamentPostgres {
     @Column(name = "price_group", nullable = false, precision = 12, scale = 2)
     private BigDecimal priceGroup;
 
+    @JdbcTypeCode(SqlTypes.CHAR)
     @Column(name = "currency", nullable = false, length = 3)
     private String currency;
 
