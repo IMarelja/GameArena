@@ -223,12 +223,12 @@ CREATE UNIQUE INDEX uq_tournament_member_confirmed_once
 -- MATCH
 -- ---------------------------------------------------------------------
 
-CREATE TYPE match_status AS ENUM (
-	'SCHEDULED',
-	'IN_PROGRESS',
-	'COMPLETED',
-	'CANCELED'
-);
+--CREATE TYPE match_status AS ENUM (
+--	'SCHEDULED',
+--	'IN_PROGRESS',
+--	'COMPLETED',
+--	'CANCELED'
+--);
 
 CREATE TABLE matches (
 	id 			BIGINT		GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
@@ -239,7 +239,7 @@ CREATE TABLE matches (
 	player_one_score	INTEGER,
 	player_two_score	INTEGER,
 	winner_id		BIGINT		REFERENCES users(id),
-	status			match_status	NOT NULL,
+	status			VARCHAR(20)	NOT NULL,
 	scheduled_at		TIMESTAMPTZ,
 	played_at		TIMESTAMPTZ,
 	created_at		TIMESTAMPTZ	NOT NULL DEFAULT CURRENT_TIMESTAMP,

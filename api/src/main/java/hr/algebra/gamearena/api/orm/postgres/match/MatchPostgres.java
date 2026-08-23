@@ -1,11 +1,8 @@
-package hr.algebra.gamearena.api.orm.postgres;
+package hr.algebra.gamearena.api.orm.postgres.match;
 
-import hr.algebra.gamearena.api.model.match.MatchStatus;
 import jakarta.persistence.*;
 import lombok.Getter;
 import org.hibernate.annotations.DynamicInsert;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.type.SqlTypes;
 
 import java.time.OffsetDateTime;
 
@@ -40,10 +37,8 @@ public class MatchPostgres {
     @Column(name = "winner_id")
     private Long winnerId;
 
-    @Enumerated(EnumType.STRING)
-    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     @Column(name = "status", nullable = false, columnDefinition = "match_status")
-    private MatchStatus status;
+    private String status;
 
     @Column(name = "scheduled_at")
     private OffsetDateTime scheduledAt;
