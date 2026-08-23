@@ -67,10 +67,10 @@ public class NotificationService implements INotificationService{
         }
 
         var notificationSave = new NotificationSave();
-        notificationSave.setType(request.getType());
+        notificationSave.setType(request.getType().toNotificationType());
         notificationSave.setRecipientUserId(request.getRecipientUserId());
         notificationSave.setReferenceId(request.getReferenceId());
-        notificationSave.setReferenceType(request.getReferenceType());
+        notificationSave.setReferenceType(request.getReferenceType() != null ? request.getReferenceType().toReferenceType() : null);
 
         var created = NotificationMinimalView.fromNotification(notificationRepo.save(notificationSave));
 

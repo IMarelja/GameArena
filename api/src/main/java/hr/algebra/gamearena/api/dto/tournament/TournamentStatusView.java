@@ -16,4 +16,13 @@ public enum TournamentStatusView {
             case CANCELED -> TournamentStatusView.CANCELED;
         };
     }
+
+    public TournamentStatus toTournamentStatus() {
+        return switch (this) {
+            case SCHEDULED -> TournamentStatus.SCHEDULED;
+            case LIVE -> TournamentStatus.LIVE;
+            case ENDED -> TournamentStatus.ENDED;
+            case CANCELED -> TournamentStatus.CANCELED;
+        };
+    }
 }

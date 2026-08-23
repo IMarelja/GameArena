@@ -1,6 +1,5 @@
 package hr.algebra.gamearena.api.dto.loginlog;
 
-import hr.algebra.gamearena.api.model.loginlog.LoginLogType;
 import hr.algebra.gamearena.api.model.loginlog.LoginLogs;
 
 import java.time.LocalDateTime;
@@ -11,7 +10,7 @@ public record LoginLogsFullView(
         String credential,
         Optional<String> ipv4,
         Optional<String> ipv6,
-        LoginLogType type,
+        LoginLogTypeView type,
         LocalDateTime createdAt
 ) {
     public static LoginLogsFullView fromLoginLogsModel(LoginLogs loginLogs) {
@@ -20,7 +19,7 @@ public record LoginLogsFullView(
                 loginLogs.credential(),
                 loginLogs.ipv4(),
                 loginLogs.ipv6(),
-                loginLogs.type(),
+                LoginLogTypeView.fromLoginLogType(loginLogs.type()),
                 loginLogs.createdAt()
         );
     }

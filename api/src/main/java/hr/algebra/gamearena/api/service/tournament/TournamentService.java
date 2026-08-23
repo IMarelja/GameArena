@@ -146,7 +146,7 @@ public class TournamentService implements ITournamentService {
         tournamentUpdate.setName(request.getName());
         tournamentUpdate.setDescription(request.getDescription());
         tournamentUpdate.setGameId(request.getGameId());
-        tournamentUpdate.setStatus(request.getStatus());
+        tournamentUpdate.setStatus(request.getStatus().toTournamentStatus());
 
         tournamentUpdate.setPriceSolo(request.getPrice().getSoloPrice());
         tournamentUpdate.setPriceGroup(request.getPrice().getGroupPrice());

@@ -25,7 +25,7 @@ public class LoginLoggingService implements ILoginLoggingService {
         loginLogSave.setCredential(loginLogCreate.getCredential());
         loginLogSave.setIpv4(loginLogCreate.getIpv4());
         loginLogSave.setIpv6(loginLogCreate.getIpv6());
-        loginLogSave.setType(loginLogCreate.getType());
+        loginLogSave.setType(loginLogCreate.getType().toLoginLogType());
 
         return LoginLogsFullView.fromLoginLogsModel(loginLoggingRepo.save(loginLogSave));
     }

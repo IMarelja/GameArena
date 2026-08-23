@@ -5,6 +5,8 @@ import hr.algebra.gamearena.api.dto.authentication.RegisterRequest;
 import hr.algebra.gamearena.api.dto.authentication.TokenDto;
 import hr.algebra.gamearena.api.dto.jwt.JwtTokenRequest;
 import hr.algebra.gamearena.api.dto.loginlog.LoginLogCreate;
+import hr.algebra.gamearena.api.dto.loginlog.LoginLogTypeView;
+import hr.algebra.gamearena.api.dto.user.RoleView;
 import hr.algebra.gamearena.api.exceptions.extenders.ConflictException;
 import hr.algebra.gamearena.api.exceptions.extenders.ForbiddenAccessException;
 import hr.algebra.gamearena.api.exceptions.extenders.UnauthorizedAccessException;
@@ -69,9 +71,22 @@ public class AuthenticationService implements IAuthenticationService {
                 throw new UnauthorizedAccessException("The password is incorrect");
             }
 
+            /*
+            * [Chorus]
+            * Baby, I'm preyin' on you tonight
+            * Hunt you down, eat you alive
+            * Just like animals, animals
+            * Like animals-mals
+            * Maybe you think that you can hide
+            * I can smell your scent for miles
+            * Just like animals, animals
+            * Like animals-mals
+            * Baby, I'm (Hey)
+            * */
+
             var tokenAttributes = new JwtTokenRequest(
                     fetchedUser.get().id(),
-                    fetchedUser.get().role(),
+                    RoleView.fromRole(fetchedUser.get().role()),
                     loginRequest.getRememberMe()
             );
 
@@ -116,7 +131,7 @@ public class AuthenticationService implements IAuthenticationService {
 
         var tokenAttributes = new JwtTokenRequest(
                 savedUser.id(),
-                savedUser.role(),
+                RoleView.fromRole(savedUser.role()),
                 registerRequest.getRememberMe()
         );
 
@@ -135,7 +150,7 @@ public class AuthenticationService implements IAuthenticationService {
         var clientAddress = NetworkUtilities.resolveClientAddress(httpServletRequest);
 
         loginLogCreate.setCredential(credential);
-        loginLogCreate.setType(type);
+        loginLogCreate.setType(LoginLogTypeView.fromLoginLogType(type));
 
         if (NetworkUtilities.isIpv6(clientAddress))
             loginLogCreate.setIpv6(clientAddress);

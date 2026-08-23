@@ -1,6 +1,5 @@
 package hr.algebra.gamearena.api.dto.loginlog;
 
-import hr.algebra.gamearena.api.model.loginlog.LoginLogType;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
@@ -16,5 +15,5 @@ public class LoginLogCreate {
     private String ipv6;
 
     @NotNull
-    private LoginLogType type;
+    private LoginLogTypeView type;
 }

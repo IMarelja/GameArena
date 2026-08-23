@@ -3,13 +3,13 @@ package hr.algebra.gamearena.api.service.match;
 import hr.algebra.gamearena.api.dto.match.MatchCreateRequest;
 import hr.algebra.gamearena.api.dto.match.MatchFullView;
 import hr.algebra.gamearena.api.dto.notification.NotificationCreateRequest;
+import hr.algebra.gamearena.api.dto.notification.NotificationTypeView;
+import hr.algebra.gamearena.api.dto.notification.ReferenceTypeView;
 import hr.algebra.gamearena.api.exceptions.extenders.BadRequestedException;
 import hr.algebra.gamearena.api.exceptions.extenders.ForbiddenAccessException;
 import hr.algebra.gamearena.api.exceptions.extenders.NotFoundException;
 import hr.algebra.gamearena.api.model.match.MatchSave;
 import hr.algebra.gamearena.api.model.match.MatchStatus;
-import hr.algebra.gamearena.api.model.notification.NotificationType;
-import hr.algebra.gamearena.api.model.notification.ReferenceType;
 import hr.algebra.gamearena.api.model.tournament.member.TournamentMemberRole;
 import hr.algebra.gamearena.api.repository.match.IMatchRepo;
 import hr.algebra.gamearena.api.repository.tournament.ITournamentRepo;
@@ -80,10 +80,10 @@ public class MatchService implements IMatchService {
 
     private void pushMatchCreatedNotification(Long recipientUserId, Long matchId) {
         var notificationRequest = new NotificationCreateRequest(
-                NotificationType.CREATED_MATCH,
+                NotificationTypeView.CREATED_MATCH,
                 recipientUserId,
                 matchId,
-                ReferenceType.MATCH
+                ReferenceTypeView.MATCH
         );
 
         notificationService.createAndPush(notificationRequest);

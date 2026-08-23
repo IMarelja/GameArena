@@ -2,7 +2,7 @@ package hr.algebra.gamearena.api.service.jwt;
 
 import hr.algebra.gamearena.api.dto.jwt.JwtTokenClaim;
 import hr.algebra.gamearena.api.dto.jwt.JwtTokenRequest;
-import hr.algebra.gamearena.api.model.user.Role;
+import hr.algebra.gamearena.api.dto.user.RoleView;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
@@ -62,7 +62,7 @@ public class JwtService implements IJwtService {
 
             return Optional.of(new JwtTokenClaim(
                     claims.get("userId", Long.class),
-                    Role.valueOf(claims.get("role", String.class)),
+                    RoleView.valueOf(claims.get("role", String.class)),
                     toLocalDateTime(claims.getIssuedAt()),
                     toLocalDateTime(claims.getExpiration())
             ));

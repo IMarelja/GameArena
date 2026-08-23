@@ -2,7 +2,6 @@ package hr.algebra.gamearena.api.dto.tournament;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import hr.algebra.gamearena.api.dto.tournament.price.PriceEditRequest;
-import hr.algebra.gamearena.api.model.tournament.TournamentStatus;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -24,7 +23,7 @@ public class TournamentEditRequest {
     private Long gameId;
 
     @NotNull(message = "Status is required")
-    private TournamentStatus status;
+    private TournamentStatusView status;
 
     @NotNull(message = "Price is required")
     private PriceEditRequest price;

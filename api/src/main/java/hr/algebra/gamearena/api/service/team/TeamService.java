@@ -1,6 +1,8 @@
 package hr.algebra.gamearena.api.service.team;
 
 import hr.algebra.gamearena.api.dto.notification.NotificationCreateRequest;
+import hr.algebra.gamearena.api.dto.notification.NotificationTypeView;
+import hr.algebra.gamearena.api.dto.notification.ReferenceTypeView;
 import hr.algebra.gamearena.api.dto.team.TeamCreateRequest;
 import hr.algebra.gamearena.api.dto.team.TeamMinimalView;
 import hr.algebra.gamearena.api.dto.team.invitation.TeamInvitationResponseEditRequest;
@@ -12,7 +14,6 @@ import hr.algebra.gamearena.api.exceptions.extenders.ForbiddenAccessException;
 import hr.algebra.gamearena.api.exceptions.extenders.InvalidVariableException;
 import hr.algebra.gamearena.api.exceptions.extenders.NotFoundException;
 import hr.algebra.gamearena.api.model.notification.NotificationType;
-import hr.algebra.gamearena.api.model.notification.ReferenceType;
 import hr.algebra.gamearena.api.model.team.InviteStatus;
 import hr.algebra.gamearena.api.model.team.TeamInvitationSave;
 import hr.algebra.gamearena.api.model.team.TeamInvitationUpdate;
@@ -277,9 +278,9 @@ public class TeamService implements ITeamService {
 
     private void pushInvitationNotification(NotificationType type, Long recipientUserId, Long invitationId) {
         notificationService.createAndPush(new NotificationCreateRequest(
-                type,
+                NotificationTypeView.fromNotificationType(type),
                 recipientUserId,
                 invitationId,
-                ReferenceType.TEAM_INVITATION));
+                ReferenceTypeView.TEAM_INVITATION));
     }
 }

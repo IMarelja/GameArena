@@ -1,6 +1,5 @@
 package hr.algebra.gamearena.api.dto.team.invitation;
 
-import hr.algebra.gamearena.api.model.team.InviteStatus;
 import hr.algebra.gamearena.api.model.team.TeamInvitation;
 
 import java.time.LocalDateTime;
@@ -10,7 +9,7 @@ public record TeamInvitationView(
     Long teamId,
     Long inviterId,
     Long inviteeId,
-    InviteStatus status,
+    InviteStatusView status,
     LocalDateTime createdAt,
     LocalDateTime respondedAt
 ) {
@@ -20,7 +19,7 @@ public record TeamInvitationView(
                 invitation.teamId(),
                 invitation.inviterId(),
                 invitation.inviteeId(),
-                invitation.status(),
+                InviteStatusView.fromInviteStatus(invitation.status()),
                 invitation.createdAt(),
                 invitation.respondedAt()
         );

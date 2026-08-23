@@ -7,10 +7,10 @@ import hr.algebra.gamearena.api.dto.notification.NotificationCreateRequest;
 import hr.algebra.gamearena.api.dto.notification.NotificationEditRequest;
 import hr.algebra.gamearena.api.dto.notification.NotificationMinimalView;
 import hr.algebra.gamearena.api.dto.notification.NotificationUnreadAndCountView;
+import hr.algebra.gamearena.api.dto.notification.NotificationTypeView;
 import hr.algebra.gamearena.api.dto.other.ApiResponse;
 import hr.algebra.gamearena.api.exceptions.extenders.ForbiddenAccessException;
 import hr.algebra.gamearena.api.exceptions.extenders.NotFoundException;
-import hr.algebra.gamearena.api.model.notification.NotificationType;
 import hr.algebra.gamearena.api.service.notification.INotificationService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
@@ -57,7 +57,7 @@ public class NotificationController {
     @PostMapping("/test/to/user/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ApiResponse<NotificationMinimalView>> createTestNotification(@PathVariable("id") Long userId){
-        var createRequest = new NotificationCreateRequest(NotificationType.TEST, userId, null, null);
+        var createRequest = new NotificationCreateRequest(NotificationTypeView.TEST, userId, null, null);
 
         return ResponseEntity.ok(ApiResponse.success(notificationService.createAndPush(createRequest)));
     }
