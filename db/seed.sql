@@ -34,6 +34,11 @@ DECLARE
 	-- Dates
 	specific_date_time	TIMESTAMPTZ := TIMESTAMPTZ '2026-08-01 14:00:00+00';
 	now_utc			TIMESTAMPTZ := CURRENT_TIMESTAMP;
+	tournament_lime_date	TIMESTAMPTZ := TIMESTAMPTZ '2026-08-11 12:00:00+00';
+
+	-- Scratch vars, reused per Lime tournament participant
+	new_billing_info_id	BIGINT;
+	new_payment_id		BIGINT;
 
 	--
 BEGIN
@@ -145,10 +150,10 @@ BEGIN
 		(legion_team_id, ultra_marine_id, 'REGULAR', specific_date_time - INTERVAL '3 days');
 
 	-- -----------------
-	-- 🏆 TOURNAMENT
+	-- 🏆 TOURNAMENT (LIME)
 	-- -----------------
 	-- Tournament: Lime tournament 2026 (organizer: admin)
-	INSERT INTO tournaments (name, description, game_id, status, price_solo, price_group, currency, starts_at, ends_at)
+	INSERT INTO tournaments (name, description, game_id, status, price_solo, price_group, currency, starts_at, ends_at, created_at)
 	VALUES ('Lime tournament 2026',
 		'Yearly TF2 MGE tournament leaderboard',
 		tf2_id,
@@ -156,12 +161,251 @@ BEGIN
 		10.00,
 		8.00,
 		'EUR',
-		TIMESTAMPTZ '2026-08-11 12:00:00+00',
-		TIMESTAMPTZ '2026-08-15 18:00:00+00')
+		tournament_lime_date,
+		tournament_lime_date + INTERVAL '6 hours',
+		tournament_lime_date - INTERVAL '30 days')
 	RETURNING id INTO lime_tournament_id;
 
 	INSERT INTO tournament_member (tournament_id, user_id, role, joined_at, confirmed)
 	VALUES (lime_tournament_id, admin_id, 'ORGANIZER', CURRENT_TIMESTAMP, TRUE);
+
+	-- 📝🤚 Lime tournament participants (each: billing info, payment, PayPal payment, invoice and tournament member)
+
+	-- Participant: ivan_m
+	INSERT INTO billing_info (full_name, email, address_line, city, state, zip_code, country, created_at)
+	VALUES ('Ivan Marelja', 'ivan.marelja@hello.hr', 'Ilica 10', 'Zagreb', NULL, '10000', 'HRV', tournament_lime_date - INTERVAL '15 days')
+	RETURNING id INTO new_billing_info_id;
+
+	INSERT INTO payments (status, amount, currency, created_at)
+	VALUES ('PAID', 10.00, 'EUR', tournament_lime_date - INTERVAL '15 days')
+	RETURNING id INTO new_payment_id;
+
+	INSERT INTO paypal_payments (payment_id, paypal_order_id, paypal_payer_id, capture_id, status, created_at, updated_at)
+	VALUES (new_payment_id, 'PAYPAL-ORDER-IVANM-0001', 'PAYPAL-PAYER-IVANM-0001', 'PAYPAL-CAPTURE-IVANM-0001', 'COMPLETED', tournament_lime_date - INTERVAL '15 days', tournament_lime_date - INTERVAL '15 days');
+
+	INSERT INTO invoices (user_id, billing_info_id, payment_id, created_at)
+	VALUES (ivan_m_id, new_billing_info_id, new_payment_id, tournament_lime_date - INTERVAL '15 days');
+
+	INSERT INTO tournament_member (tournament_id, user_id, role, joined_at, payer_id, group_id, payment_id, confirmed)
+	VALUES (lime_tournament_id, ivan_m_id, 'PARTICIPANTS', tournament_lime_date - INTERVAL '15 days', NULL, NULL, new_payment_id, TRUE);
+
+	-- Participant: super_gamer
+	INSERT INTO billing_info (full_name, email, address_line, city, state, zip_code, country, created_at)
+	VALUES ('Tom Fynder', 'tom.fynder@gmail.com', 'Sunset Blvd 22', 'Los Angeles', 'CA', '90001', 'USA', tournament_lime_date - INTERVAL '12 days')
+	RETURNING id INTO new_billing_info_id;
+
+	INSERT INTO payments (status, amount, currency, created_at)
+	VALUES ('PAID', 10.00, 'EUR', tournament_lime_date - INTERVAL '12 days')
+	RETURNING id INTO new_payment_id;
+
+	INSERT INTO paypal_payments (payment_id, paypal_order_id, paypal_payer_id, capture_id, status, created_at, updated_at)
+	VALUES (new_payment_id, 'PAYPAL-ORDER-SUPERGAMER-0002', 'PAYPAL-PAYER-SUPERGAMER-0002', 'PAYPAL-CAPTURE-SUPERGAMER-0002', 'COMPLETED', tournament_lime_date - INTERVAL '12 days', tournament_lime_date - INTERVAL '12 days');
+
+	INSERT INTO invoices (user_id, billing_info_id, payment_id, created_at)
+	VALUES (super_gamer_id, new_billing_info_id, new_payment_id, tournament_lime_date - INTERVAL '12 days');
+
+	INSERT INTO tournament_member (tournament_id, user_id, role, joined_at, payer_id, group_id, payment_id, confirmed)
+	VALUES (lime_tournament_id, super_gamer_id, 'PARTICIPANTS', tournament_lime_date - INTERVAL '12 days', NULL, NULL, new_payment_id, TRUE);
+
+	-- Participant: hampterboy7
+	INSERT INTO billing_info (full_name, email, address_line, city, state, zip_code, country, created_at)
+	VALUES ('Hampter Boy', 'keepitreal@mail.com', 'Alexanderplatz 3', 'Berlin', NULL, '10178', 'DEU', tournament_lime_date - INTERVAL '10 days')
+	RETURNING id INTO new_billing_info_id;
+
+	INSERT INTO payments (status, amount, currency, created_at)
+	VALUES ('PAID', 10.00, 'EUR', tournament_lime_date - INTERVAL '10 days')
+	RETURNING id INTO new_payment_id;
+
+	INSERT INTO paypal_payments (payment_id, paypal_order_id, paypal_payer_id, capture_id, status, created_at, updated_at)
+	VALUES (new_payment_id, 'PAYPAL-ORDER-HAMPTERBOY7-0003', 'PAYPAL-PAYER-HAMPTERBOY7-0003', 'PAYPAL-CAPTURE-HAMPTERBOY7-0003', 'COMPLETED', tournament_lime_date - INTERVAL '10 days', tournament_lime_date - INTERVAL '10 days');
+
+	INSERT INTO invoices (user_id, billing_info_id, payment_id, created_at)
+	VALUES (hampterboy7_id, new_billing_info_id, new_payment_id, tournament_lime_date - INTERVAL '10 days');
+
+	INSERT INTO tournament_member (tournament_id, user_id, role, joined_at, payer_id, group_id, payment_id, confirmed)
+	VALUES (lime_tournament_id, hampterboy7_id, 'PARTICIPANTS', tournament_lime_date - INTERVAL '10 days', NULL, NULL, new_payment_id, TRUE);
+
+	-- Participant: david2014
+	INSERT INTO billing_info (full_name, email, address_line, city, state, zip_code, country, created_at)
+	VALUES ('David Tettersen', 'david.tettersen@icloud.com', 'Bakkegata 5', 'Oslo', NULL, '0150', 'NOR', tournament_lime_date - INTERVAL '8 days')
+	RETURNING id INTO new_billing_info_id;
+
+	INSERT INTO payments (status, amount, currency, created_at)
+	VALUES ('PAID', 10.00, 'EUR', tournament_lime_date - INTERVAL '8 days')
+	RETURNING id INTO new_payment_id;
+
+	INSERT INTO paypal_payments (payment_id, paypal_order_id, paypal_payer_id, capture_id, status, created_at, updated_at)
+	VALUES (new_payment_id, 'PAYPAL-ORDER-DAVID2014-0004', 'PAYPAL-PAYER-DAVID2014-0004', 'PAYPAL-CAPTURE-DAVID2014-0004', 'COMPLETED', tournament_lime_date - INTERVAL '8 days', tournament_lime_date - INTERVAL '8 days');
+
+	INSERT INTO invoices (user_id, billing_info_id, payment_id, created_at)
+	VALUES (david2014_id, new_billing_info_id, new_payment_id, tournament_lime_date - INTERVAL '8 days');
+
+	INSERT INTO tournament_member (tournament_id, user_id, role, joined_at, payer_id, group_id, payment_id, confirmed)
+	VALUES (lime_tournament_id, david2014_id, 'PARTICIPANTS', tournament_lime_date - INTERVAL '8 days', NULL, NULL, new_payment_id, TRUE);
+
+	-- > 👊 Matches 👊 < --
+	
+	-- ivan_m VS david2014
+	INSERT INTO matches (
+		tournament_id, 
+		game_id, 
+		player_one_id,
+		player_two_id,
+		player_one_score,
+		player_two_score,
+		winner_id,
+		status,
+		scheduled_at,
+		played_at,
+		created_at)
+	VALUES(
+		lime_tournament_id,
+		tf2_id,
+		david2014_id,
+		ivan_m_id,
+		4,
+		7,
+		ivan_m_id,
+		'COMPLETED',
+		tournament_lime_date + INTERVAL '1 hour',
+		tournament_lime_date + INTERVAL '1 hour',
+		tournament_lime_date - INTERVAL '5 days'
+	);
+	
+	-- hampterboy7 VS super_gamer
+	INSERT INTO matches (
+		tournament_id, 
+		game_id, 
+		player_one_id,
+		player_two_id,
+		player_one_score,
+		player_two_score,
+		winner_id,
+		status,
+		scheduled_at,
+		played_at,
+		created_at)
+	VALUES(
+		lime_tournament_id,
+		tf2_id,
+		hampterboy7_id,
+		super_gamer_id,
+		8,
+		6,
+		hampterboy7_id,
+		'COMPLETED',
+		tournament_lime_date + INTERVAL '1 hour + 30 minutes',
+		tournament_lime_date + INTERVAL '1 hour + 40 minutes',
+		tournament_lime_date - INTERVAL '5 days'
+	);
+	
+	-- ivan_m VS hampterboy7
+	INSERT INTO matches (
+		tournament_id, 
+		game_id, 
+		player_one_id,
+		player_two_id,
+		player_one_score,
+		player_two_score,
+		winner_id,
+		status,
+		scheduled_at,
+		played_at,
+		created_at)
+	VALUES(
+		lime_tournament_id,
+		tf2_id,
+		ivan_m_id,
+		hampterboy7_id,
+		10,
+		3,
+		ivan_m_id,
+		'COMPLETED',
+		tournament_lime_date + INTERVAL '3 hour',
+		tournament_lime_date + INTERVAL '3 hour',
+		tournament_lime_date - INTERVAL '5 days'
+	);
+	
+	-- super_gamer VS david2014
+	INSERT INTO matches (
+		tournament_id, 
+		game_id, 
+		player_one_id,
+		player_two_id,
+		player_one_score,
+		player_two_score,
+		winner_id,
+		status,
+		scheduled_at,
+		played_at,
+		created_at)
+	VALUES(
+		lime_tournament_id,
+		tf2_id,
+		david2014_id,
+		super_gamer_id,
+		10,
+		11,
+		super_gamer_id,
+		'COMPLETED',
+		tournament_lime_date + INTERVAL '3 hour + 30 minutes',
+		tournament_lime_date + INTERVAL '3 hour + 30 minutes',
+		tournament_lime_date - INTERVAL '5 days'
+	);
+	
+	-- super_gamer VS ivan_m
+	INSERT INTO matches (
+		tournament_id, 
+		game_id, 
+		player_one_id,
+		player_two_id,
+		player_one_score,
+		player_two_score,
+		winner_id,
+		status,
+		scheduled_at,
+		played_at,
+		created_at)
+	VALUES(
+		lime_tournament_id,
+		tf2_id,
+		ivan_m_id,
+		super_gamer_id,
+		15,
+		15,
+		NULL,
+		'COMPLETED',
+		tournament_lime_date + INTERVAL '5 hour',
+		tournament_lime_date + INTERVAL '5 hour',
+		tournament_lime_date - INTERVAL '5 days'
+	);
+	
+	-- david2014 VS hampterboy7
+	INSERT INTO matches (
+		tournament_id, 
+		game_id, 
+		player_one_id,
+		player_two_id,
+		player_one_score,
+		player_two_score,
+		winner_id,
+		status,
+		scheduled_at,
+		played_at,
+		created_at)
+	VALUES(
+		lime_tournament_id,
+		tf2_id,
+		david2014_id,
+		hampterboy7_id,
+		8,
+		10,
+		hampterboy7_id,
+		'COMPLETED',
+		tournament_lime_date + INTERVAL '5 hour + 30 minutes',
+		tournament_lime_date + INTERVAL '5 hour + 35 minutes',
+		tournament_lime_date - INTERVAL '5 days'
+	);
 
 END $$;
 
