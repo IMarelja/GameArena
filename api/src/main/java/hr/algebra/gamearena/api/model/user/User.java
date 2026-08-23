@@ -12,6 +12,7 @@ public record User(
         String passwordSalt,
         Role role,
         Boolean isActive,
+        Boolean isDeleted,
         LocalDateTime createdAt
     ) {
 
@@ -24,6 +25,7 @@ public record User(
                 userPostgres.getPasswordSalt(),
                 Role.fromRolePostgres(userPostgres.getRole()),
                 userPostgres.getIsActive(),
+                userPostgres.getIsDeleted(),
                 userPostgres.getCreatedAt().toLocalDateTime()
         );
     }

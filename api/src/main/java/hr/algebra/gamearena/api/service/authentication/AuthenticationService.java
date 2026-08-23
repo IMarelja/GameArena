@@ -54,6 +54,11 @@ public class AuthenticationService implements IAuthenticationService {
                 throw new UserNotFoundException("User not found");
             }
 
+            if(fetchedUser.get().isDeleted()) {
+                logLoginAttempt(usernameOrEmail, LoginLogType.DISABLED_ACCOUNT);
+                throw new ForbiddenAccessException("This account has been deleted");
+            }
+
             if(!fetchedUser.get().isActive()) {
                 logLoginAttempt(usernameOrEmail, LoginLogType.DISABLED_ACCOUNT);
                 throw new ForbiddenAccessException("This account is suspended, contact moderators or administrators");

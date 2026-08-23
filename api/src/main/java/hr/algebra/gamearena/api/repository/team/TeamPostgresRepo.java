@@ -133,12 +133,12 @@ public class TeamPostgresRepo implements ITeamRepo{
 
     @Override
     public boolean isUserTeamCaptain(Long userId, Long teamId) {
-        return teamMemberPostgresSQLRepo.existsByTeamIdAndUserIdAndRole(teamId, userId, TeamMemberRole.CAPTAIN);
+        return teamMemberPostgresSQLRepo.existsByTeamIdAndUserIdAndRole(teamId, userId, TeamMemberRole.CAPTAIN.name());
     }
 
     @Override
     public long countTeamMembersByRole(Long teamId, TeamMemberRole role) {
-        return teamMemberPostgresSQLRepo.countByTeamIdAndRole(teamId, role);
+        return teamMemberPostgresSQLRepo.countByTeamIdAndRole(teamId, role.name());
     }
 
     @Override

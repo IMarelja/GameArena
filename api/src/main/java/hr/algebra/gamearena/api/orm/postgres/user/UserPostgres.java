@@ -1,7 +1,8 @@
 package hr.algebra.gamearena.api.orm.postgres.user;
 
-import hr.algebra.gamearena.api.model.user.Role;
+import hr.algebra.gamearena.api.model.user.UserActiveStatusUpdate;
 import hr.algebra.gamearena.api.model.user.UserSave;
+import hr.algebra.gamearena.api.model.user.UserSelfDeleteUpdate;
 import jakarta.persistence.*;
 import lombok.Getter;
 import org.hibernate.annotations.DynamicInsert;
@@ -41,6 +42,9 @@ public class UserPostgres {
     @Column(name = "is_active", nullable = false)
     private Boolean isActive;
 
+    @Column(name = "is_deleted", nullable = false)
+    private Boolean isDeleted;
+
     @Column(name = "created_at", nullable = false)
     private OffsetDateTime createdAt;
 
@@ -53,7 +57,22 @@ public class UserPostgres {
         this.passwordSalt = userSave.getPasswordSalt();
         this.role = user_role.fromRole(userSave.getRole());
         this.isActive = true;
+        this.isDeleted = false;
         this.createdAt = OffsetDateTime.now(ZoneOffset.UTC);
+        return this;
+    }
+
+    public UserPostgres fromUserSelfDeleteUpdate(UserSelfDeleteUpdate update) {
+        this.username = update.getUsername();
+        this.email = update.getEmail();
+        this.passwordHash = update.getPasswordHash();
+        this.passwordSalt = update.getPasswordSalt();
+        this.isDeleted = true;
+        return this;
+    }
+
+    public UserPostgres fromUserActiveStatusUpdate(UserActiveStatusUpdate update) {
+        this.isActive = update.getIsActive();
         return this;
     }
 }

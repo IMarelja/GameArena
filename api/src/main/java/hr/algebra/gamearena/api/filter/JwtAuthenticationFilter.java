@@ -57,7 +57,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         JwtTokenClaim claim = jwtClaims.get();
 
-        if (!userService.isActiveById(claim.userId())) {
+        if (!userService.isActiveAndNotDeleted(claim.userId())) {
             refuse(request, "User is not allowed to access this resource");
             return;
         }

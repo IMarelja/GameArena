@@ -1,7 +1,9 @@
 package hr.algebra.gamearena.api.repository.user;
 
 import hr.algebra.gamearena.api.model.user.User;
+import hr.algebra.gamearena.api.model.user.UserActiveStatusUpdate;
 import hr.algebra.gamearena.api.model.user.UserSave;
+import hr.algebra.gamearena.api.model.user.UserSelfDeleteUpdate;
 import hr.algebra.gamearena.api.orm.postgres.user.UserPostgres;
 import org.springframework.stereotype.Repository;
 
@@ -49,8 +51,8 @@ public class UserPostgresRepo implements IUserRepo {
     }
 
     @Override
-    public boolean existsByIdAndIsActive(Long id) {
-        return sqlUserRepository.existsByIdAndIsActive(id);
+    public boolean existsByIdAndIsActiveAndNotDeleted(Long id) {
+        return sqlUserRepository.existsByIdAndIsActiveAndNotDeleted(id);
     }
 
     @Override
@@ -70,5 +72,19 @@ public class UserPostgresRepo implements IUserRepo {
         return User.fromPostgres(savedUser);
     }
 
+    @Override
+    public Optional<User> selfDelete(Long id, UserSelfDeleteUpdate update) {
+        return sqlUserRepository.findById(id)
+                .map(existing -> existing.fromUserSelfDeleteUpdate(update))
+                .map(sqlUserRepository::save)
+                .map(User::fromPostgres);
+    }
 
+    @Override
+    public Optional<User> updateActiveStatus(Long id, UserActiveStatusUpdate update) {
+        return sqlUserRepository.findById(id)
+                .map(existing -> existing.fromUserActiveStatusUpdate(update))
+                .map(sqlUserRepository::save)
+                .map(User::fromPostgres);
+    }
 }
