@@ -1,6 +1,6 @@
 package hr.algebra.gamearena.api.model.loginlog;
 
-import hr.algebra.gamearena.api.orm.postgres.LoginLogPostgres;
+import hr.algebra.gamearena.api.orm.postgres.loginlog.LoginLogPostgres;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -19,7 +19,7 @@ public record LoginLogs(
                 loginLogPostgres.getCredential(),
                 Optional.ofNullable(loginLogPostgres.getIpv4()),
                 Optional.ofNullable(loginLogPostgres.getIpv6()),
-                loginLogPostgres.getType(),
+                LoginLogType.fromLoginLogTypePostgres(loginLogPostgres.getType()),
                 loginLogPostgres.getCreatedAt().toLocalDateTime()
         );
     }

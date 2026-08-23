@@ -29,7 +29,7 @@ public record Tournament(
                 tournamentPostgres.getPriceGroup(),
                 tournamentPostgres.getCurrency(),
 
-                tournamentPostgres.getStatus(),
+                TournamentStatus.valueOf(tournamentPostgres.getStatus()),
                 tournamentPostgres.getStartsAt().toLocalDateTime(),
                 tournamentPostgres.getEndsAt() != null
                         ? tournamentPostgres.getEndsAt().toLocalDateTime()

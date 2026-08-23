@@ -3,7 +3,7 @@ package hr.algebra.gamearena.api.repository.loginlog;
 import hr.algebra.gamearena.api.model.loginlog.LoginLogSave;
 import hr.algebra.gamearena.api.model.loginlog.LoginLogType;
 import hr.algebra.gamearena.api.model.loginlog.LoginLogs;
-import hr.algebra.gamearena.api.orm.postgres.LoginLogPostgres;
+import hr.algebra.gamearena.api.orm.postgres.loginlog.LoginLogPostgres;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;

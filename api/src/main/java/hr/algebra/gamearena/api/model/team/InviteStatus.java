@@ -3,12 +3,22 @@ package hr.algebra.gamearena.api.model.team;
 
 import hr.algebra.gamearena.api.dto.team.invitation.InviteResponseStatus;
 import hr.algebra.gamearena.api.dto.team.invitation.InviterInviteStatus;
+import hr.algebra.gamearena.api.orm.postgres.team.InvitationStatusPostgres;
 
 public enum InviteStatus {
     PENDING,
     ACCEPTED,
     DECLINED,
     CANCELLED;
+
+    public static InviteStatus fromInvitationStatusPostgres(InvitationStatusPostgres status) {
+        return switch (status) {
+            case PENDING -> PENDING;
+            case ACCEPTED -> ACCEPTED;
+            case DECLINED -> DECLINED;
+            case CANCELLED -> CANCELLED;
+        };
+    }
 
     public InviteStatus fromInviteResponseStatus(InviteResponseStatus status) {
         return switch (status) {

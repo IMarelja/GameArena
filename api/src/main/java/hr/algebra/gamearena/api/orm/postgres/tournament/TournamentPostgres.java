@@ -1,7 +1,6 @@
 package hr.algebra.gamearena.api.orm.postgres.tournament;
 
 import hr.algebra.gamearena.api.model.tournament.TournamentSave;
-import hr.algebra.gamearena.api.model.tournament.TournamentStatus;
 import hr.algebra.gamearena.api.model.tournament.TournamentUpdate;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -31,9 +30,8 @@ public class TournamentPostgres {
     @Column(name = "game_id", nullable = false)
     private Long gameId;
 
-    @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 20)
-    private TournamentStatus status;
+    private String status;
 
     @Column(name = "price_solo", nullable = false, precision = 12, scale = 2)
     private BigDecimal priceSolo;
@@ -59,7 +57,7 @@ public class TournamentPostgres {
                 ? save.getDescription()
                 : null;
         this.gameId = save.getGameId();
-        this.status = save.getStatus();
+        this.status = save.getStatus().toString();
 
         this.priceSolo = save.getPriceSolo();
         this.priceGroup = save.getPriceGroup();
@@ -77,7 +75,7 @@ public class TournamentPostgres {
                 ? update.getDescription()
                 : null;
         this.gameId = update.getGameId();
-        this.status = update.getStatus();
+        this.status = update.getStatus().toString();
 
         this.priceSolo = update.getPriceSolo();
         this.priceGroup = update.getPriceGroup();

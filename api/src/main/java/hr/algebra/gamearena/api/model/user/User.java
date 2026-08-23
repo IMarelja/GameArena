@@ -1,6 +1,6 @@
 package hr.algebra.gamearena.api.model.user;
 
-import hr.algebra.gamearena.api.orm.postgres.UserPostgres;
+import hr.algebra.gamearena.api.orm.postgres.user.UserPostgres;
 
 import java.time.LocalDateTime;
 
@@ -22,7 +22,7 @@ public record User(
                 userPostgres.getEmail(),
                 userPostgres.getPasswordHash(),
                 userPostgres.getPasswordSalt(),
-                userPostgres.getRole(),
+                Role.fromRolePostgres(userPostgres.getRole()),
                 userPostgres.getIsActive(),
                 userPostgres.getCreatedAt().toLocalDateTime()
         );

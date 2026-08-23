@@ -3,7 +3,7 @@ package hr.algebra.gamearena.api.repository.games;
 import hr.algebra.gamearena.api.model.games.Games;
 import hr.algebra.gamearena.api.model.games.GamesSave;
 import hr.algebra.gamearena.api.model.games.GamesUpdate;
-import hr.algebra.gamearena.api.orm.postgres.GamesPostgres;
+import hr.algebra.gamearena.api.orm.postgres.games.GamesPostgres;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;

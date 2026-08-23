@@ -1,6 +1,6 @@
 package hr.algebra.gamearena.api.model.games;
 
-import hr.algebra.gamearena.api.orm.postgres.GamesPostgres;
+import hr.algebra.gamearena.api.orm.postgres.games.GamesPostgres;
 
 import java.time.LocalDateTime;
 import java.util.Optional;

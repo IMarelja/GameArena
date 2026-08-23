@@ -1,6 +1,5 @@
 package hr.algebra.gamearena.api.orm.postgres.tournament;
 
-import hr.algebra.gamearena.api.model.tournament.member.TournamentMemberRole;
 import hr.algebra.gamearena.api.model.tournament.member.TournamentMemberSave;
 import hr.algebra.gamearena.api.model.tournament.member.TournamentMemberUpdate;
 import jakarta.persistence.*;
@@ -26,9 +25,8 @@ public class TournamentMemberPostgres {
     @Column(name = "user_id", nullable = false)
     private Long userId;
 
-    @Enumerated(EnumType.STRING)
     @Column(name = "role", nullable = false, length = 20)
-    private TournamentMemberRole role;
+    private String role;
 
     @Column(name = "joined_at", nullable = false)
     private OffsetDateTime joinedAt;
@@ -48,7 +46,7 @@ public class TournamentMemberPostgres {
     public TournamentMemberPostgres fromTournamentMemberSave(TournamentMemberSave save) {
         this.tournamentId = save.getTournamentId();
         this.userId = save.getUserId();
-        this.role = save.getRole();
+        this.role = save.getRole().toString();
         this.joinedAt = OffsetDateTime.now(ZoneOffset.UTC);
         this.payerId = (save.getPayerId() != null)
                 ? save.getPayerId()
@@ -64,7 +62,7 @@ public class TournamentMemberPostgres {
     }
 
     public TournamentMemberPostgres fromTournamentMemberUpdate(TournamentMemberUpdate update) {
-        this.role = update.getRole();
+        this.role = update.getRole().toString();
         this.groupId = update.getGroupId();
         return this;
     }

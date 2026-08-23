@@ -1,6 +1,6 @@
 package hr.algebra.gamearena.api.model.notification;
 
-import hr.algebra.gamearena.api.orm.postgres.NotificationPostgres;
+import hr.algebra.gamearena.api.orm.postgres.notification.NotificationPostgres;
 
 import java.time.LocalDateTime;
 
@@ -13,13 +13,13 @@ public record Notification(
         Boolean read,
         LocalDateTime createdAt
 ) {
-    public static Notification fromPostgresORM(NotificationPostgres notification) {
+    public static Notification fromNotificationPostgres(NotificationPostgres notification) {
         return new Notification(
                 notification.getId(),
-                notification.getType(),
+                NotificationType.valueOf(notification.getType()),
                 notification.getRecipientUserId(),
                 notification.getReferenceId(),
-                notification.getReferenceType(),
+                ReferenceType.valueOf(notification.getReferenceType()),
                 notification.isRead(),
                 notification.getCreatedAt().toLocalDateTime()
         );

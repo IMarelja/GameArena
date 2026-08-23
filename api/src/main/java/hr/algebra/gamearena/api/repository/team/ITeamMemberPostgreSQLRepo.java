@@ -1,7 +1,7 @@
 package hr.algebra.gamearena.api.repository.team;
 
 import hr.algebra.gamearena.api.model.team.TeamMemberRole;
-import hr.algebra.gamearena.api.orm.postgres.TeamMemberPostgres;
+import hr.algebra.gamearena.api.orm.postgres.team.TeamMemberPostgres;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

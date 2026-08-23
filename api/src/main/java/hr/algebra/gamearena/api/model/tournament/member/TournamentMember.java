@@ -18,7 +18,7 @@ public record TournamentMember(
                 tournamentMemberPostgres.getId(),
                 tournamentMemberPostgres.getTournamentId(),
                 tournamentMemberPostgres.getUserId(),
-                tournamentMemberPostgres.getRole(),
+                TournamentMemberRole.valueOf(tournamentMemberPostgres.getRole()),
                 tournamentMemberPostgres.getJoinedAt().toLocalDateTime(),
                 tournamentMemberPostgres.getPaymentId(),
                 tournamentMemberPostgres.getConfirmed()

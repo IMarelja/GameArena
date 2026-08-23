@@ -1,6 +1,6 @@
 package hr.algebra.gamearena.api.repository.user;
 
-import hr.algebra.gamearena.api.orm.postgres.UserPostgres;
+import hr.algebra.gamearena.api.orm.postgres.user.UserPostgres;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

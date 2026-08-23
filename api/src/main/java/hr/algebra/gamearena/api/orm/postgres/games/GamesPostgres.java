@@ -1,4 +1,4 @@
-package hr.algebra.gamearena.api.orm.postgres;
+package hr.algebra.gamearena.api.orm.postgres.games;
 
 import hr.algebra.gamearena.api.model.games.GamesSave;
 import hr.algebra.gamearena.api.model.games.GamesUpdate;

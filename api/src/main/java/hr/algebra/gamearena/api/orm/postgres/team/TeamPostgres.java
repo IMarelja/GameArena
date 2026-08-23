@@ -1,4 +1,4 @@
-package hr.algebra.gamearena.api.orm.postgres;
+package hr.algebra.gamearena.api.orm.postgres.team;
 
 import hr.algebra.gamearena.api.model.team.TeamSave;
 import jakarta.persistence.*;

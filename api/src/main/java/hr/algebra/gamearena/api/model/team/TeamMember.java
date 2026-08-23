@@ -1,6 +1,6 @@
 package hr.algebra.gamearena.api.model.team;
 
-import hr.algebra.gamearena.api.orm.postgres.TeamMemberPostgres;
+import hr.algebra.gamearena.api.orm.postgres.team.TeamMemberPostgres;
 
 import java.time.LocalDateTime;
 
@@ -16,7 +16,7 @@ public record TeamMember (
                 teamMemberPostgres.getTeamMemberId(),
                 teamMemberPostgres.getTeamId(),
                 teamMemberPostgres.getUserId(),
-                teamMemberPostgres.getRole(),
+                TeamMemberRole.valueOf(teamMemberPostgres.getRole()),
                 teamMemberPostgres.getJoinedAt().toLocalDateTime()
         );
     }

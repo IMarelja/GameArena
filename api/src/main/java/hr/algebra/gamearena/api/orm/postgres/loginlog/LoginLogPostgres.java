@@ -1,4 +1,4 @@
-package hr.algebra.gamearena.api.orm.postgres;
+package hr.algebra.gamearena.api.orm.postgres.loginlog;
 
 import hr.algebra.gamearena.api.model.loginlog.LoginLogSave;
 import hr.algebra.gamearena.api.model.loginlog.LoginLogType;
@@ -31,7 +31,7 @@ public class LoginLogPostgres {
     @Enumerated(EnumType.STRING)
     @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     @Column(name = "type", nullable = false, columnDefinition = "login_log_type")
-    private LoginLogType type;
+    private LoginLogTypePostgres type;
 
     @Column(name = "created_at", nullable = false)
     private OffsetDateTime createdAt;
@@ -40,7 +40,7 @@ public class LoginLogPostgres {
         this.credential = loginLogSave.getCredential();
         this.ipv4 = loginLogSave.getIpv4();
         this.ipv6 = loginLogSave.getIpv6();
-        this.type = loginLogSave.getType();
+        this.type = LoginLogTypePostgres.fromLoginLogType(loginLogSave.getType());
         this.createdAt = OffsetDateTime.now(ZoneOffset.UTC);
         return this;
     }

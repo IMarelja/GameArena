@@ -1,6 +1,5 @@
-package hr.algebra.gamearena.api.orm.postgres;
+package hr.algebra.gamearena.api.orm.postgres.team;
 
-import hr.algebra.gamearena.api.model.team.TeamMemberRole;
 import hr.algebra.gamearena.api.model.team.TeamMemberSave;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -25,9 +24,8 @@ public class TeamMemberPostgres {
     @Column(name = "user_id", nullable = false)
     private Long userId;
 
-    @Enumerated(EnumType.STRING)
     @Column(name = "role", nullable = false, length = 20)
-    private TeamMemberRole role;
+    private String role;
 
     @Column(name = "joined_at", nullable = false)
     private OffsetDateTime joinedAt;
@@ -35,7 +33,7 @@ public class TeamMemberPostgres {
     public TeamMemberPostgres fromTeamMemberSave(TeamMemberSave save) {
         this.teamId = save.getTeamId();
         this.userId = save.getUserId();
-        this.role = save.getRole();
+        this.role = save.getRole().toString();
         this.joinedAt = OffsetDateTime.now(ZoneOffset.UTC);
         return this;
     }

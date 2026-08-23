@@ -1,9 +1,9 @@
 package hr.algebra.gamearena.api.repository.team;
 
 import hr.algebra.gamearena.api.model.team.*;
-import hr.algebra.gamearena.api.orm.postgres.TeamInvitationPostgres;
-import hr.algebra.gamearena.api.orm.postgres.TeamMemberPostgres;
-import hr.algebra.gamearena.api.orm.postgres.TeamPostgres;
+import hr.algebra.gamearena.api.orm.postgres.team.TeamInvitationPostgres;
+import hr.algebra.gamearena.api.orm.postgres.team.TeamMemberPostgres;
+import hr.algebra.gamearena.api.orm.postgres.team.TeamPostgres;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 

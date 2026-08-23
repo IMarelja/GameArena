@@ -1,6 +1,5 @@
-package hr.algebra.gamearena.api.orm.postgres;
+package hr.algebra.gamearena.api.orm.postgres.team;
 
-import hr.algebra.gamearena.api.model.team.InviteStatus;
 import hr.algebra.gamearena.api.model.team.TeamInvitationSave;
 import hr.algebra.gamearena.api.model.team.TeamInvitationUpdate;
 import jakarta.persistence.*;
@@ -34,7 +33,7 @@ public class TeamInvitationPostgres {
     @Enumerated(EnumType.STRING)
     @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     @Column(name = "status", nullable = false, columnDefinition = "invite_status")
-    private InviteStatus status;
+    private InvitationStatusPostgres status;
 
     @Column(name = "created_at", nullable = false)
     private OffsetDateTime createdAt;
@@ -46,14 +45,14 @@ public class TeamInvitationPostgres {
         this.teamId = save.getTeamId();
         this.inviteeId = save.getInviteeId();
         this.inviterId = save.getInviterId();
-        this.status = save.getStatus();
+        this.status = InvitationStatusPostgres.fromInviteStatus(save.getStatus());
         this.createdAt = OffsetDateTime.now(ZoneOffset.UTC);
         this.respondedAt = null;
         return this;
     }
 
     public TeamInvitationPostgres fromTeamInvitationUpdate(TeamInvitationUpdate update) {
-        this.status = update.getStatus();
+        this.status = InvitationStatusPostgres.fromInviteStatus(update.getStatus());
         this.respondedAt = OffsetDateTime.now(ZoneOffset.UTC);
         return this;
     }

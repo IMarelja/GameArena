@@ -1,6 +1,6 @@
 package hr.algebra.gamearena.api.model.team;
 
-import hr.algebra.gamearena.api.orm.postgres.TeamInvitationPostgres;
+import hr.algebra.gamearena.api.orm.postgres.team.TeamInvitationPostgres;
 
 import java.time.LocalDateTime;
 
@@ -19,7 +19,7 @@ public record TeamInvitation(
                 teamInvitationPostgres.getTeamId(),
                 teamInvitationPostgres.getInviterId(),
                 teamInvitationPostgres.getInviteeId(),
-                teamInvitationPostgres.getStatus(),
+                InviteStatus.fromInvitationStatusPostgres(teamInvitationPostgres.getStatus()),
                 teamInvitationPostgres.getCreatedAt().toLocalDateTime(),
                 teamInvitationPostgres.getRespondedAt() != null
                         ? teamInvitationPostgres.getRespondedAt().toLocalDateTime()

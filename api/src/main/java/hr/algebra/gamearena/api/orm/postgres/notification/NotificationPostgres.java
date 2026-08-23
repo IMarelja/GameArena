@@ -1,4 +1,4 @@
-package hr.algebra.gamearena.api.orm.postgres;
+package hr.algebra.gamearena.api.orm.postgres.notification;
 
 import hr.algebra.gamearena.api.model.notification.NotificationSave;
 import hr.algebra.gamearena.api.model.notification.NotificationType;
@@ -21,9 +21,8 @@ public class NotificationPostgres {
     @Column(name = "id")
     private Long id;
 
-    @Enumerated(EnumType.STRING)
     @Column(name = "type", nullable = false, length = 50)
-    private NotificationType type;
+    private String type;
 
     @Column(name = "recipient_user_id", nullable = false)
     private Long recipientUserId;
@@ -31,9 +30,8 @@ public class NotificationPostgres {
     @Column(name = "reference_id")
     private Long referenceId;
 
-    @Enumerated(EnumType.STRING)
     @Column(name = "reference_type", length = 50)
-    private ReferenceType referenceType;
+    private String referenceType;
 
     @Column(name = "read_at", nullable = false)
     private boolean read;
@@ -42,10 +40,10 @@ public class NotificationPostgres {
     private OffsetDateTime createdAt;
 
     public NotificationPostgres fromNotificationSave(NotificationSave notificationSave) {
-        this.type = notificationSave.getType();
+        this.type = notificationSave.getType().toString();
         this.recipientUserId = notificationSave.getRecipientUserId();
         this.referenceId = notificationSave.getReferenceId();
-        this.referenceType = notificationSave.getReferenceType();
+        this.referenceType = notificationSave.getReferenceType().toString();
         this.read = false;
         this.createdAt = OffsetDateTime.now(ZoneOffset.UTC);
         return this;

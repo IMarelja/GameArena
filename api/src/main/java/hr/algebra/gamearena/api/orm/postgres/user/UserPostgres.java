@@ -1,4 +1,4 @@
-package hr.algebra.gamearena.api.orm.postgres;
+package hr.algebra.gamearena.api.orm.postgres.user;
 
 import hr.algebra.gamearena.api.model.user.Role;
 import hr.algebra.gamearena.api.model.user.UserSave;
@@ -36,7 +36,7 @@ public class UserPostgres {
     @Enumerated(EnumType.STRING)
     @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     @Column(name = "role", nullable = false, columnDefinition = "user_role")
-    private Role role;
+    private UserRolePostgres role;
 
     @Column(name = "is_active", nullable = false)
     private Boolean isActive;
@@ -51,7 +51,7 @@ public class UserPostgres {
         this.username = userSave.getUsername();
         this.passwordHash = userSave.getPasswordHash();
         this.passwordSalt = userSave.getPasswordSalt();
-        this.role = userSave.getRole();
+        this.role = UserRolePostgres.fromRole(userSave.getRole());
         this.isActive = true;
         this.createdAt = OffsetDateTime.now(ZoneOffset.UTC);
         return this;

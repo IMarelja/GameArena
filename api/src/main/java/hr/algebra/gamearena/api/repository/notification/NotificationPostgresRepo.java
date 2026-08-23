@@ -4,7 +4,7 @@ import hr.algebra.gamearena.api.exceptions.extenders.NotFoundException;
 import hr.algebra.gamearena.api.model.notification.Notification;
 import hr.algebra.gamearena.api.model.notification.NotificationSave;
 import hr.algebra.gamearena.api.model.notification.NotificationUpdate;
-import hr.algebra.gamearena.api.orm.postgres.NotificationPostgres;
+import hr.algebra.gamearena.api.orm.postgres.notification.NotificationPostgres;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -22,21 +22,21 @@ public class NotificationPostgresRepo implements INotificationRepo{
     public List<Notification> findAll() {
         return notificationPostgreSQLRepo.findAll()
                 .stream()
-                .map(Notification::fromPostgresORM)
+                .map(Notification::fromNotificationPostgres)
                 .toList();
     }
 
     @Override
     public Optional<Notification> findById(Long id) {
         return notificationPostgreSQLRepo.findById(id)
-                .map(Notification::fromPostgresORM);
+                .map(Notification::fromNotificationPostgres);
     }
 
     @Override
     public List<Notification> findUnreadByUserIdByDescendingDate(Long id) {
         return notificationPostgreSQLRepo.findByRecipientUserIdAndReadFalseOrderByCreatedAtDesc(id)
                 .stream()
-                .map(Notification::fromPostgresORM)
+                .map(Notification::fromNotificationPostgres)
                 .toList();
     }
 
@@ -44,7 +44,7 @@ public class NotificationPostgresRepo implements INotificationRepo{
     public List<Notification> findAllByUserIdByDescendingDate(Long id) {
         return notificationPostgreSQLRepo.findByRecipientUserIdOrderByCreatedAtDesc(id)
                 .stream()
-                .map(Notification::fromPostgresORM)
+                .map(Notification::fromNotificationPostgres)
                 .toList();
     }
 
@@ -62,7 +62,7 @@ public class NotificationPostgresRepo implements INotificationRepo{
     public Notification save(NotificationSave save) {
         var notificationPostgres = new NotificationPostgres().fromNotificationSave(save);
         var savedNotification = notificationPostgreSQLRepo.save(notificationPostgres);
-        return Notification.fromPostgresORM(savedNotification);
+        return Notification.fromNotificationPostgres(savedNotification);
     }
 
     @Override
@@ -72,7 +72,7 @@ public class NotificationPostgresRepo implements INotificationRepo{
                 .fromNotificationUpdate(update);
 
         var updatedNotification = notificationPostgreSQLRepo.save(notificationPostgres);
-        return Notification.fromPostgresORM(updatedNotification);
+        return Notification.fromNotificationPostgres(updatedNotification);
     }
 
     @Override
