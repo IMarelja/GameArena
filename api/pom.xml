@@ -96,6 +96,11 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-validation</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+            <version>3.1.0</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -151,6 +156,23 @@
             <plugin>
                 <groupId>org.sonarsource.scanner.maven</groupId>
                 <artifactId>sonar-maven-plugin</artifactId>
+            </plugin>
+            <!--
+                Not bound to a lifecycle phase: needs the api actually running to hit
+                /v3/api-docs, which mvn package/verify/install can't guarantee. Run
+                explicitly: mvn spring-boot:run (api up), then in another shell
+                mvn springdoc-openapi:generate. Writes into webapp's resources so
+                webapp's openapi-generator-maven-plugin picks it up as its input spec.
+            -->
+            <plugin>
+                <groupId>org.springdoc</groupId>
+                <artifactId>springdoc-openapi-maven-plugin</artifactId>
+                <version>1.5</version>
+                <configuration>
+                    <apiDocsUrl>http://localhost:5762/v3/api-docs</apiDocsUrl>
+                    <outputFileName>openapi.json</outputFileName>
+                    <outputDir>${project.basedir}/../webapp/src/main/resources</outputDir>
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.jacoco</groupId>
