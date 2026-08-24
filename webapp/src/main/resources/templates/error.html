@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>GameArena - Error</title>
+    <style>
+        body { font-family: sans-serif; margin: 2rem; color: #222; }
+        h1 { margin-bottom: 1rem; }
+        ul { color: #a00; }
+    </style>
+</head>
+<body>
+<h1>Something went wrong</h1>
+
+<ul>
+    <li th:each="error : ${errors}" th:text="${error.message()}"></li>
+</ul>
+</body>
+</html>
