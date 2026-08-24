@@ -11,9 +11,10 @@ public record ApiResult<T>(
         HttpStatus status
 ) {
     public static <T> ApiResult<T> fromApiResponseClient(HttpStatus status, T data, List<ApiError> errors) {
+        List<ApiWrong> wrongs = ApiWrong.fromListApiErrorsOrNull(errors);
         return new ApiResult<>(
                 data,
-                ApiWrong.fromListApiErrorsOrNull(errors),
+                wrongs != null ? wrongs : List.of(),
                 status
         );
     }
