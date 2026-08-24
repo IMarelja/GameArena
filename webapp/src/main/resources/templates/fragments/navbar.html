@@ -1,0 +1,10 @@
+<nav th:fragment="navbar" xmlns:th="http://www.thymeleaf.org" class="navbar navbar-expand navbar-dark bg-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" th:href="@{/}">GameArena</a>
+        <div class="navbar-nav">
+            <a class="nav-link" th:href="@{/}">Home</a>
+            <a class="nav-link" th:href="@{/tournaments}">Tournaments</a>
+            <a class="nav-link" th:href="@{/users}">Users</a>
+        </div>
+    </div>
+</nav>
