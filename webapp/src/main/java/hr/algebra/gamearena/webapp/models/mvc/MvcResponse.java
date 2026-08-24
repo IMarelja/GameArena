@@ -1,13 +1,14 @@
 package hr.algebra.gamearena.webapp.models.mvc;
 
 import hr.algebra.gamearena.webapp.models.service.ApiResult;
-import hr.algebra.gamearena.webapp.models.service.ApiWrong;
+import lombok.Getter;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.servlet.ModelAndView;
 
 import java.util.List;
 import java.util.function.Function;
 
+@Getter
 public class MvcResponse<T> {
     public static final String DATA_ATTRIBUTE = "data";
     public static final String ERRORS_ATTRIBUTE = "errors";
@@ -32,12 +33,16 @@ public class MvcResponse<T> {
         return new MvcResponse<>(view, null, List.of(error), status);
     }
 
-    public static <R, T> MvcResponse<T> fromApiResult(HttpStatus status, String view, ApiResult<R> apiResult, Function<R, T> dataMapper) {
-        List<MvcError> errors = apiResult.getErrors().stream()
+    public static <T> MvcResponse<T> errors(HttpStatus status, String view, List<MvcError> errors) {
+        return new MvcResponse<>(view, null, errors, status);
+    }
+
+    public static <R, T> MvcResponse<T> fromApiResult(String view, ApiResult<R> apiResult, Function<R, T> dataMapper) {
+        List<MvcError> errors = apiResult.errors().stream()
                 .map(e -> new MvcError(e.message()))
                 .toList();
-        T data = apiResult.getData() != null ? dataMapper.apply(apiResult.getData()) : null;
-        return new MvcResponse<>(view, data, errors, status);
+        T data = apiResult.data() != null ? dataMapper.apply(apiResult.data()) : null;
+        return new MvcResponse<>(view, data, errors, apiResult.status());
     }
 
     public ModelAndView toModelAndView() {
@@ -46,25 +51,5 @@ public class MvcResponse<T> {
         modelAndView.addObject(DATA_ATTRIBUTE, data);
         modelAndView.addObject(ERRORS_ATTRIBUTE, errors);
         return modelAndView;
-    }
-
-    public boolean isSuccess() {
-        return errors.isEmpty();
-    }
-
-    public String getView() {
-        return view;
-    }
-
-    public T getData() {
-        return data;
-    }
-
-    public List<MvcError> getErrors() {
-        return errors;
-    }
-
-    public HttpStatus getStatus() {
-        return status;
     }
 }
