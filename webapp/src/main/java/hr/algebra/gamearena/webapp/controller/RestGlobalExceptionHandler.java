@@ -1,10 +1,12 @@
 package hr.algebra.gamearena.webapp.controller;
 
-import hr.algebra.gamearena.webapp.exceptions.GameArenaServiceException;
+import hr.algebra.gamearena.webapp.exceptions.GameArenaApiServiceException;
 import hr.algebra.gamearena.webapp.models.rest.RestError;
 import hr.algebra.gamearena.webapp.models.rest.RestResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.client.ResourceAccessException;
@@ -15,12 +17,22 @@ public class RestGlobalExceptionHandler {
 
     // GameArena site exceptions
 
-    @ExceptionHandler(GameArenaServiceException.class)
-    public ResponseEntity<RestResponse<Void>> handleGameArenaSiteException(GameArenaServiceException ex) {
+    @ExceptionHandler(GameArenaApiServiceException.class)
+    public ResponseEntity<RestResponse<Void>> handleGameArenaSiteException(GameArenaApiServiceException ex) {
         return RestResponse.<Void>error(ex.getStatus(), new RestError(ex.getMessage())).toResponseEntity();
     }
 
     // Third party
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<RestResponse<Void>> handleAccessDeniedException(AccessDeniedException ex) throws AccessDeniedException {
+        throw ex;
+    }
+
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<RestResponse<Void>> handleAuthenticationException(AuthenticationException ex) throws AuthenticationException {
+        throw ex;
+    }
 
     @ExceptionHandler(RestClientResponseException.class)
     public ResponseEntity<RestResponse<Void>> handleRestClientResponseException(RestClientResponseException ex) {

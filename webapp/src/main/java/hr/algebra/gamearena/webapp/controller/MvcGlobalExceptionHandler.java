@@ -1,9 +1,11 @@
 package hr.algebra.gamearena.webapp.controller;
 
-import hr.algebra.gamearena.webapp.exceptions.GameArenaServiceException;
+import hr.algebra.gamearena.webapp.exceptions.GameArenaApiServiceException;
 import hr.algebra.gamearena.webapp.models.mvc.MvcError;
 import hr.algebra.gamearena.webapp.models.mvc.MvcResponse;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.client.ResourceAccessException;
@@ -15,12 +17,22 @@ public class MvcGlobalExceptionHandler {
 
     // GameArena site exceptions
 
-    @ExceptionHandler(GameArenaServiceException.class)
-    public ModelAndView handleGameArenaSiteException(GameArenaServiceException ex) {
+    @ExceptionHandler(GameArenaApiServiceException.class)
+    public ModelAndView handleGameArenaSiteException(GameArenaApiServiceException ex) {
         return MvcResponse.error(ex.getStatus(), ex.getView(), new MvcError(ex.getMessage())).toModelAndView();
     }
 
     // Third party
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ModelAndView handleAccessDeniedException(AccessDeniedException ex) throws AccessDeniedException {
+        throw ex;
+    }
+
+    @ExceptionHandler(AuthenticationException.class)
+    public ModelAndView handleAuthenticationException(AuthenticationException ex) throws AuthenticationException {
+        throw ex;
+    }
 
     @ExceptionHandler(RestClientResponseException.class)
     public ModelAndView handleRestClientResponseException(RestClientResponseException ex) {

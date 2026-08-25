@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.gamearena.client.api.AuthenticationControllerApi;
 import com.gamearena.client.api.TournamentControllerApi;
 import com.gamearena.client.api.UserControllerApi;
 import com.gamearena.client.invoker.ApiClient;
@@ -43,12 +44,11 @@ public class ApiClientConfig {
         return new UserControllerApi(apiClient);
     }
 
-    /**
-     * The api emits some timestamps (e.g. TournamentFullView, UserViewDto) as
-     * LocalDateTime, with no offset, while the generated client types every
-     * OpenAPI date-time field as OffsetDateTime. Treat an offset-less timestamp
-     * as UTC instead of failing to parse.
-     */
+    @Bean
+    public AuthenticationControllerApi authenticationControllerApi(ApiClient apiClient) {
+        return new AuthenticationControllerApi(apiClient);
+    }
+
     private SimpleModule offsetlessDateTimeModule() {
         SimpleModule module = new SimpleModule();
         module.addDeserializer(OffsetDateTime.class, new JsonDeserializer<>() {
