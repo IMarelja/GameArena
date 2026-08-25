@@ -13,8 +13,8 @@ import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.Optional;
@@ -37,11 +37,12 @@ public class JwtCookieService implements IJwtService {
     @Override
     public void storeToken(String token) {
         Cookie cookie = new Cookie(COOKIE_NAME, token);
+        cookie.setSecure(true);
         cookie.setHttpOnly(true);
         cookie.setPath("/");
 
         decodeClaims(token)
-                .map(claims -> Duration.between(LocalDateTime.now(), claims.expiration()).getSeconds())
+                .map(claims -> Duration.between(OffsetDateTime.now(ZoneOffset.UTC), claims.expiration()).getSeconds())
                 .filter(seconds -> seconds > 0)
                 .ifPresent(seconds -> cookie.setMaxAge(seconds.intValue()));
 
@@ -59,12 +60,17 @@ public class JwtCookieService implements IJwtService {
         return token;
     }
 
+    /*
+    🐟
+    Kill your grandma
+     */
+
     @Override
     public JwtClaimDecereal getTokenClaimsAndValidate() throws TokenNotFoundException, TokenNotValidException {
         String token = findCookieValue().orElseThrow(TokenNotFoundException::new);
         JwtClaimDecereal claims = decodeClaims(token).orElseThrow(TokenNotValidException::new);
 
-        if (claims.expiration().isBefore(LocalDateTime.now())) {
+        if (claims.expiration().isBefore(OffsetDateTime.now(ZoneOffset.UTC))) {
             throw new TokenNotValidException();
         }
 
@@ -100,8 +106,7 @@ public class JwtCookieService implements IJwtService {
 
             Long userId = userIdNode.asLong();
 
-            LocalDateTime expiration = LocalDateTime.ofInstant(
-                    Instant.ofEpochSecond(expirationEpochSeconds), ZoneId.systemDefault());
+            OffsetDateTime expiration = Instant.ofEpochSecond(expirationEpochSeconds).atOffset(ZoneOffset.UTC);
 
             return Optional.of(new JwtClaimDecereal(userId, role, expiration));
         } catch (Exception e) {

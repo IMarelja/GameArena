@@ -34,7 +34,7 @@
         </tbody>
     </table>
 
-    <p class="text-muted fst-italic" th:if="${#lists.isEmpty(data)}">No users found.</p>
+    <p class="text-muted fst-italic" th:if="${#lists.isEmpty(data) and #lists.isEmpty(errors)}">No users found.</p>
 </main>
 </body>
 </html>

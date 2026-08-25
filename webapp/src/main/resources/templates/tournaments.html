@@ -40,7 +40,7 @@
         </tbody>
     </table>
 
-    <p class="text-muted fst-italic" th:if="${#lists.isEmpty(data)}">No tournaments found.</p>
+    <p class="text-muted fst-italic" th:if="${#lists.isEmpty(data) and #lists.isEmpty(errors)}">No tournaments found.</p>
 </main>
 </body>
 </html>

@@ -3,8 +3,11 @@ package hr.algebra.gamearena.webapp.exceptions.extenders;
 import hr.algebra.gamearena.webapp.exceptions.GameArenaApiServiceException;
 import org.springframework.http.HttpStatus;
 
+import java.util.List;
+
 public class UnauthorizedException extends GameArenaApiServiceException {
-    public UnauthorizedException(String message) {
-        super(HttpStatus.UNAUTHORIZED, "unauthorized", message);
+
+    public UnauthorizedException(List<String> messages) {
+        super(HttpStatus.UNAUTHORIZED, "unauthorized", messages);
     }
 }

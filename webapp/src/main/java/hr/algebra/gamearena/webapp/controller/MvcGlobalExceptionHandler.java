@@ -12,14 +12,19 @@ import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.servlet.ModelAndView;
 
+import java.util.List;
+
 @ControllerAdvice(basePackages = "hr.algebra.gamearena.webapp.controller.mvc")
 public class MvcGlobalExceptionHandler {
+
+    private static final String ERROR_VIEW = "error";
 
     // GameArena site exceptions
 
     @ExceptionHandler(GameArenaApiServiceException.class)
     public ModelAndView handleGameArenaSiteException(GameArenaApiServiceException ex) {
-        return MvcResponse.error(ex.getStatus(), ex.getView(), new MvcError(ex.getMessage())).toModelAndView();
+        List<MvcError> errors = ex.getMessages().stream().map(MvcError::new).toList();
+        return MvcResponse.errors(ex.getStatus(), ex.getView(), errors).toModelAndView();
     }
 
     // Third party
@@ -37,14 +42,18 @@ public class MvcGlobalExceptionHandler {
     @ExceptionHandler(RestClientResponseException.class)
     public ModelAndView handleRestClientResponseException(RestClientResponseException ex) {
         HttpStatus status = HttpStatus.valueOf(ex.getStatusCode().value());
-        return MvcResponse.error(status, "error", new MvcError(ex.getMessage())).toModelAndView();
+        return MvcResponse.error(
+                status,
+                ERROR_VIEW,
+                new MvcError(ex.getMessage())
+        ).toModelAndView();
     }
 
     @ExceptionHandler(ResourceAccessException.class)
     public ModelAndView handleResourceAccessException(ResourceAccessException ex) {
         return MvcResponse.error(
                 HttpStatus.SERVICE_UNAVAILABLE,
-                "error",
+                ERROR_VIEW,
                 new MvcError("Could not reach the GameArena API: " + ex.getMessage())
         ).toModelAndView();
     }
@@ -53,6 +62,10 @@ public class MvcGlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ModelAndView handleException(Exception ex) {
-        return MvcResponse.error(HttpStatus.INTERNAL_SERVER_ERROR, "error", new MvcError(ex.getMessage())).toModelAndView();
+        return MvcResponse.error(
+                HttpStatus.INTERNAL_SERVER_ERROR,
+                ERROR_VIEW,
+                new MvcError(ex.getMessage())
+        ).toModelAndView();
     }
 }

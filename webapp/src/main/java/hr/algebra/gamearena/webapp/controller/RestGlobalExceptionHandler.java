@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestClientResponseException;
 
+import java.util.List;
+
 @RestControllerAdvice(basePackages = "hr.algebra.gamearena.webapp.controller.rest")
 public class RestGlobalExceptionHandler {
 
@@ -19,7 +21,8 @@ public class RestGlobalExceptionHandler {
 
     @ExceptionHandler(GameArenaApiServiceException.class)
     public ResponseEntity<RestResponse<Void>> handleGameArenaSiteException(GameArenaApiServiceException ex) {
-        return RestResponse.<Void>error(ex.getStatus(), new RestError(ex.getMessage())).toResponseEntity();
+        List<RestError> errors = ex.getMessages().stream().map(RestError::new).toList();
+        return RestResponse.<Void>errors(ex.getStatus(), errors).toResponseEntity();
     }
 
     // Third party

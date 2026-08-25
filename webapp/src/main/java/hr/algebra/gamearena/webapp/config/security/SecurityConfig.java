@@ -46,7 +46,8 @@ public class SecurityConfig {
             HttpSecurity http,
             JwtAuthenticationFilter jwtAuthenticationFilter,
             SecurityErrorHandler securityErrorHandler,
-            UnconfiguredEndpointDenier unconfiguredEndpointDenier) throws Exception
+            UnconfiguredEndpointDenier unconfiguredEndpointDenier
+    )
     {
         return http
                 .authorizeHttpRequests(authorize -> authorize

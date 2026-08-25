@@ -3,6 +3,7 @@ package hr.algebra.gamearena.webapp.controller.mvc;
 import hr.algebra.gamearena.webapp.exceptions.extenders.BadRequestedExceptions;
 import hr.algebra.gamearena.webapp.exceptions.extenders.ForbiddenException;
 import hr.algebra.gamearena.webapp.exceptions.extenders.NotFoundException;
+import hr.algebra.gamearena.webapp.exceptions.extenders.UnexpectedApiErrorException;
 import hr.algebra.gamearena.webapp.models.cereal.authentication.LoginCereal;
 import hr.algebra.gamearena.webapp.models.cereal.authentication.TokenDecereal;
 import hr.algebra.gamearena.webapp.models.mvc.MvcError;
@@ -18,9 +19,13 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
+import java.util.List;
+
 @Controller
 @PreAuthorize("permitAll()")
 public class AuthenticationMvcController {
+
+    private static final String LOGIN_VIEW = "login";
 
     private final IAuthenticationApiService authenticationService;
     private final IJwtService jwtService;
@@ -32,7 +37,7 @@ public class AuthenticationMvcController {
 
     @GetMapping("/login")
     public ModelAndView loginForm() {
-        return MvcResponse.success(HttpStatus.OK, "login", null).toModelAndView();
+        return MvcResponse.success(HttpStatus.OK, LOGIN_VIEW, null).toModelAndView();
     }
 
     @PostMapping("/login")
@@ -40,19 +45,20 @@ public class AuthenticationMvcController {
             @RequestParam String usernameOrEmail,
             @RequestParam String password,
             @RequestParam(required = false, defaultValue = "false") boolean rememberMe
-    ) {
+    ) throws UnexpectedApiErrorException {
         LoginCereal loginCereal = new LoginCereal(usernameOrEmail, password, rememberMe);
         ApiResult<TokenDecereal> apiResult;
 
         try {
             apiResult = authenticationService.login(loginCereal);
-        } catch (BadRequestedExceptions | NotFoundException | ForbiddenException ex ) {
-            return MvcResponse.error(ex.getStatus(), "login", new MvcError(ex.getMessage())).toModelAndView();
+        } catch (BadRequestedExceptions | NotFoundException | ForbiddenException ex) {
+            List<MvcError> errors = ex.getMessages().stream().map(MvcError::new).toList();
+            return MvcResponse.errors(ex.getStatus(), LOGIN_VIEW, errors).toModelAndView();
         }
 
         if (apiResult.data() == null){
             var error = new MvcError("Unexpected error with storing your session");
-            return MvcResponse.error(HttpStatus.INTERNAL_SERVER_ERROR, "login", error).toModelAndView();
+            return MvcResponse.error(HttpStatus.INTERNAL_SERVER_ERROR, LOGIN_VIEW, error).toModelAndView();
         }
 
         jwtService.storeToken(apiResult.data().token());

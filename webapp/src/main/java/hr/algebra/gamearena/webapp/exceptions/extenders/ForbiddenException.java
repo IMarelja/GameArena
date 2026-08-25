@@ -3,8 +3,11 @@ package hr.algebra.gamearena.webapp.exceptions.extenders;
 import hr.algebra.gamearena.webapp.exceptions.GameArenaApiServiceException;
 import org.springframework.http.HttpStatus;
 
+import java.util.List;
+
 public class ForbiddenException extends GameArenaApiServiceException {
-    public ForbiddenException(String message) {
-        super(HttpStatus.FORBIDDEN, "forbidden", message);
+
+    public ForbiddenException(List<String> messages) {
+        super(HttpStatus.FORBIDDEN, "forbidden", messages);
     }
 }
