@@ -1,9 +1,11 @@
 package hr.algebra.gamearena.webapp.controller;
 
 import hr.algebra.gamearena.webapp.exceptions.GameArenaApiServiceException;
+import hr.algebra.gamearena.webapp.exceptions.extenders.UnauthorizedException;
 import hr.algebra.gamearena.webapp.models.mvc.MvcError;
 import hr.algebra.gamearena.webapp.models.mvc.MvcResponse;
 import hr.algebra.gamearena.webapp.security.AuthenticatedUser;
+import hr.algebra.gamearena.webapp.service.jwt.IJwtService;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.AuthenticationException;
@@ -21,6 +23,12 @@ public class MvcGlobalExceptionHandler {
 
     private static final String ERROR_VIEW = "error";
 
+    private final IJwtService jwtService;
+
+    public MvcGlobalExceptionHandler(IJwtService jwtService) {
+        this.jwtService = jwtService;
+    }
+
     // Shared across every page for the navbar
 
     @ModelAttribute("authenticated")
@@ -34,6 +42,13 @@ public class MvcGlobalExceptionHandler {
 
     @ExceptionHandler(GameArenaApiServiceException.class)
     public ModelAndView handleGameArenaSiteException(GameArenaApiServiceException ex) {
+        List<MvcError> errors = ex.getMessages().stream().map(MvcError::new).toList();
+        return MvcResponse.errors(ex.getStatus(), ex.getView(), errors).toModelAndView();
+    }
+
+    @ExceptionHandler(UnauthorizedException.class)
+    public ModelAndView handleUnauthorizedException(UnauthorizedException ex) {
+        jwtService.clearToken();
         List<MvcError> errors = ex.getMessages().stream().map(MvcError::new).toList();
         return MvcResponse.errors(ex.getStatus(), ex.getView(), errors).toModelAndView();
     }

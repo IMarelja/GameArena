@@ -42,7 +42,7 @@ public class MeController {
 
     @GetMapping("/me")
     @PreAuthorize("isAuthenticated()")
-    public ModelAndView me() {
+    public ModelAndView me() throws UnauthorizedException {
         try {
             var user = userService.getMe().data();
             var leaderboard = leaderboardService.getMyStats().data();
@@ -57,13 +57,6 @@ public class MeController {
                             leaderboard,
                             tournaments,
                             matches)
-            ).toModelAndView();
-        } catch (UnauthorizedException e) {
-            jwtService.clearToken();
-            return MvcResponse.errors(
-                    e.getStatus(),
-                    "unauthorized",
-                    MvcError.fromListString(e.getMessages())
             ).toModelAndView();
         } catch (NotFoundException | UnexpectedApiErrorException e) {
             jwtService.clearToken();
