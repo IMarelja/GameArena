@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Teams')}"></head>
+<body>
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<main class="container py-4">
+    <h1 class="mb-4">Teams</h1>
+
+    <div th:replace="~{fragments/errors :: errors(${errors})}"></div>
+
+    <table class="table table-striped table-bordered" th:if="${not #lists.isEmpty(data)}">
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Members</th>
+            <th>Created At</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="team : ${data}">
+            <td th:text="${team.id()}"></td>
+            <td th:text="${team.name()}"></td>
+            <td th:text="${team.memberCount()}"></td>
+            <td th:text="${team.createdAt()}"></td>
+        </tr>
+        </tbody>
+    </table>
+
+    <p class="text-muted fst-italic" th:if="${#lists.isEmpty(data) and #lists.isEmpty(errors)}">No teams found.</p>
+</main>
+</body>
+</html>

@@ -9,6 +9,7 @@ import com.gamearena.client.api.AuthenticationControllerApi;
 import com.gamearena.client.api.GamesControllerApi;
 import com.gamearena.client.api.LeaderboardControllerApi;
 import com.gamearena.client.api.MatchControllerApi;
+import com.gamearena.client.api.TeamControllerApi;
 import com.gamearena.client.api.TournamentControllerApi;
 import com.gamearena.client.api.UserControllerApi;
 import com.gamearena.client.invoker.ApiClient;
@@ -61,6 +62,11 @@ public class ApiClientConfig {
     @Bean
     public GamesControllerApi gamesControllerApi(ApiClient apiClient) {
         return new GamesControllerApi(apiClient);
+    }
+
+    @Bean
+    public TeamControllerApi teamControllerApi(ApiClient apiClient) {
+        return new TeamControllerApi(apiClient);
     }
     // END
 

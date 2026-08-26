@@ -2,8 +2,8 @@
     <div class="container-fluid">
         <a class="navbar-brand" th:href="@{/}">GameArena</a>
         <div class="navbar-nav me-auto">
-            <a class="nav-link" th:href="@{/}">Home</a>
             <a class="nav-link" th:href="@{/tournaments}">Tournaments</a>
+            <a class="nav-link" th:href="@{/teams}">Teams</a>
             <a class="nav-link" th:href="@{/users}">Users</a>
         </div>
         <div class="navbar-nav" th:if="${authenticated}">
