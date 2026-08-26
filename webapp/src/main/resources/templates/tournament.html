@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Tournament')}"></head>
+<body>
+<!--/*@thymesVar id="data" type="hr.algebra.gamearena.webapp.models.mvc.data.tournament.TournamentDetailViewData"*/-->
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<main class="container py-4">
+    <div th:replace="~{fragments/errors :: errors(${errors})}"></div>
+
+    <div th:if="${data != null}">
+        <div class="d-flex justify-content-between align-items-start mb-3">
+            <h1 class="mb-0" th:text="${data.tournament().name()}"></h1>
+            <span class="badge fs-6 rounded-pill" th:classappend="${data.tournament().status()?.badgeClass()}" th:text="${data.tournament().status()}"></span>
+        </div>
+
+        <p th:if="${data.tournament().description() != null}" th:text="${data.tournament().description()}"></p>
+
+        <table class="table table-borderless w-auto mb-4">
+            <tbody>
+            <tr><th>Game</th><td th:text="${data.tournament().games()?.name()}"></td></tr>
+            <tr><th>Price</th><td th:text="${data.tournament().soloPrice()} + ' ' + ${data.tournament().currency()}"></td></tr>
+            <tr><th>Starts At</th><td th:text="${data.tournament().startsAt()}"></td></tr>
+            <tr><th>Ends At</th><td th:text="${data.tournament().endsAt()}"></td></tr>
+            </tbody>
+        </table>
+
+        <h2 class="h4 mb-3">Members</h2>
+        <div class="list-group" th:if="${not #lists.isEmpty(data.members())}">
+            <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
+               th:each="member : ${data.members()}"
+               th:href="@{/users/{id}(id=${member.user().id()})}">
+                <span th:text="${member.user().username()}"></span>
+                <span class="badge rounded-pill" th:classappend="${member.role()?.badgeClass()}" th:text="${member.role()}"></span>
+            </a>
+        </div>
+        <p class="text-muted fst-italic" th:if="${#lists.isEmpty(data.members())}">No members found.</p>
+    </div>
+</main>
+</body>
+</html>

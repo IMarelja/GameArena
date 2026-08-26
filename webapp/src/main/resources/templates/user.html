@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('User')}"></head>
+<body>
+<!--/*@thymesVar id="data" type="hr.algebra.gamearena.webapp.models.cereal.user.UserViewDtoDecereal"*/-->
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<main class="container py-4">
+    <div th:replace="~{fragments/errors :: errors(${errors})}"></div>
+
+    <div th:if="${data != null}">
+        <div class="d-flex justify-content-between align-items-start mb-3">
+            <h1 class="mb-0" th:text="${data.username()}"></h1>
+            <span class="badge fs-6 text-bg-danger rounded-pill" th:if="${data.isDeleted()}">Deleted</span>
+        </div>
+
+        <table class="table table-borderless w-auto">
+            <tbody>
+            <tr><th>Created At</th><td th:text="${data.createdAt()}"></td></tr>
+            </tbody>
+        </table>
+    </div>
+</main>
+</body>
+</html>

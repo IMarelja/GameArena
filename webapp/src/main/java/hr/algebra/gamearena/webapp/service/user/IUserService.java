@@ -11,5 +11,6 @@ import java.util.List;
 
 public interface IUserService {
     ApiResult<List<UserViewDtoDecereal>> getAllUsers() throws NotFoundException;
+    ApiResult<UserViewDtoDecereal> getUserById(Long id) throws NotFoundException;
     ApiResult<UserFullViewDtoDecereal> getMe() throws UnauthorizedException, UnexpectedApiErrorException;
 }

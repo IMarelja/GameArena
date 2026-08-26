@@ -2,6 +2,8 @@ package hr.algebra.gamearena.webapp.service.tournament;
 
 import com.gamearena.client.api.TournamentControllerApi;
 import com.gamearena.client.model.ApiResponseListTournamentFullView;
+import com.gamearena.client.model.ApiResponseListTournamentMemberView;
+import com.gamearena.client.model.ApiResponseTournamentFullView;
 import hr.algebra.gamearena.webapp.config.ApiClientConfig.AuthenticatedApiClient;
 import hr.algebra.gamearena.webapp.exceptions.extenders.NotFoundException;
 import hr.algebra.gamearena.webapp.exceptions.extenders.TokenNotFoundException;
@@ -9,6 +11,7 @@ import hr.algebra.gamearena.webapp.exceptions.extenders.TokenNotValidException;
 import hr.algebra.gamearena.webapp.exceptions.extenders.UnauthorizedException;
 import hr.algebra.gamearena.webapp.models.service.ApiResult;
 import hr.algebra.gamearena.webapp.models.cereal.tournament.TournamentFullViewDecereal;
+import hr.algebra.gamearena.webapp.models.cereal.tournament.TournamentMemberViewDecereal;
 import hr.algebra.gamearena.webapp.models.service.ApiWrong;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -80,5 +83,37 @@ public class TournamentRestApiService implements ITournamentService {
             List<ApiWrong> wrongs = messages.stream().map(ApiWrong::new).toList();
             return new ApiResult<>(null, wrongs, status);
         }
+    }
+
+    @Override
+    public ApiResult<TournamentFullViewDecereal> getTournamentById(Long id) throws NotFoundException {
+        ResponseEntity<ApiResponseTournamentFullView> response = tournamentControllerApi.getTournamentWithHttpInfo(id);
+        ApiResponseTournamentFullView body = response.getBody();
+        if (body == null) {
+            throw new NotFoundException(List.of("No response received from the GameArena API"));
+        }
+        HttpStatus status = HttpStatus.valueOf(response.getStatusCode().value());
+
+        TournamentFullViewDecereal data = body.getData() == null
+                ? null
+                : TournamentFullViewDecereal.fromTournamentFullViewClient(body.getData());
+
+        return ApiResult.fromApiResponseClient(status, data, body.getErrors());
+    }
+
+    @Override
+    public ApiResult<List<TournamentMemberViewDecereal>> getTournamentMembers(Long tournamentId) throws NotFoundException {
+        ResponseEntity<ApiResponseListTournamentMemberView> response = tournamentControllerApi.getMembersOfTournamentWithHttpInfo(tournamentId);
+        ApiResponseListTournamentMemberView body = response.getBody();
+        if (body == null) {
+            throw new NotFoundException(List.of("No response received from the GameArena API"));
+        }
+        HttpStatus status = HttpStatus.valueOf(response.getStatusCode().value());
+
+        List<TournamentMemberViewDecereal> data = body.getData() == null
+                ? null
+                : body.getData().stream().map(TournamentMemberViewDecereal::fromTournamentMemberViewClient).toList();
+
+        return ApiResult.fromApiResponseClient(status, data, body.getErrors());
     }
 }

@@ -3,6 +3,7 @@ package hr.algebra.gamearena.webapp.service.user;
 import com.gamearena.client.api.UserControllerApi;
 import com.gamearena.client.model.ApiResponseListUserViewDto;
 import com.gamearena.client.model.ApiResponseUserFullViewDto;
+import com.gamearena.client.model.ApiResponseUserViewDto;
 import hr.algebra.gamearena.webapp.config.ApiClientConfig.AuthenticatedApiClient;
 import hr.algebra.gamearena.webapp.exceptions.extenders.NotFoundException;
 import hr.algebra.gamearena.webapp.exceptions.extenders.TokenNotFoundException;
@@ -45,6 +46,22 @@ public class UserRestApiService implements IUserService {
         List<UserViewDtoDecereal> data = body.getData() == null
                 ? null
                 : body.getData().stream().map(UserViewDtoDecereal::fromUserViewDtoClient).toList();
+
+        return ApiResult.fromApiResponseClient(status, data, body.getErrors());
+    }
+
+    @Override
+    public ApiResult<UserViewDtoDecereal> getUserById(Long id) throws NotFoundException {
+        ResponseEntity<ApiResponseUserViewDto> response = userControllerApi.getByIdWithHttpInfo(id);
+        ApiResponseUserViewDto body = response.getBody();
+        if (body == null) {
+            throw new NotFoundException(List.of("No response received from the GameArena API"));
+        }
+        HttpStatus status = HttpStatus.valueOf(response.getStatusCode().value());
+
+        UserViewDtoDecereal data = body.getData() == null
+                ? null
+                : UserViewDtoDecereal.fromUserViewDtoClient(body.getData());
 
         return ApiResult.fromApiResponseClient(status, data, body.getErrors());
     }

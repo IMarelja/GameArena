@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.servlet.ModelAndView;
 
 @Controller
@@ -26,6 +27,16 @@ public class UserController {
             return MvcResponse.fromApiResult("users", userService.getAllUsers(), data -> data).toModelAndView();
         } catch (NotFoundException e) {
             return MvcResponse.errors(HttpStatus.NOT_FOUND, "users", MvcError.fromListString(e.getMessages())).toModelAndView();
+        }
+    }
+
+    @GetMapping("/users/{id}")
+    @PreAuthorize("permitAll()")
+    public ModelAndView viewUser(@PathVariable Long id) {
+        try {
+            return MvcResponse.fromApiResult("user", userService.getUserById(id), data -> data).toModelAndView();
+        } catch (NotFoundException e) {
+            return MvcResponse.errors(HttpStatus.NOT_FOUND, "user", MvcError.fromListString(e.getMessages())).toModelAndView();
         }
     }
 }

@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Team')}"></head>
+<body>
+<!--/*@thymesVar id="data" type="hr.algebra.gamearena.webapp.models.mvc.data.team.TeamDetailViewData"*/-->
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<main class="container py-4">
+    <div th:replace="~{fragments/errors :: errors(${errors})}"></div>
+
+    <div th:if="${data != null}">
+        <h1 class="mb-3" th:text="${data.team().name()}"></h1>
+
+        <table class="table table-borderless w-auto mb-4">
+            <tbody>
+            <tr><th>Members</th><td th:text="${data.team().memberCount()}"></td></tr>
+            <tr><th>Created At</th><td th:text="${data.team().createdAt()}"></td></tr>
+            </tbody>
+        </table>
+
+        <h2 class="h4 mb-3">Members</h2>
+        <div class="list-group" th:if="${not #lists.isEmpty(data.members())}">
+            <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
+               th:each="member : ${data.members()}"
+               th:href="@{/users/{id}(id=${member.userId()})}">
+                <span th:text="${member.username()}"></span>
+                <span class="badge rounded-pill" th:classappend="${member.role()?.badgeClass()}" th:text="${member.role()}"></span>
+            </a>
+        </div>
+        <p class="text-muted fst-italic" th:if="${#lists.isEmpty(data.members())}">No members found.</p>
+    </div>
+</main>
+</body>
+</html>
