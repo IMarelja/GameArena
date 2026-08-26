@@ -23,6 +23,8 @@ import java.util.List;
 @Service
 public class TournamentRestApiService implements ITournamentService {
 
+    private static final String NO_RESPONSE_RECEIVED_API = "No response received from the GameArena API";
+
     private final TournamentControllerApi tournamentControllerApi;
     private final AuthenticatedApiClient<TournamentControllerApi> authenticatedTournamentClient;
 
@@ -39,7 +41,7 @@ public class TournamentRestApiService implements ITournamentService {
         ResponseEntity<ApiResponseListTournamentFullView> response = tournamentControllerApi.getTournamentsWithHttpInfo();
         ApiResponseListTournamentFullView body = response.getBody();
         if (body == null) {
-            throw new NotFoundException(List.of("No response received from the GameArena API"));
+            throw new NotFoundException(List.of(NO_RESPONSE_RECEIVED_API));
         }
         HttpStatus status = HttpStatus.valueOf(response.getStatusCode().value());
 
@@ -63,7 +65,7 @@ public class TournamentRestApiService implements ITournamentService {
             ResponseEntity<ApiResponseListTournamentFullView> response = client.getMyTournamentsWithHttpInfo();
             ApiResponseListTournamentFullView body = response.getBody();
             if (body == null) {
-                throw new NotFoundException(List.of("No response received from the GameArena API"));
+                throw new NotFoundException(List.of(NO_RESPONSE_RECEIVED_API));
             }
             HttpStatus status = HttpStatus.valueOf(response.getStatusCode().value());
 
@@ -90,7 +92,7 @@ public class TournamentRestApiService implements ITournamentService {
         ResponseEntity<ApiResponseListTournamentFullView> response = tournamentControllerApi.getTournamentsForUserWithHttpInfo(id);
         ApiResponseListTournamentFullView body = response.getBody();
         if (body == null) {
-            throw new NotFoundException(List.of("No response received from the GameArena API"));
+            throw new NotFoundException(List.of(NO_RESPONSE_RECEIVED_API));
         }
         HttpStatus status = HttpStatus.valueOf(response.getStatusCode().value());
 

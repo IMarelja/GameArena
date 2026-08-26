@@ -17,6 +17,8 @@ import java.util.List;
 @Service
 public class TeamRestApiService implements ITeamService {
 
+    private static final String NO_RESPONSE_RECEIVED_API = "No response received from the GameArena API";
+
     private final TeamControllerApi teamControllerApi;
 
     public TeamRestApiService(TeamControllerApi teamControllerApi) {
@@ -28,7 +30,7 @@ public class TeamRestApiService implements ITeamService {
         ResponseEntity<ApiResponseListTeamMinimalView> response = teamControllerApi.getAllTeamsWithHttpInfo();
         ApiResponseListTeamMinimalView body = response.getBody();
         if (body == null) {
-            throw new NotFoundException(List.of("No response received from the GameArena API"));
+            throw new NotFoundException(List.of(NO_RESPONSE_RECEIVED_API));
         }
         HttpStatus status = HttpStatus.valueOf(response.getStatusCode().value());
 
@@ -44,7 +46,7 @@ public class TeamRestApiService implements ITeamService {
         ResponseEntity<ApiResponseTeamMinimalView> response = teamControllerApi.getTeamByIdWithHttpInfo(id);
         ApiResponseTeamMinimalView body = response.getBody();
         if (body == null) {
-            throw new NotFoundException(List.of("No response received from the GameArena API"));
+            throw new NotFoundException(List.of(NO_RESPONSE_RECEIVED_API));
         }
         HttpStatus status = HttpStatus.valueOf(response.getStatusCode().value());
 
@@ -60,7 +62,7 @@ public class TeamRestApiService implements ITeamService {
         ResponseEntity<ApiResponseListTeamMemberMinimalView> response = teamControllerApi.getTeamMembersWithHttpInfo(teamId);
         ApiResponseListTeamMemberMinimalView body = response.getBody();
         if (body == null) {
-            throw new NotFoundException(List.of("No response received from the GameArena API"));
+            throw new NotFoundException(List.of(NO_RESPONSE_RECEIVED_API));
         }
         HttpStatus status = HttpStatus.valueOf(response.getStatusCode().value());
 

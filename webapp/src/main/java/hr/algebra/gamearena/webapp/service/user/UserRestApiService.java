@@ -26,6 +26,8 @@ import java.util.List;
 @Slf4j
 public class UserRestApiService implements IUserService {
 
+    private static final String NO_RESPONSE_RECEIVED_API = "No response received from the GameArena API";
+
     private final UserControllerApi userControllerApi;
     private final AuthenticatedApiClient<UserControllerApi> authenticatedUserClient;
 
@@ -39,7 +41,7 @@ public class UserRestApiService implements IUserService {
         ResponseEntity<ApiResponseListUserViewDto> response = userControllerApi.findAllWithHttpInfo();
         ApiResponseListUserViewDto body = response.getBody();
         if (body == null) {
-            throw new NotFoundException(List.of("No response received from the GameArena API"));
+            throw new NotFoundException(List.of(NO_RESPONSE_RECEIVED_API));
         }
         HttpStatus status = HttpStatus.valueOf(response.getStatusCode().value());
 
@@ -55,7 +57,7 @@ public class UserRestApiService implements IUserService {
         ResponseEntity<ApiResponseUserViewDto> response = userControllerApi.getByIdWithHttpInfo(id);
         ApiResponseUserViewDto body = response.getBody();
         if (body == null) {
-            throw new NotFoundException(List.of("No response received from the GameArena API"));
+            throw new NotFoundException(List.of(NO_RESPONSE_RECEIVED_API));
         }
         HttpStatus status = HttpStatus.valueOf(response.getStatusCode().value());
 
