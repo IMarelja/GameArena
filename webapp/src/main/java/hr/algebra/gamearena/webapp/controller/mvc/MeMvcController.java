@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.servlet.ModelAndView;
 
 @Controller
-public class MeController {
+public class MeMvcController {
 
     private final IUserService userService;
     private final ILeaderboardService leaderboardService;
@@ -26,7 +26,7 @@ public class MeController {
     private final IMatchService matchService;
     private final IJwtService jwtService;
 
-    public MeController(
+    public MeMvcController(
             IUserService userService,
             ILeaderboardService leaderboardService,
             ITournamentService tournamentService,

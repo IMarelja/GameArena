@@ -13,11 +13,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.servlet.ModelAndView;
 
 @Controller
-public class TeamController {
+public class TeamMvcController {
 
     private final ITeamService teamService;
 
-    public TeamController(ITeamService teamService) {
+    public TeamMvcController(ITeamService teamService) {
         this.teamService = teamService;
     }
 

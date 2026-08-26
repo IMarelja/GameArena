@@ -14,12 +14,12 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.servlet.ModelAndView;
 
 @Controller
-public class TournamentController {
+public class TournamentMvcController {
 
     private final ITournamentService tournamentService;
     private final IMatchService matchService;
 
-    public TournamentController(ITournamentService tournamentService, IMatchService matchService) {
+    public TournamentMvcController(ITournamentService tournamentService, IMatchService matchService) {
         this.tournamentService = tournamentService;
         this.matchService = matchService;
     }

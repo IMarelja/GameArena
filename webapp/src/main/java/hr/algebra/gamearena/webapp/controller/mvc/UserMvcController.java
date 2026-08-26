@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.servlet.ModelAndView;
 
 @Controller
-public class UserController {
+public class UserMvcController {
 
     private final IUserService userService;
     private final IMatchService matchService;
@@ -27,7 +27,7 @@ public class UserController {
     private final ILeaderboardService leaderboardService;
     private final IJwtService jwtService;
 
-    public UserController(
+    public UserMvcController(
             IUserService userService,
             IMatchService matchService,
             ITournamentService tournamentService,

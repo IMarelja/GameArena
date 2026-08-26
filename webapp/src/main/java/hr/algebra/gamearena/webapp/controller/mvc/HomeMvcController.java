@@ -9,7 +9,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 @Controller
 @PreAuthorize("permitAll()")
-public class HomeController {
+public class HomeMvcController {
 
     @GetMapping("/")
     public ModelAndView home() {
