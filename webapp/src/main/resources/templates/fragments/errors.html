@@ -1,0 +1,3 @@
+<div th:fragment="errors(errors)" xmlns:th="http://www.thymeleaf.org" class="alert alert-danger" th:if="${errors != null and not #lists.isEmpty(errors)}">
+    <p class="mb-0" th:each="error : ${errors}" th:text="${error.message()}"></p>
+</div>
