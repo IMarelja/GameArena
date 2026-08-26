@@ -2,7 +2,7 @@ package hr.algebra.gamearena.api.controller.rest;
 
 import hr.algebra.gamearena.api.dto.jwt.JwtTokenClaim;
 import hr.algebra.gamearena.api.dto.match.MatchCreateRequest;
-import hr.algebra.gamearena.api.dto.match.MatchFullView;
+import hr.algebra.gamearena.api.dto.match.MatchDetailedFullView;
 import hr.algebra.gamearena.api.dto.other.ApiResponse;
 import hr.algebra.gamearena.api.exceptions.extenders.BadRequestedException;
 import hr.algebra.gamearena.api.exceptions.extenders.NotFoundException;
@@ -33,19 +33,19 @@ public class MatchController {
 
     @GetMapping("/user/me")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<ApiResponse<List<MatchFullView>>> getMyMatches(@AuthenticationPrincipal JwtTokenClaim caller) {
+    public ResponseEntity<ApiResponse<List<MatchDetailedFullView>>> getMyMatches(@AuthenticationPrincipal JwtTokenClaim caller) {
         return ResponseEntity.ok(ApiResponse.success(matchService.getMatchesByUserId(caller.userId())));
     }
 
     @GetMapping("/user/{id}")
     @PreAuthorize("permitAll()")
-    public ResponseEntity<ApiResponse<List<MatchFullView>>> getMatchesForUser(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<List<MatchDetailedFullView>>> getMatchesForUser(@PathVariable Long id) {
         return ResponseEntity.ok(ApiResponse.success(matchService.getMatchesByUserId(id)));
     }
 
     @GetMapping("/{id}")
     @PreAuthorize("permitAll()")
-    public ResponseEntity<ApiResponse<MatchFullView>> getMatch(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<MatchDetailedFullView>> getMatch(@PathVariable Long id) {
         return matchService.getById(id)
                 .map(match -> ResponseEntity.ok(ApiResponse.success(match)))
                 .orElseThrow(() -> new NotFoundException("Match with id: " + id + " not found"));
@@ -54,7 +54,7 @@ public class MatchController {
     @PostMapping
     @PreAuthorize("isAuthenticated()")
     // Tournament Organizer only
-    public ResponseEntity<ApiResponse<MatchFullView>> createMatch(
+    public ResponseEntity<ApiResponse<MatchDetailedFullView>> createMatch(
             @AuthenticationPrincipal JwtTokenClaim caller,
             @Valid @RequestBody MatchCreateRequest request
     ) {

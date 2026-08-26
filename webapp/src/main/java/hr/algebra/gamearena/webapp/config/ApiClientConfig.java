@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.gamearena.client.api.AuthenticationControllerApi;
+import com.gamearena.client.api.GamesControllerApi;
 import com.gamearena.client.api.LeaderboardControllerApi;
 import com.gamearena.client.api.MatchControllerApi;
 import com.gamearena.client.api.TournamentControllerApi;
@@ -55,6 +56,11 @@ public class ApiClientConfig {
     @Bean
     public AuthenticationControllerApi authenticationControllerApi(ApiClient apiClient) {
         return new AuthenticationControllerApi(apiClient);
+    }
+
+    @Bean
+    public GamesControllerApi gamesControllerApi(ApiClient apiClient) {
+        return new GamesControllerApi(apiClient);
     }
     // END
 

@@ -1,18 +1,21 @@
 package hr.algebra.gamearena.api.service.match;
 
 import hr.algebra.gamearena.api.dto.match.MatchCreateRequest;
-import hr.algebra.gamearena.api.dto.match.MatchFullView;
+import hr.algebra.gamearena.api.dto.match.MatchDetailedFullView;
 import hr.algebra.gamearena.api.dto.notification.NotificationCreateRequest;
 import hr.algebra.gamearena.api.dto.notification.NotificationTypeView;
 import hr.algebra.gamearena.api.dto.notification.ReferenceTypeView;
 import hr.algebra.gamearena.api.exceptions.extenders.BadRequestedException;
 import hr.algebra.gamearena.api.exceptions.extenders.ForbiddenAccessException;
 import hr.algebra.gamearena.api.exceptions.extenders.NotFoundException;
+import hr.algebra.gamearena.api.model.match.Match;
 import hr.algebra.gamearena.api.model.match.MatchSave;
 import hr.algebra.gamearena.api.model.match.MatchStatus;
 import hr.algebra.gamearena.api.model.tournament.member.TournamentMemberRole;
+import hr.algebra.gamearena.api.model.user.User;
 import hr.algebra.gamearena.api.repository.match.IMatchRepo;
 import hr.algebra.gamearena.api.repository.tournament.ITournamentRepo;
+import hr.algebra.gamearena.api.repository.user.IUserRepo;
 import hr.algebra.gamearena.api.service.notification.INotificationService;
 import org.springframework.stereotype.Service;
 
@@ -24,30 +27,32 @@ public class MatchService implements IMatchService {
 
     private final IMatchRepo matchRepo;
     private final ITournamentRepo tournamentRepo;
+    private final IUserRepo userRepo;
     private final INotificationService notificationService;
 
-    public MatchService(IMatchRepo matchRepo, ITournamentRepo tournamentRepo, INotificationService notificationService) {
+    public MatchService(IMatchRepo matchRepo, ITournamentRepo tournamentRepo, IUserRepo userRepo, INotificationService notificationService) {
         this.matchRepo = matchRepo;
         this.tournamentRepo = tournamentRepo;
+        this.userRepo = userRepo;
         this.notificationService = notificationService;
     }
 
     @Override
-    public Optional<MatchFullView> getById(Long id) {
+    public Optional<MatchDetailedFullView> getById(Long id) {
         return matchRepo.getById(id)
-                .map(MatchFullView::fromMatch);
+                .map(this::toDetailedFullView);
     }
 
     @Override
-    public List<MatchFullView> getMatchesByUserId(Long userId) {
+    public List<MatchDetailedFullView> getMatchesByUserId(Long userId) {
         return matchRepo.getAllByPlayerId(userId)
                 .stream()
-                .map(MatchFullView::fromMatch)
+                .map(this::toDetailedFullView)
                 .toList();
     }
 
     @Override
-    public MatchFullView createMatchAndPushNotification(Long callerId, MatchCreateRequest request) {
+    public MatchDetailedFullView createMatchAndPushNotification(Long callerId, MatchCreateRequest request) {
         var tournament = tournamentRepo.getTournamentById(request.getTournamentId())
                 .orElseThrow(() -> new NotFoundException("Tournament not found with id: " + request.getTournamentId()));
 
@@ -84,7 +89,16 @@ public class MatchService implements IMatchService {
         pushMatchCreatedNotification(created.playerOneId(), created.id());
         pushMatchCreatedNotification(created.playerTwoId(), created.id());
 
-        return MatchFullView.fromMatch(created);
+        return toDetailedFullView(created);
+    }
+
+    private MatchDetailedFullView toDetailedFullView(Match match) {
+        User playerOne = userRepo.findById(match.playerOneId())
+                .orElseThrow(() -> new NotFoundException("User with id: " + match.playerOneId() + " not found"));
+        User playerTwo = userRepo.findById(match.playerTwoId())
+                .orElseThrow(() -> new NotFoundException("User with id: " + match.playerTwoId() + " not found"));
+
+        return MatchDetailedFullView.fromMatchUserOneUserTwo(match, playerOne, playerTwo);
     }
 
     private void pushMatchCreatedNotification(Long recipientUserId, Long matchId) {

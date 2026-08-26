@@ -89,7 +89,9 @@
                 <thead>
                 <tr>
                     <th>ID</th>
+                    <th>Game</th>
                     <th>Status</th>
+                    <th>Players</th>
                     <th>Score</th>
                     <th>Winner</th>
                     <th>Scheduled At</th>
@@ -99,9 +101,11 @@
                 <tbody>
                 <tr th:each="match : ${data.matches()}">
                     <td th:text="${match.id()}"></td>
+                    <td th:text="${match.game().name()}"></td>
                     <td th:text="${match.status()}"></td>
+                    <td th:text="${match.player1().username()} + ' VS ' + ${match.player2().username()}"></td>
                     <td th:text="${match.playerOneScore()} + ' - ' + ${match.playerTwoScore()}"></td>
-                    <td th:text="${match.winnerId()}"></td>
+                    <td th:text="${match.winner().isPresent() ? match.winner().get().username() : '-'}"></td>
                     <td th:text="${match.scheduledAt()}"></td>
                     <td th:text="${match.playedAt()}"></td>
                 </tr>
