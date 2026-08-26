@@ -1,10 +1,14 @@
 <nav th:fragment="navbar" xmlns:th="http://www.thymeleaf.org" class="navbar navbar-expand navbar-dark bg-dark">
     <div class="container-fluid">
         <a class="navbar-brand" th:href="@{/}">GameArena</a>
-        <div class="navbar-nav">
+        <div class="navbar-nav me-auto">
             <a class="nav-link" th:href="@{/}">Home</a>
             <a class="nav-link" th:href="@{/tournaments}">Tournaments</a>
             <a class="nav-link" th:href="@{/users}">Users</a>
+        </div>
+        <div class="navbar-nav">
+            <a class="nav-link" th:if="${authenticated}" th:href="@{/me}">Me</a>
+            <a class="nav-link" th:unless="${authenticated}" th:href="@{/login}">Login</a>
         </div>
     </div>
 </nav>

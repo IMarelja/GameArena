@@ -12,7 +12,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
-import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.Arrays;
@@ -24,6 +23,7 @@ import java.util.Optional;
 public class JwtCookieService implements IJwtService {
 
     public static final String COOKIE_NAME = "gamearena_jwt";
+    public static final String COOKIE_PATH = "/";
 
     private final HttpServletRequest request;
     private final HttpServletResponse response;
@@ -39,13 +39,23 @@ public class JwtCookieService implements IJwtService {
         Cookie cookie = new Cookie(COOKIE_NAME, token);
         cookie.setSecure(true);
         cookie.setHttpOnly(true);
-        cookie.setPath("/");
+        cookie.setPath(COOKIE_PATH);
 
         decodeClaims(token)
                 .map(claims -> Duration.between(OffsetDateTime.now(ZoneOffset.UTC), claims.expiration()).getSeconds())
                 .filter(seconds -> seconds > 0)
                 .ifPresent(seconds -> cookie.setMaxAge(seconds.intValue()));
 
+        response.addCookie(cookie);
+    }
+
+    @Override
+    public void clearToken() {
+        Cookie cookie = new Cookie(COOKIE_NAME, "");
+        cookie.setSecure(true);
+        cookie.setHttpOnly(true);
+        cookie.setPath(COOKIE_PATH);
+        cookie.setMaxAge(0);
         response.addCookie(cookie);
     }
 
@@ -97,18 +107,7 @@ public class JwtCookieService implements IJwtService {
 
             JsonNode payload = objectMapper.readTree(decodeBase64Url(parts[1]));
 
-            JsonNode userIdNode = payload.path("userId");
-            String role = payload.path("role").asText(null);
-            long expirationEpochSeconds = payload.path("exp").asLong(-1);
-            if (!userIdNode.canConvertToLong() || role == null || expirationEpochSeconds < 0) {
-                return Optional.empty();
-            }
-
-            Long userId = userIdNode.asLong();
-
-            OffsetDateTime expiration = Instant.ofEpochSecond(expirationEpochSeconds).atOffset(ZoneOffset.UTC);
-
-            return Optional.of(new JwtClaimDecereal(userId, role, expiration));
+            return Optional.of(JwtClaimDecereal.fromJsonNode(payload));
         } catch (Exception e) {
             log.debug("JwtCookieService decodeClaims(): rejected token: {}", e.getMessage());
             return Optional.empty();

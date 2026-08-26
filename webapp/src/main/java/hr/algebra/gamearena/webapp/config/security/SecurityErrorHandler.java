@@ -3,6 +3,7 @@ package hr.algebra.gamearena.webapp.config.security;
 import hr.algebra.gamearena.webapp.filter.UnconfiguredEndpointDenier;
 import hr.algebra.gamearena.webapp.models.mvc.MvcError;
 import hr.algebra.gamearena.webapp.models.mvc.MvcResponse;
+import hr.algebra.gamearena.webapp.service.jwt.IJwtService;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -15,22 +16,19 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.stereotype.Component;
+import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.View;
 import org.thymeleaf.spring6.view.ThymeleafViewResolver;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 @Component
 @Slf4j
 @RequiredArgsConstructor
 public class SecurityErrorHandler implements AuthenticationEntryPoint, AccessDeniedHandler {
 
-    private static final String UNCONFIGURED_MESSAGE = "This endpoint has no @PreAuthorize configured, refusing access";
-
     private final ThymeleafViewResolver viewResolver;
+    private final IJwtService jwtService;
 
     /* 401 */
     @Override
@@ -43,7 +41,15 @@ public class SecurityErrorHandler implements AuthenticationEntryPoint, AccessDen
             return;
         }
 
-        renderView(request, response, HttpStatus.UNAUTHORIZED, "unauthorized", "You must be logged in to view this page");
+        jwtService.clearToken();
+
+        renderView(
+                request,
+                response,
+                HttpStatus.UNAUTHORIZED,
+                "unauthorized",
+                "You must be logged in to view this page"
+        );
     }
 
     /* 403 */
@@ -57,7 +63,13 @@ public class SecurityErrorHandler implements AuthenticationEntryPoint, AccessDen
             return;
         }
 
-        renderView(request, response, HttpStatus.FORBIDDEN, "forbidden", "You are not allowed to access this resource");
+        renderView(
+                request,
+                response,
+                HttpStatus.FORBIDDEN,
+                "forbidden",
+                "You are not allowed to access this resource"
+        );
     }
 
     /* 405 */
@@ -68,7 +80,13 @@ public class SecurityErrorHandler implements AuthenticationEntryPoint, AccessDen
             return false;
         }
 
-        renderView(request, response, HttpStatus.METHOD_NOT_ALLOWED, "error", UNCONFIGURED_MESSAGE);
+        renderView(
+                request,
+                response,
+                HttpStatus.METHOD_NOT_ALLOWED,
+                "error",
+                "\"This endpoint has no authorization configured, refusing access\""
+        );
         return true;
     }
 
@@ -83,14 +101,12 @@ public class SecurityErrorHandler implements AuthenticationEntryPoint, AccessDen
 
         response.setStatus(status.value());
 
-        Map<String, Object> model = new HashMap<>();
-        model.put(MvcResponse.DATA_ATTRIBUTE, null);
-        model.put(MvcResponse.ERRORS_ATTRIBUTE, List.of(new MvcError(message)));
+        ModelAndView modelAndView = MvcResponse.error(status, viewName, new MvcError(message)).toModelAndView();
 
         try {
             View view = viewResolver.resolveViewName(viewName, request.getLocale());
             assert view != null;
-            view.render(model, request, response);
+            view.render(modelAndView.getModel(), request, response);
         } catch (IOException | ServletException e) {
             throw e;
         } catch (Exception e) {

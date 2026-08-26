@@ -9,6 +9,7 @@ import hr.algebra.gamearena.webapp.models.cereal.authentication.TokenDecereal;
 import hr.algebra.gamearena.webapp.models.mvc.MvcError;
 import hr.algebra.gamearena.webapp.models.mvc.MvcResponse;
 import hr.algebra.gamearena.webapp.models.service.ApiResult;
+import hr.algebra.gamearena.webapp.security.AuthenticatedUser;
 import hr.algebra.gamearena.webapp.service.authentication.IAuthenticationApiService;
 import hr.algebra.gamearena.webapp.service.jwt.IJwtService;
 import org.springframework.http.HttpStatus;
@@ -37,6 +38,9 @@ public class AuthenticationMvcController {
 
     @GetMapping("/login")
     public ModelAndView loginForm() {
+        if (AuthenticatedUser.isAuthenticated()) {
+            return new ModelAndView("redirect:/");
+        }
         return MvcResponse.success(HttpStatus.OK, LOGIN_VIEW, null).toModelAndView();
     }
 

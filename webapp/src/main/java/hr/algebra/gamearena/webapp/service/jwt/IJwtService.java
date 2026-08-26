@@ -6,8 +6,7 @@ import hr.algebra.gamearena.webapp.models.cereal.authentication.JwtClaimDecereal
 
 public interface IJwtService {
     void storeToken(String token);
-
+    void clearToken();
     String getTokenPlainAndValidate() throws TokenNotFoundException, TokenNotValidException;
-
     JwtClaimDecereal getTokenClaimsAndValidate() throws TokenNotFoundException, TokenNotValidException;
 }

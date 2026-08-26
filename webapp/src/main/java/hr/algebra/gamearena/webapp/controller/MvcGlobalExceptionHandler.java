@@ -3,11 +3,13 @@ package hr.algebra.gamearena.webapp.controller;
 import hr.algebra.gamearena.webapp.exceptions.GameArenaApiServiceException;
 import hr.algebra.gamearena.webapp.models.mvc.MvcError;
 import hr.algebra.gamearena.webapp.models.mvc.MvcResponse;
+import hr.algebra.gamearena.webapp.security.AuthenticatedUser;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.servlet.ModelAndView;
@@ -18,6 +20,15 @@ import java.util.List;
 public class MvcGlobalExceptionHandler {
 
     private static final String ERROR_VIEW = "error";
+
+    // Shared across every page for the navbar
+
+    @ModelAttribute("authenticated")
+    public boolean authenticated() {
+        return AuthenticatedUser.isAuthenticated();
+    }
+
+
 
     // GameArena site exceptions
 
