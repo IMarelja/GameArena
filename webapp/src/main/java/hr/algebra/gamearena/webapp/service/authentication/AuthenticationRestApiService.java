@@ -2,10 +2,7 @@ package hr.algebra.gamearena.webapp.service.authentication;
 
 import com.gamearena.client.api.AuthenticationControllerApi;
 import com.gamearena.client.model.ApiResponseTokenDto;
-import hr.algebra.gamearena.webapp.exceptions.extenders.BadRequestedExceptions;
-import hr.algebra.gamearena.webapp.exceptions.extenders.ForbiddenException;
-import hr.algebra.gamearena.webapp.exceptions.extenders.NotFoundException;
-import hr.algebra.gamearena.webapp.exceptions.extenders.UnexpectedApiErrorException;
+import hr.algebra.gamearena.webapp.exceptions.extenders.*;
 import hr.algebra.gamearena.webapp.models.cereal.authentication.LoginCereal;
 import hr.algebra.gamearena.webapp.models.cereal.authentication.TokenDecereal;
 import hr.algebra.gamearena.webapp.models.service.ApiResult;
@@ -30,7 +27,7 @@ public class AuthenticationRestApiService implements IAuthenticationApiService {
 
     @Override
     public ApiResult<TokenDecereal> login(LoginCereal loginCereal)
-            throws BadRequestedExceptions, NotFoundException, ForbiddenException, UnexpectedApiErrorException
+            throws BadRequestedExceptions, NotFoundException, ForbiddenException, UnexpectedApiErrorException, UnauthorizedException
     {
         try {
             ResponseEntity<ApiResponseTokenDto> response = authenticationControllerApi.loginWithHttpInfo(loginCereal.toLoginRequestClient());
@@ -50,6 +47,10 @@ public class AuthenticationRestApiService implements IAuthenticationApiService {
 
             HttpStatus status = HttpStatus.valueOf(ex.getStatusCode().value());
             List<String> messages = ApiWrong.fromRestClientResponseExceptionToListString(ex);
+
+            if(status == HttpStatus.UNAUTHORIZED) {
+                throw new UnauthorizedException(messages);
+            }
 
             if (status == HttpStatus.BAD_REQUEST) {
                 throw new BadRequestedExceptions(messages);

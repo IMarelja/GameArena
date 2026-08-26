@@ -1,9 +1,6 @@
 package hr.algebra.gamearena.webapp.controller.mvc;
 
-import hr.algebra.gamearena.webapp.exceptions.extenders.BadRequestedExceptions;
-import hr.algebra.gamearena.webapp.exceptions.extenders.ForbiddenException;
-import hr.algebra.gamearena.webapp.exceptions.extenders.NotFoundException;
-import hr.algebra.gamearena.webapp.exceptions.extenders.UnexpectedApiErrorException;
+import hr.algebra.gamearena.webapp.exceptions.extenders.*;
 import hr.algebra.gamearena.webapp.models.cereal.authentication.LoginCereal;
 import hr.algebra.gamearena.webapp.models.cereal.authentication.TokenDecereal;
 import hr.algebra.gamearena.webapp.models.mvc.MvcError;
@@ -55,7 +52,7 @@ public class AuthenticationMvcController {
 
         try {
             apiResult = authenticationService.login(loginCereal);
-        } catch (BadRequestedExceptions | NotFoundException | ForbiddenException ex) {
+        } catch (UnauthorizedException | BadRequestedExceptions | NotFoundException | ForbiddenException ex) {
             List<MvcError> errors = ex.getMessages().stream().map(MvcError::new).toList();
             return MvcResponse.errors(ex.getStatus(), LOGIN_VIEW, errors).toModelAndView();
         }
