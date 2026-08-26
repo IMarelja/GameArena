@@ -52,6 +52,14 @@ public class MatchService implements IMatchService {
     }
 
     @Override
+    public List<MatchDetailedFullView> getMatchesTournamentId(Long tournamentId) {
+        return matchRepo.getAllByTournamentId(tournamentId)
+                .stream()
+                .map(this::toDetailedFullView)
+                .toList();
+    }
+
+    @Override
     public MatchDetailedFullView createMatchAndPushNotification(Long callerId, MatchCreateRequest request) {
         var tournament = tournamentRepo.getTournamentById(request.getTournamentId())
                 .orElseThrow(() -> new NotFoundException("Tournament not found with id: " + request.getTournamentId()));

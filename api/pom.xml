@@ -157,13 +157,6 @@
                 <groupId>org.sonarsource.scanner.maven</groupId>
                 <artifactId>sonar-maven-plugin</artifactId>
             </plugin>
-            <!--
-                Not bound to a lifecycle phase: needs the api actually running to hit
-                /v3/api-docs, which mvn package/verify/install can't guarantee. Run
-                explicitly: mvn spring-boot:run (api up), then in another shell
-                mvn springdoc-openapi:generate. Writes into webapp's resources so
-                webapp's openapi-generator-maven-plugin picks it up as its input spec.
-            -->
             <plugin>
                 <groupId>org.springdoc</groupId>
                 <artifactId>springdoc-openapi-maven-plugin</artifactId>

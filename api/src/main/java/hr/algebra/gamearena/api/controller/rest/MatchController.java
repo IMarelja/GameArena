@@ -51,6 +51,12 @@ public class MatchController {
                 .orElseThrow(() -> new NotFoundException("Match with id: " + id + " not found"));
     }
 
+    @GetMapping("/tournament/{id}")
+    @PreAuthorize("permitAll()")
+    public ResponseEntity<ApiResponse<List<MatchDetailedFullView>>> getMatchesTournament(@PathVariable Long id) {
+        return ResponseEntity.ok(ApiResponse.success(matchService.getMatchesTournamentId(id)));
+    }
+
     @PostMapping
     @PreAuthorize("isAuthenticated()")
     // Tournament Organizer only

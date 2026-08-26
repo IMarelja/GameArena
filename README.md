@@ -10,3 +10,17 @@ A platform for registering for esports tournaments and tracking results and lead
 - An administrator manages games, users, and organizers, and approves public tournaments (authenticated - admin)
 - An administrator views platform activity reports with filters by game and time period (authenticated - admin)
 - An administrator views a historical log of system logins (user, time, IP address) (authenticated - admin)
+
+## Thinks to note
+
+### Regenerate OpenAPI.json schema
+
+- Run the command 
+```bash
+mvn spring-boot:run
+```
+
+- Then on a separate terminal run this
+```bash
+mvn springdoc-openapi:generate
+```

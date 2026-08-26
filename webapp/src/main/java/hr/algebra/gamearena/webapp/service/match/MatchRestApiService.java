@@ -99,6 +99,25 @@ public class MatchRestApiService implements IMatchService {
         return ApiResult.fromApiResponseClient(status, data, body.getErrors());
     }
 
+    @Override
+    public ApiResult<List<MatchDetailFullViewDecereal>> getMatchesByTournamentId(Long id) throws NotFoundException {
+        ResponseEntity<ApiResponseListMatchDetailedFullView> response = matchControllerApi.getMatchesTournamentWithHttpInfo(id);
+        ApiResponseListMatchDetailedFullView body = response.getBody();
+        if (body == null) {
+            throw new NotFoundException(List.of(NO_RESPONSE_RECEIVED_API));
+        }
+        HttpStatus status = HttpStatus.valueOf(response.getStatusCode().value());
+
+        List<MatchDetailFullViewDecereal> data = body.getData() == null
+                ? null
+                : body.getData().stream()
+                .map(this::toDetailFullViewOrNull)
+                .filter(Objects::nonNull)
+                .toList();
+
+        return ApiResult.fromApiResponseClient(status, data, body.getErrors());
+    }
+
     private MatchDetailFullViewDecereal toDetailFullViewOrNull(MatchDetailedFullView match) {
         try {
             assert match.getGameId() != null;

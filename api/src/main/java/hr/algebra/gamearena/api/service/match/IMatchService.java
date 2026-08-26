@@ -9,5 +9,6 @@ import java.util.Optional;
 public interface IMatchService {
     Optional<MatchDetailedFullView> getById(Long id);
     List<MatchDetailedFullView> getMatchesByUserId(Long userId);
+    List<MatchDetailedFullView> getMatchesTournamentId(Long tournamentId);
     MatchDetailedFullView createMatchAndPushNotification(Long callerId, MatchCreateRequest request);
 }
