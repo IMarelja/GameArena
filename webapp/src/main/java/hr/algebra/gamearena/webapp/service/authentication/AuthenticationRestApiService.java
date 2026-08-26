@@ -17,7 +17,7 @@ import java.util.List;
 
 @Service
 @Slf4j
-public class AuthenticationRestApiService implements IAuthenticationApiService {
+public class AuthenticationRestApiService implements IAuthenticationService {
 
     private final AuthenticationControllerApi authenticationControllerApi;
 

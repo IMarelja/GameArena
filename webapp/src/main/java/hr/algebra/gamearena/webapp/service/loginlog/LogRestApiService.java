@@ -1,0 +1,67 @@
+package hr.algebra.gamearena.webapp.service.loginlog;
+
+import com.gamearena.client.api.LoggingControllerApi;
+import com.gamearena.client.model.ApiResponseListLoginLogsFullView;
+import hr.algebra.gamearena.webapp.config.ApiClientConfig;
+import hr.algebra.gamearena.webapp.exceptions.extenders.*;
+import hr.algebra.gamearena.webapp.models.cereal.loginog.LoginLogDecereal;
+import hr.algebra.gamearena.webapp.models.service.ApiResult;
+import hr.algebra.gamearena.webapp.models.service.ApiWrong;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestClientResponseException;
+
+import java.util.List;
+
+@Service
+public class LogRestApiService implements ILogService {
+
+    private static final String NO_RESPONSE_RECEIVED_API = "No response received from the GameArena API";
+
+    private final ApiClientConfig.AuthenticatedApiClient<LoggingControllerApi> authenticatedLogApiClient;
+
+    public LogRestApiService(ApiClientConfig.AuthenticatedApiClient<LoggingControllerApi> authenticatedLogApiClient) {
+        this.authenticatedLogApiClient = authenticatedLogApiClient;
+    }
+
+    @Override
+    public ApiResult<List<LoginLogDecereal>> getLoginLogs() throws UnauthorizedException, ForbiddenException, NotFoundException {
+        LoggingControllerApi client;
+
+        try {
+            client = authenticatedLogApiClient.get();
+        } catch (TokenNotFoundException | TokenNotValidException e){
+            throw new UnauthorizedException(List.of("You must be logged in to view this page"));
+        }
+
+        try {
+            ResponseEntity<ApiResponseListLoginLogsFullView> response = client.getLoggedTournamentsWithHttpInfo();
+            ApiResponseListLoginLogsFullView body = response.getBody();
+            if (body == null) {
+                throw new NotFoundException(List.of(NO_RESPONSE_RECEIVED_API));
+            }
+            HttpStatus status = HttpStatus.valueOf(response.getStatusCode().value());
+
+            List<LoginLogDecereal> data = body.getData() == null
+                    ? null
+                    : body.getData().stream().map(LoginLogDecereal::fromLoginLogsFullViewClient).toList();
+
+            return ApiResult.fromApiResponseClient(status, data, body.getErrors());
+        } catch (RestClientResponseException ex) {
+            HttpStatus status = HttpStatus.valueOf(ex.getStatusCode().value());
+            List<String> messages = ApiWrong.fromRestClientResponseExceptionToListString(ex);
+
+            if (status == HttpStatus.UNAUTHORIZED) {
+                throw new UnauthorizedException(messages);
+            }
+
+            if (status == HttpStatus.FORBIDDEN) {
+                throw new ForbiddenException(messages);
+            }
+
+            List<ApiWrong> wrongs = messages.stream().map(ApiWrong::new).toList();
+            return new ApiResult<>(null, wrongs, status);
+        }
+    }
+}

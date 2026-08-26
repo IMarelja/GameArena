@@ -1,6 +1,7 @@
 package hr.algebra.gamearena.webapp.security;
 
 import hr.algebra.gamearena.webapp.models.cereal.authentication.JwtClaimDecereal;
+import hr.algebra.gamearena.webapp.models.cereal.authentication.UserRoleDecereal;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
@@ -20,5 +21,9 @@ public final class AuthenticatedUser {
 
     public static boolean isAuthenticated() {
         return current().isPresent();
+    }
+
+    public static boolean isAdmin() {
+        return current().map(claim -> claim.role() == UserRoleDecereal.ADMIN).orElse(false);
     }
 }

@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Logs')}">
+    <title>GameArena - Logs</title>
+</head>
+<body>
+<!--/*@thymesVar id="data" type="java.util.List<hr.algebra.gamearena.webapp.models.cereal.loginog.LoginLogDecereal>"*/-->
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<main class="container py-4">
+    <h1 class="mb-4">Login Logs</h1>
+
+    <div th:replace="~{fragments/errors :: errors(${errors})}"></div>
+
+    <table class="table table-striped table-bordered" th:if="${not #lists.isEmpty(data)}">
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>IPv4</th>
+            <th>IPv6</th>
+            <th>Type</th>
+            <th>Credential</th>
+            <th>Created At</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="log : ${data}">
+            <td th:text="${log.id()}"></td>
+            <td th:text="${log.ipv4()}"></td>
+            <td th:text="${log.ipv6()}"></td>
+            <td>
+                <span class="badge rounded-pill"
+                      th:if="${log.type().isPresent()}"
+                      th:classappend="${log.type().get().badgeClass()}"
+                      th:text="${log.type().get()}"></span>
+            </td>
+            <td th:text="${log.credential()}"></td>
+            <td th:text="${log.createdAt()}"></td>
+        </tr>
+        </tbody>
+    </table>
+
+    <p class="text-muted fst-italic" th:if="${#lists.isEmpty(data) and #lists.isEmpty(errors)}">No login logs found.</p>
+</main>
+</body>
+</html>

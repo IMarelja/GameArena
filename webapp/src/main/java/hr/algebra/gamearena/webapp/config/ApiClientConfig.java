@@ -5,13 +5,7 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
-import com.gamearena.client.api.AuthenticationControllerApi;
-import com.gamearena.client.api.GamesControllerApi;
-import com.gamearena.client.api.LeaderboardControllerApi;
-import com.gamearena.client.api.MatchControllerApi;
-import com.gamearena.client.api.TeamControllerApi;
-import com.gamearena.client.api.TournamentControllerApi;
-import com.gamearena.client.api.UserControllerApi;
+import com.gamearena.client.api.*;
 import com.gamearena.client.invoker.ApiClient;
 import hr.algebra.gamearena.webapp.exceptions.extenders.TokenNotFoundException;
 import hr.algebra.gamearena.webapp.exceptions.extenders.TokenNotValidException;
@@ -100,6 +94,11 @@ public class ApiClientConfig {
     @Bean
     public AuthenticatedApiClient<LeaderboardControllerApi> authenticatedLeaderboardClient(ApiClient apiClient, IJwtService jwtService) {
         return authenticatedClient(apiClient, jwtService, LeaderboardControllerApi::new);
+    }
+
+    @Bean
+    public AuthenticatedApiClient<LoggingControllerApi> loggingClient(ApiClient apiClient, IJwtService jwtService) {
+        return authenticatedClient(apiClient, jwtService, LoggingControllerApi::new);
     }
 
     private <T> AuthenticatedApiClient<T> authenticatedClient(ApiClient apiClient, IJwtService jwtService, Function<ApiClient, T> apiFactory) {

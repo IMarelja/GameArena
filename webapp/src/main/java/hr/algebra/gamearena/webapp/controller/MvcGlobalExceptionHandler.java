@@ -29,11 +29,16 @@ public class MvcGlobalExceptionHandler {
         this.jwtService = jwtService;
     }
 
-    // Shared across every page for the navbar
+    // Shared across every page
 
     @ModelAttribute("authenticated")
     public boolean authenticated() {
         return AuthenticatedUser.isAuthenticated();
+    }
+
+    @ModelAttribute("isAdmin")
+    public boolean isAdmin() {
+        return AuthenticatedUser.isAdmin();
     }
 
 

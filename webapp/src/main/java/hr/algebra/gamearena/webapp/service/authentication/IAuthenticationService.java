@@ -5,7 +5,7 @@ import hr.algebra.gamearena.webapp.models.cereal.authentication.LoginCereal;
 import hr.algebra.gamearena.webapp.models.cereal.authentication.TokenDecereal;
 import hr.algebra.gamearena.webapp.models.service.ApiResult;
 
-public interface IAuthenticationApiService {
+public interface IAuthenticationService {
     ApiResult<TokenDecereal> login(LoginCereal loginCereal)
             throws BadRequestedExceptions, NotFoundException, ForbiddenException, UnexpectedApiErrorException, UnauthorizedException;
 }

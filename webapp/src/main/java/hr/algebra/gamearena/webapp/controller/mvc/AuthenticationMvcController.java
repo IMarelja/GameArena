@@ -7,7 +7,7 @@ import hr.algebra.gamearena.webapp.models.mvc.MvcError;
 import hr.algebra.gamearena.webapp.models.mvc.MvcResponse;
 import hr.algebra.gamearena.webapp.models.service.ApiResult;
 import hr.algebra.gamearena.webapp.security.AuthenticatedUser;
-import hr.algebra.gamearena.webapp.service.authentication.IAuthenticationApiService;
+import hr.algebra.gamearena.webapp.service.authentication.IAuthenticationService;
 import hr.algebra.gamearena.webapp.service.jwt.IJwtService;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -25,10 +25,10 @@ public class AuthenticationMvcController {
 
     private static final String LOGIN_VIEW = "login";
 
-    private final IAuthenticationApiService authenticationService;
+    private final IAuthenticationService authenticationService;
     private final IJwtService jwtService;
 
-    public AuthenticationMvcController(IAuthenticationApiService authenticationService, IJwtService jwtService) {
+    public AuthenticationMvcController(IAuthenticationService authenticationService, IJwtService jwtService) {
         this.authenticationService = authenticationService;
         this.jwtService = jwtService;
     }
