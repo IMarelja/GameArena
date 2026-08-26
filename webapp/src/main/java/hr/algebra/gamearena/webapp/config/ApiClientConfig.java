@@ -68,6 +68,16 @@ public class ApiClientConfig {
     public TeamControllerApi teamControllerApi(ApiClient apiClient) {
         return new TeamControllerApi(apiClient);
     }
+
+    @Bean
+    public MatchControllerApi matchControllerApi(ApiClient apiClient) {
+        return new MatchControllerApi(apiClient);
+    }
+
+    @Bean
+    public LeaderboardControllerApi leaderboardControllerApi(ApiClient apiClient) {
+        return new LeaderboardControllerApi(apiClient);
+    }
     // END
 
     // -- AUTHORIZATION --

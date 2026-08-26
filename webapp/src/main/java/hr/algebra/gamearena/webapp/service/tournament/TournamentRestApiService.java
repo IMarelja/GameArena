@@ -86,6 +86,22 @@ public class TournamentRestApiService implements ITournamentService {
     }
 
     @Override
+    public ApiResult<List<TournamentFullViewDecereal>> getTournamentsByUserId(Long id) throws NotFoundException {
+        ResponseEntity<ApiResponseListTournamentFullView> response = tournamentControllerApi.getTournamentsForUserWithHttpInfo(id);
+        ApiResponseListTournamentFullView body = response.getBody();
+        if (body == null) {
+            throw new NotFoundException(List.of("No response received from the GameArena API"));
+        }
+        HttpStatus status = HttpStatus.valueOf(response.getStatusCode().value());
+
+        List<TournamentFullViewDecereal> data = body.getData() == null
+                ? null
+                : body.getData().stream().map(TournamentFullViewDecereal::fromTournamentFullViewClient).toList();
+
+        return ApiResult.fromApiResponseClient(status, data, body.getErrors());
+    }
+
+    @Override
     public ApiResult<TournamentFullViewDecereal> getTournamentById(Long id) throws NotFoundException {
         ResponseEntity<ApiResponseTournamentFullView> response = tournamentControllerApi.getTournamentWithHttpInfo(id);
         ApiResponseTournamentFullView body = response.getBody();

@@ -11,6 +11,7 @@ import java.util.List;
 public interface ITournamentService {
     ApiResult<List<TournamentFullViewDecereal>> getAllTournaments() throws NotFoundException;
     ApiResult<List<TournamentFullViewDecereal>> getMyTournaments() throws UnauthorizedException, NotFoundException;
+    ApiResult<List<TournamentFullViewDecereal>> getTournamentsByUserId(Long id) throws NotFoundException;
     ApiResult<TournamentFullViewDecereal> getTournamentById(Long id) throws NotFoundException;
     ApiResult<List<TournamentMemberViewDecereal>> getTournamentMembers(Long tournamentId) throws NotFoundException;
 }

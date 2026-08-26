@@ -26,11 +26,19 @@ import java.util.Objects;
 @Slf4j
 public class MatchRestApiService implements IMatchService {
 
+    private static final String NO_RESPONSE_RECEIVED_API = "No response received from the GameArena API";
+
     private final AuthenticatedApiClient<MatchControllerApi> authenticatedMatchClient;
+    private final MatchControllerApi matchControllerApi;
     private final GamesControllerApi gamesControllerApi;
 
-    public MatchRestApiService(AuthenticatedApiClient<MatchControllerApi> authenticatedMatchClient, GamesControllerApi gamesControllerApi) {
+    public MatchRestApiService(
+            AuthenticatedApiClient<MatchControllerApi> authenticatedMatchClient,
+            MatchControllerApi matchControllerApi,
+            GamesControllerApi gamesControllerApi)
+    {
         this.authenticatedMatchClient = authenticatedMatchClient;
+        this.matchControllerApi = matchControllerApi;
         this.gamesControllerApi = gamesControllerApi;
     }
 
@@ -70,6 +78,25 @@ public class MatchRestApiService implements IMatchService {
             List<ApiWrong> wrongs = messages.stream().map(ApiWrong::new).toList();
             return new ApiResult<>(null, wrongs, status);
         }
+    }
+
+    @Override
+    public ApiResult<List<MatchDetailFullViewDecereal>> getMatchesByUserId(Long id) throws NotFoundException {
+        ResponseEntity<ApiResponseListMatchDetailedFullView> response = matchControllerApi.getMatchesForUserWithHttpInfo(id);
+        ApiResponseListMatchDetailedFullView body = response.getBody();
+        if (body == null) {
+            throw new NotFoundException(List.of("No response received from the GameArena API"));
+        }
+        HttpStatus status = HttpStatus.valueOf(response.getStatusCode().value());
+
+        List<MatchDetailFullViewDecereal> data = body.getData() == null
+                ? null
+                : body.getData().stream()
+                        .map(this::toDetailFullViewOrNull)
+                        .filter(Objects::nonNull)
+                        .toList();
+
+        return ApiResult.fromApiResponseClient(status, data, body.getErrors());
     }
 
     private MatchDetailFullViewDecereal toDetailFullViewOrNull(MatchDetailedFullView match) {

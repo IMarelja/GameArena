@@ -9,4 +9,5 @@ import java.util.List;
 
 public interface IMatchService {
     ApiResult<List<MatchDetailFullViewDecereal>> getMyMatches() throws UnauthorizedException, NotFoundException;
+    ApiResult<List<MatchDetailFullViewDecereal>> getMatchesByUserId(Long id) throws NotFoundException;
 }

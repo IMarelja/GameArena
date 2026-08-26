@@ -20,10 +20,17 @@ import java.util.List;
 @Service
 public class LeaderboardRestApiService implements ILeaderboardService {
 
-    private final AuthenticatedApiClient<LeaderboardControllerApi> authenticatedLeaderboardClient;
+    private static final String NO_RESPONSE_RECEIVED_API = "No response received from the GameArena API";
 
-    public LeaderboardRestApiService(AuthenticatedApiClient<LeaderboardControllerApi> authenticatedLeaderboardClient) {
+    private final AuthenticatedApiClient<LeaderboardControllerApi> authenticatedLeaderboardClient;
+    private final LeaderboardControllerApi leaderboardControllerApi;
+
+    public LeaderboardRestApiService(
+            AuthenticatedApiClient<LeaderboardControllerApi> authenticatedLeaderboardClient,
+            LeaderboardControllerApi leaderboardControllerApi)
+    {
         this.authenticatedLeaderboardClient = authenticatedLeaderboardClient;
+        this.leaderboardControllerApi = leaderboardControllerApi;
     }
 
     @Override
@@ -39,7 +46,7 @@ public class LeaderboardRestApiService implements ILeaderboardService {
             ResponseEntity<ApiResponseListTournamentStatsEntryView> response = client.getMyStatsWithHttpInfo();
             ApiResponseListTournamentStatsEntryView body = response.getBody();
             if (body == null) {
-                throw new NotFoundException(List.of("No response received from the GameArena API"));
+                throw new NotFoundException(List.of(NO_RESPONSE_RECEIVED_API));
             }
             HttpStatus status = HttpStatus.valueOf(response.getStatusCode().value());
 
@@ -59,5 +66,21 @@ public class LeaderboardRestApiService implements ILeaderboardService {
             List<ApiWrong> wrongs = messages.stream().map(ApiWrong::new).toList();
             return new ApiResult<>(null, wrongs, status);
         }
+    }
+
+    @Override
+    public ApiResult<List<TournamentStatsEntryViewDecereal>> getStatsByUserId(Long id) throws NotFoundException {
+        ResponseEntity<ApiResponseListTournamentStatsEntryView> response = leaderboardControllerApi.getStatsForUserWithHttpInfo(id);
+        ApiResponseListTournamentStatsEntryView body = response.getBody();
+        if (body == null) {
+            throw new NotFoundException(List.of(NO_RESPONSE_RECEIVED_API));
+        }
+        HttpStatus status = HttpStatus.valueOf(response.getStatusCode().value());
+
+        List<TournamentStatsEntryViewDecereal> data = body.getData() == null
+                ? null
+                : body.getData().stream().map(TournamentStatsEntryViewDecereal::fromTournamentStatsEntryViewClient).toList();
+
+        return ApiResult.fromApiResponseClient(status, data, body.getErrors());
     }
 }

@@ -4,7 +4,7 @@
     <title>GameArena - User</title>
 </head>
 <body>
-<!--/*@thymesVar id="data" type="hr.algebra.gamearena.webapp.models.cereal.user.UserViewDtoDecereal"*/-->
+<!--/*@thymesVar id="data" type="hr.algebra.gamearena.webapp.models.mvc.data.user.UserProfileViewData"*/-->
 <div th:replace="~{fragments/navbar :: navbar}"></div>
 
 <main class="container py-4">
@@ -12,15 +12,98 @@
 
     <div th:if="${data != null}">
         <div class="d-flex justify-content-between align-items-start mb-3">
-            <h1 class="mb-0" th:text="${data.username()}"></h1>
-            <span class="badge fs-6 text-bg-danger rounded-pill" th:if="${data.isDeleted()}">Deleted</span>
+            <h1 class="mb-0" th:text="${data.user().username()}"></h1>
+            <span class="badge fs-6 text-bg-danger rounded-pill" th:if="${data.user().isDeleted()}">Deleted</span>
         </div>
 
-        <table class="table table-borderless w-auto">
+        <table class="table table-borderless w-auto mb-4">
             <tbody>
-            <tr><th>Created At</th><td th:text="${data.createdAt()}"></td></tr>
+            <tr><th>Created At</th><td th:text="${data.user().createdAt()}"></td></tr>
             </tbody>
         </table>
+
+        <section class="mb-5">
+            <h2 class="h4 mb-3">Leaderboard Stats</h2>
+            <table class="table table-striped table-bordered" th:if="${not #lists.isEmpty(data.leaderboard())}">
+                <thead>
+                <tr>
+                    <th>Tournament</th>
+                    <th>Matches Played</th>
+                    <th>Matches Won</th>
+                    <th>Total Points</th>
+                    <th>Average Points</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="entry : ${data.leaderboard()}">
+                    <td th:text="${entry.tournamentName()}"></td>
+                    <td th:text="${entry.matchesPlayed()}"></td>
+                    <td th:text="${entry.matchesWon()}"></td>
+                    <td th:text="${entry.totalPoints()}"></td>
+                    <td th:text="${entry.averagePoints()}"></td>
+                </tr>
+                </tbody>
+            </table>
+            <p class="text-muted fst-italic" th:if="${#lists.isEmpty(data.leaderboard())}">No leaderboard stats found.</p>
+        </section>
+
+        <section class="mb-5">
+            <h2 class="h4 mb-3">Tournaments</h2>
+            <table class="table table-striped table-bordered" th:if="${not #lists.isEmpty(data.tournaments())}">
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Game</th>
+                    <th>Status</th>
+                    <th>Starts At</th>
+                    <th>Ends At</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="tournament : ${data.tournaments()}">
+                    <td th:text="${tournament.id()}"></td>
+                    <td><a th:href="@{/tournaments/{id}(id=${tournament.id()})}" th:text="${tournament.name()}"></a></td>
+                    <td th:text="${tournament.games()?.name()}"></td>
+                    <td th:text="${tournament.status()}"></td>
+                    <td th:text="${tournament.startsAt()}"></td>
+                    <td th:text="${tournament.endsAt()}"></td>
+                </tr>
+                </tbody>
+            </table>
+            <p class="text-muted fst-italic" th:if="${#lists.isEmpty(data.tournaments())}">No tournaments found.</p>
+        </section>
+
+        <section class="mb-5">
+            <h2 class="h4 mb-3">Matches</h2>
+            <table class="table table-striped table-bordered" th:if="${not #lists.isEmpty(data.matches())}">
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Game</th>
+                    <th>Status</th>
+                    <th>Players</th>
+                    <th>Score</th>
+                    <th>Winner</th>
+                    <th>Scheduled At</th>
+                    <th>Played At</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="match : ${data.matches()}">
+                    <td th:text="${match.id()}"></td>
+                    <td th:text="${match.game().name()}"></td>
+                    <td th:text="${match.status()}"></td>
+                    <td th:text="${match.player1().username()} + ' VS ' + ${match.player2().username()}"></td>
+                    <td th:text="${match.playerOneScore()} + ' - ' + ${match.playerTwoScore()}"></td>
+                    <td th:text="${match.winner().isPresent() ? match.winner().get().username() : '-'}"></td>
+                    <td th:text="${match.scheduledAt()}"></td>
+                    <td th:text="${match.playedAt()}"></td>
+                </tr>
+                </tbody>
+            </table>
+            <p class="text-muted fst-italic" th:if="${#lists.isEmpty(data.matches())}">No matches found.</p>
+        </section>
     </div>
 </main>
 </body>

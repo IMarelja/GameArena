@@ -9,4 +9,5 @@ import java.util.List;
 
 public interface ILeaderboardService {
     ApiResult<List<TournamentStatsEntryViewDecereal>> getMyStats() throws UnauthorizedException, NotFoundException;
+    ApiResult<List<TournamentStatsEntryViewDecereal>> getStatsByUserId(Long id) throws NotFoundException;
 }
