@@ -6,6 +6,10 @@
 
 <main class="container py-4">
     <h1 class="mb-4">Welcome to GameArena</h1>
+
+    <div class="alert alert-success" th:if="${data != null}" th:text="${data}"></div>
+    <div th:replace="~{fragments/errors :: errors(${errors})}"></div>
+
     <p>Browse <a href="/tournaments">tournaments</a> and <a href="/users">users</a> using the navigation above.</p>
 </main>
 </body>

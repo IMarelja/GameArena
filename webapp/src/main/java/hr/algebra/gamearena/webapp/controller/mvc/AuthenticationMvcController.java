@@ -63,6 +63,12 @@ public class AuthenticationMvcController {
         }
 
         jwtService.storeToken(apiResult.data().token());
-        return new ModelAndView("redirect:/");
+        return MvcResponse.redirect("/");
+    }
+
+    @PostMapping("/logout")
+    public ModelAndView logout() {
+        jwtService.clearToken();
+        return MvcResponse.redirect("/");
     }
 }
