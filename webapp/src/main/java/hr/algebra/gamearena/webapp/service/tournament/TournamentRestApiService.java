@@ -108,7 +108,7 @@ public class TournamentRestApiService implements ITournamentService {
         ResponseEntity<ApiResponseTournamentFullView> response = tournamentControllerApi.getTournamentWithHttpInfo(id);
         ApiResponseTournamentFullView body = response.getBody();
         if (body == null) {
-            throw new NotFoundException(List.of("No response received from the GameArena API"));
+            throw new NotFoundException(List.of(NO_RESPONSE_RECEIVED_API));
         }
         HttpStatus status = HttpStatus.valueOf(response.getStatusCode().value());
 
@@ -124,7 +124,7 @@ public class TournamentRestApiService implements ITournamentService {
         ResponseEntity<ApiResponseListTournamentMemberView> response = tournamentControllerApi.getMembersOfTournamentWithHttpInfo(tournamentId);
         ApiResponseListTournamentMemberView body = response.getBody();
         if (body == null) {
-            throw new NotFoundException(List.of("No response received from the GameArena API"));
+            throw new NotFoundException(List.of(NO_RESPONSE_RECEIVED_API));
         }
         HttpStatus status = HttpStatus.valueOf(response.getStatusCode().value());
 
