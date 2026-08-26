@@ -1,10 +1,10 @@
 package hr.algebra.gamearena.webapp.controller.mvc;
 
 import hr.algebra.gamearena.webapp.exceptions.extenders.*;
-import hr.algebra.gamearena.webapp.models.cereal.authentication.LoginCereal;
 import hr.algebra.gamearena.webapp.models.cereal.authentication.TokenDecereal;
 import hr.algebra.gamearena.webapp.models.mvc.MvcError;
 import hr.algebra.gamearena.webapp.models.mvc.MvcResponse;
+import hr.algebra.gamearena.webapp.models.mvc.data.authentication.LoginPostViewModel;
 import hr.algebra.gamearena.webapp.models.service.ApiResult;
 import hr.algebra.gamearena.webapp.security.AuthenticatedUser;
 import hr.algebra.gamearena.webapp.service.authentication.IAuthenticationService;
@@ -13,8 +13,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
 import java.util.List;
@@ -42,16 +42,11 @@ public class AuthenticationMvcController {
     }
 
     @PostMapping("/login")
-    public ModelAndView login(
-            @RequestParam String usernameOrEmail,
-            @RequestParam String password,
-            @RequestParam(required = false, defaultValue = "false") boolean rememberMe
-    ) throws UnexpectedApiErrorException {
-        LoginCereal loginCereal = new LoginCereal(usernameOrEmail, password, rememberMe);
+    public ModelAndView login(@ModelAttribute LoginPostViewModel loginForm) throws UnexpectedApiErrorException {
         ApiResult<TokenDecereal> apiResult;
 
         try {
-            apiResult = authenticationService.login(loginCereal);
+            apiResult = authenticationService.login(loginForm.toLoginCereal());
         } catch (UnauthorizedException | BadRequestedExceptions | NotFoundException | ForbiddenException ex) {
             List<MvcError> errors = ex.getMessages().stream().map(MvcError::new).toList();
             return MvcResponse.errors(ex.getStatus(), LOGIN_VIEW, errors).toModelAndView();
