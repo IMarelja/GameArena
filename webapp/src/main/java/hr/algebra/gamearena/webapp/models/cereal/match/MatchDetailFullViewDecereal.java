@@ -1,6 +1,5 @@
 package hr.algebra.gamearena.webapp.models.cereal.match;
 
-import com.gamearena.client.model.GamesView;
 import com.gamearena.client.model.MatchDetailedFullView;
 import hr.algebra.gamearena.webapp.models.cereal.games.GamesViewDecereal;
 import hr.algebra.gamearena.webapp.models.cereal.user.UserJustUsernameDecereal;
@@ -22,11 +21,11 @@ public record MatchDetailFullViewDecereal(
         OffsetDateTime playedAt,
         OffsetDateTime createdAt
 ) {
-    public static MatchDetailFullViewDecereal fromMatchDetailFullViewClientAndGameView(MatchDetailedFullView match, GamesView game) {
+    public static MatchDetailFullViewDecereal fromMatchDetailFullViewClient(MatchDetailedFullView match) {
         return new MatchDetailFullViewDecereal(
                 match.getId(),
                 match.getTournamentId(),
-                GamesViewDecereal.fromGamesViewClientOrUnavailableGarbage(game),
+                GamesViewDecereal.fromGamesViewClientOrUnavailableGarbage(match.getGame()),
                 UserJustUsernameDecereal.fromUserJustUsernameClientOrUnavailableGarbage(match.getPlayer1()),
                 UserJustUsernameDecereal.fromUserJustUsernameClientOrUnavailableGarbage(match.getPlayer2()),
                 match.getPlayerOneScore(),

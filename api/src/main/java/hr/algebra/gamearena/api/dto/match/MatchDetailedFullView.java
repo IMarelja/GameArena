@@ -1,6 +1,8 @@
 package hr.algebra.gamearena.api.dto.match;
 
+import hr.algebra.gamearena.api.dto.games.GamesView;
 import hr.algebra.gamearena.api.dto.user.UserJustUsernameView;
+import hr.algebra.gamearena.api.model.games.Games;
 import hr.algebra.gamearena.api.model.match.Match;
 import hr.algebra.gamearena.api.model.user.User;
 
@@ -10,7 +12,7 @@ import java.util.Optional;
 public record MatchDetailedFullView (
         Long id,
         Long tournamentId,
-        Long gameId,
+        GamesView game,
         UserJustUsernameView player1,
         UserJustUsernameView player2,
         Integer playerOneScore,
@@ -21,7 +23,7 @@ public record MatchDetailedFullView (
         LocalDateTime playedAt,
         LocalDateTime createdAt
 ){
-    public static MatchDetailedFullView fromMatchUserOneUserTwo(Match match, User playerOne, User playerTwo) {
+    public static MatchDetailedFullView fromMatchUserOneUserTwoAndGame(Match match, User playerOne, User playerTwo, Games game) {
         User winner = null;
         if (match.winnerId() != null) {
             winner = match.winnerId().equals(playerOne.id()) ? playerOne : playerTwo;
@@ -30,7 +32,7 @@ public record MatchDetailedFullView (
         return new MatchDetailedFullView(
                 match.id(),
                 match.tournamentId(),
-                match.gameId(),
+                GamesView.fromGamesModelOrNotFound(game),
                 UserJustUsernameView.fromUser(playerOne),
                 UserJustUsernameView.fromUser(playerTwo),
                 match.playerOneScore(),

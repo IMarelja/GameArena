@@ -1,5 +1,7 @@
 package hr.algebra.gamearena.api.dto.team;
 
+import hr.algebra.gamearena.api.dto.games.GamesView;
+import hr.algebra.gamearena.api.model.games.Games;
 import hr.algebra.gamearena.api.model.team.Team;
 
 import java.time.LocalDateTime;
@@ -7,15 +9,15 @@ import java.time.LocalDateTime;
 public record TeamMinimalView(
         Long id,
         String name,
-        Long gameId,
+        GamesView game,
         LocalDateTime createdAt,
         Long memberCount
 ) {
-    public static TeamMinimalView fromTeam(Team team, Long memberCount) {
+    public static TeamMinimalView fromTeamAndGame(Team team, Games game, Long memberCount) {
         return new TeamMinimalView(
                 team.id(),
                 team.name(),
-                team.game_id(),
+                GamesView.fromGamesModelOrNotFound(game),
                 team.created_at(),
                 memberCount
         );

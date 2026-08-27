@@ -16,11 +16,13 @@ import hr.algebra.gamearena.api.exceptions.extenders.InvalidVariableException;
 import hr.algebra.gamearena.api.exceptions.extenders.NotFoundException;
 import hr.algebra.gamearena.api.model.notification.NotificationType;
 import hr.algebra.gamearena.api.model.team.InviteStatus;
+import hr.algebra.gamearena.api.model.team.Team;
 import hr.algebra.gamearena.api.model.team.TeamInvitationSave;
 import hr.algebra.gamearena.api.model.team.TeamInvitationUpdate;
 import hr.algebra.gamearena.api.model.team.TeamMemberRole;
 import hr.algebra.gamearena.api.model.team.TeamMemberSave;
 import hr.algebra.gamearena.api.model.team.TeamSave;
+import hr.algebra.gamearena.api.repository.games.IGamesRepo;
 import hr.algebra.gamearena.api.repository.team.ITeamRepo;
 import hr.algebra.gamearena.api.repository.user.IUserRepo;
 import hr.algebra.gamearena.api.service.notification.INotificationService;
@@ -37,6 +39,7 @@ public class TeamService implements ITeamService {
     private final ITeamRepo teamRepo;
     private final INotificationService notificationService;
     private final IUserRepo userRepo;
+    private final IGamesRepo gamesRepo;
 
     private String teamNotFoundByIdOutput(Long id) {
         return "Team not found with id: " + id;
@@ -51,10 +54,11 @@ public class TeamService implements ITeamService {
                 + "Assign someone else to be the Captain for this Team";
     }
 
-    public TeamService(ITeamRepo teamRepo, INotificationService notificationService, IUserRepo userRepo) {
+    public TeamService(ITeamRepo teamRepo, INotificationService notificationService, IUserRepo userRepo, IGamesRepo gamesRepo) {
         this.teamRepo = teamRepo;
         this.notificationService = notificationService;
         this.userRepo = userRepo;
+        this.gamesRepo = gamesRepo;
     }
 
     // Team
@@ -63,14 +67,14 @@ public class TeamService implements ITeamService {
     public List<TeamMinimalView> getAll() {
         return teamRepo.getAll()
                 .stream()
-                .map(team -> TeamMinimalView.fromTeam(team, teamRepo.memberCountInATeam(team.id())))
+                .map(this::toMinimalView)
                 .toList();
     }
 
     @Override
     public Optional<TeamMinimalView> getTeamById(Long id) {
         return Optional.of(teamRepo.getTeamById(id)
-                .map( team -> TeamMinimalView.fromTeam(team, teamRepo.memberCountInATeam(team.id())))
+                .map(this::toMinimalView)
                 .orElseThrow(() -> new NotFoundException( teamNotFoundByIdOutput(id) )));
     }
 
@@ -78,7 +82,7 @@ public class TeamService implements ITeamService {
     public List<TeamMinimalView> getTeamsForUser(Long userId) {
         return teamRepo.getTeamsForUser(userId)
                 .stream()
-                .map(team -> TeamMinimalView.fromTeam(team, teamRepo.memberCountInATeam(team.id())))
+                .map(this::toMinimalView)
                 .toList();
     }
 
@@ -96,7 +100,12 @@ public class TeamService implements ITeamService {
         captainSave.setRole(TeamMemberRole.CAPTAIN);
         teamRepo.addMember(captainSave);
 
-        return TeamMinimalView.fromTeam(savedTeam, teamRepo.memberCountInATeam(savedTeam.id()));
+        return toMinimalView(savedTeam);
+    }
+
+    private TeamMinimalView toMinimalView(Team team) {
+        var game = team.game_id() != null ? gamesRepo.getById(team.game_id()).orElse(null) : null;
+        return TeamMinimalView.fromTeamAndGame(team, game, teamRepo.memberCountInATeam(team.id()));
     }
 
     // Team invitation

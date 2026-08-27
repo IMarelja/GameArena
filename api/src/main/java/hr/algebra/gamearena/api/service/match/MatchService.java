@@ -13,6 +13,7 @@ import hr.algebra.gamearena.api.model.match.MatchSave;
 import hr.algebra.gamearena.api.model.match.MatchStatus;
 import hr.algebra.gamearena.api.model.tournament.member.TournamentMemberRole;
 import hr.algebra.gamearena.api.model.user.User;
+import hr.algebra.gamearena.api.repository.games.IGamesRepo;
 import hr.algebra.gamearena.api.repository.match.IMatchRepo;
 import hr.algebra.gamearena.api.repository.tournament.ITournamentRepo;
 import hr.algebra.gamearena.api.repository.user.IUserRepo;
@@ -28,12 +29,20 @@ public class MatchService implements IMatchService {
     private final IMatchRepo matchRepo;
     private final ITournamentRepo tournamentRepo;
     private final IUserRepo userRepo;
+    private final IGamesRepo gamesRepo;
     private final INotificationService notificationService;
 
-    public MatchService(IMatchRepo matchRepo, ITournamentRepo tournamentRepo, IUserRepo userRepo, INotificationService notificationService) {
+    public MatchService(
+            IMatchRepo matchRepo,
+            ITournamentRepo tournamentRepo,
+            IUserRepo userRepo,
+            IGamesRepo gamesRepo,
+            INotificationService notificationService)
+    {
         this.matchRepo = matchRepo;
         this.tournamentRepo = tournamentRepo;
         this.userRepo = userRepo;
+        this.gamesRepo = gamesRepo;
         this.notificationService = notificationService;
     }
 
@@ -105,8 +114,9 @@ public class MatchService implements IMatchService {
                 .orElseThrow(() -> new NotFoundException("User with id: " + match.playerOneId() + " not found"));
         User playerTwo = userRepo.findById(match.playerTwoId())
                 .orElseThrow(() -> new NotFoundException("User with id: " + match.playerTwoId() + " not found"));
+        var game = match.gameId() != null ? gamesRepo.getById(match.gameId()).orElse(null) : null;
 
-        return MatchDetailedFullView.fromMatchUserOneUserTwo(match, playerOne, playerTwo);
+        return MatchDetailedFullView.fromMatchUserOneUserTwoAndGame(match, playerOne, playerTwo, game);
     }
 
     private void pushMatchCreatedNotification(Long recipientUserId, Long matchId) {

@@ -26,7 +26,7 @@ public record TournamentFullView(
                 tournament.name(),
                 tournament.description(),
                 TournamentStatusView.fromTournamentStatus(tournament.status()),
-                games != null ? GamesView.fromGamesModel(games) : null,
+                GamesView.fromGamesModelOrNotFound(games),
                 tournament.soloPrice(),
                 tournament.currency(),
                 tournament.startsAt(),
