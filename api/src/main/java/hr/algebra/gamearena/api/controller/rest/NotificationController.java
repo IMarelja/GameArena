@@ -12,7 +12,11 @@ import hr.algebra.gamearena.api.dto.other.ApiResponse;
 import hr.algebra.gamearena.api.exceptions.extenders.ForbiddenAccessException;
 import hr.algebra.gamearena.api.exceptions.extenders.NotFoundException;
 import hr.algebra.gamearena.api.service.notification.INotificationService;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.codec.ServerSentEvent;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -32,27 +36,37 @@ public class NotificationController {
         this.notificationService = notificationService;
     }
 
-    @GetMapping(value = "/stream/unread")
+    @GetMapping(value = "/stream/unread", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     @PreAuthorize("isAuthenticated()")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", content = @Content(mediaType = MediaType.TEXT_EVENT_STREAM_VALUE,
+            schema = @Schema(implementation = NotificationUnreadAndCountView.class)))
     public Flux<ServerSentEvent<NotificationUnreadAndCountView>> notificationStream(@AuthenticationPrincipal JwtTokenClaim caller){
         return notificationService.streamForUserUnreadAndCount(caller.userId())
                 .map(snapshot -> ServerSentEvent.builder(snapshot).event("unread-notifications").build());
     }
 
-    @GetMapping(value = "/stream/unread/count/")
+    @GetMapping(value = "/stream/unread/count/", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     @PreAuthorize("isAuthenticated()")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", content = @Content(mediaType = MediaType.TEXT_EVENT_STREAM_VALUE,
+            schema = @Schema(implementation = NotificationUnreadCountView.class)))
     public Flux<ServerSentEvent<NotificationUnreadCountView>> notificationCountStream(@AuthenticationPrincipal JwtTokenClaim caller){
         return notificationService.streamToUserUnreadCount(caller.userId())
                 .map(snapshot -> ServerSentEvent.builder(snapshot).event("unread-count").build());
     }
 
-    @GetMapping(value = "/stream/all")
+    @GetMapping(value = "/stream/all", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     @PreAuthorize("isAuthenticated()")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", content = @Content(mediaType = MediaType.TEXT_EVENT_STREAM_VALUE,
+            array = @ArraySchema(schema = @Schema(implementation = NotificationMinimalView.class))))
     public Flux<ServerSentEvent<List<NotificationMinimalView>>> notificationAllStream(@AuthenticationPrincipal JwtTokenClaim caller){
         return notificationService.streamForUserAll(caller.userId())
                 .map(all -> all.stream().map(NotificationFullView::toMinimalView).toList())
                 .map(snapshot -> ServerSentEvent.builder(snapshot).event("all-notifications").build());
     }
+
+    /*
+     * I Hate you Java. Fuck you, why the fuck do i need to configure so much shit for basic shit and it doesn't even make any sense. No wonder people Vibe code you
+     * */
 
     @PostMapping("/test/to/user/{id}")
     @PreAuthorize("hasRole('ADMIN')")

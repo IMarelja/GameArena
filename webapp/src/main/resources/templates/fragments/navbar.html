@@ -12,6 +12,8 @@
             <a class="nav-link" th:href="@{/logs}">Logs</a>
         </div>
         <div class="navbar-nav" th:if="${authenticated}">
+            <a class="nav-link" id="notifications-nav-link" th:href="@{/notifications}"
+               th:attr="data-stream-url=@{/notifications/stream/unread}">Notifications</a>
             <a class="nav-link" th:href="@{/me}">Me</a>
             <form method="post" th:action="@{/logout}" class="d-flex">
                 <button type="submit" class="nav-link btn btn-link">Log Out</button>
@@ -22,4 +24,33 @@
             <a class="nav-link" th:href="@{/register}">Register</a>
         </div>
     </div>
+
+    <script th:if="${authenticated}">
+        $(function () {
+            var $link = $('#notifications-nav-link');
+            var streamUrl = $link.data('stream-url');
+
+            function showUnavailable() {
+                $link.css('text-decoration', 'line-through').text('Notifications');
+            }
+
+            function showCount(count) {
+                $link.css('text-decoration', 'none');
+                $link.text(count > 0 ? 'Notifications (' + count + ')' : 'Notifications');
+            }
+
+            var source = new EventSource(streamUrl);
+
+            source.onmessage = function (event) {
+                try {
+                    var payload = JSON.parse(event.data);
+                    showCount(payload.count || 0);
+                } catch (e) {
+                    showUnavailable();
+                }
+            };
+
+            source.onerror = showUnavailable;
+        });
+    </script>
 </nav>

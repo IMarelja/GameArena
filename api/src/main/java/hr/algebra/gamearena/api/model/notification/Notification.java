@@ -19,7 +19,7 @@ public record Notification(
                 NotificationType.valueOf(notification.getType()),
                 notification.getRecipientUserId(),
                 notification.getReferenceId(),
-                ReferenceType.valueOf(notification.getReferenceType()),
+                notification.getReferenceType() != null ? ReferenceType.valueOf(notification.getReferenceType()) : null,
                 notification.isRead(),
                 notification.getCreatedAt().toLocalDateTime()
         );

@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Notifications')}">
+    <title>GameArena - Notifications</title>
+</head>
+<body>
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<main class="container py-4" id="notifications-app"
+      th:attr="data-stream-url=@{/notifications/stream/all},data-status-base-url=@{/notifications}">
+    <h1 class="mb-4">Notifications</h1>
+
+    <div th:replace="~{fragments/errors :: errors(${errors})}"></div>
+
+    <div id="notifications-error" class="alert alert-danger" style="display:none;">
+        Could not load notifications right now. Please try again later.
+    </div>
+
+    <table class="table table-striped table-bordered" id="notifications-table" style="display:none;">
+        <thead>
+        <tr>
+            <th>Type</th>
+            <th>Created At</th>
+            <th>Status</th>
+            <th></th>
+        </tr>
+        </thead>
+        <tbody id="notifications-body"></tbody>
+    </table>
+
+    <p id="notifications-empty" class="text-muted fst-italic" style="display:none;">No notifications found.</p>
+</main>
+
+<script>
+    $(function () {
+        var $app = $('#notifications-app');
+        var streamUrl = $app.data('stream-url');
+        var statusBaseUrl = $app.data('status-base-url');
+
+        var $table = $('#notifications-table');
+        var $body = $('#notifications-body');
+        var $empty = $('#notifications-empty');
+        var $error = $('#notifications-error');
+
+        function setReadStatus(id, read) {
+            $.ajax({
+                url: statusBaseUrl + '/' + id + '/read-status',
+                type: 'PATCH',
+                contentType: 'application/json',
+                data: JSON.stringify({ read: read })
+            });
+        }
+
+        function renderRow(notification) {
+            var $tr = $('<tr>');
+            $tr.append($('<td>').text(notification.type));
+            $tr.append($('<td>').text(notification.createdAt));
+            $tr.append($('<td>').append(
+                $('<span class="badge">')
+                    .addClass(notification.read ? 'text-bg-secondary' : 'text-bg-primary')
+                    .text(notification.read ? 'Read' : 'Unread')
+            ));
+
+            var $button = $('<button type="button" class="btn btn-sm btn-outline-secondary">')
+                .text(notification.read ? 'Mark as unread' : 'Mark as read')
+                .on('click', function () {
+                    setReadStatus(notification.id, !notification.read);
+                });
+
+            $tr.append($('<td>').append($button));
+
+            return $tr;
+        }
+
+        function render(notifications) {
+            $body.empty();
+
+            if (!notifications || notifications.length === 0) {
+                $table.hide();
+                $empty.show();
+                return;
+            }
+
+            notifications.forEach(function (notification) {
+                $body.append(renderRow(notification));
+            });
+
+            $empty.hide();
+            $table.show();
+        }
+
+        var source = new EventSource(streamUrl);
+
+        source.onmessage = function (event) {
+            try {
+                var notifications = JSON.parse(event.data);
+                $error.hide();
+                render(notifications);
+            } catch (e) {
+                $error.show();
+            }
+        };
+
+        source.onerror = function () {
+            $error.show();
+        };
+    });
+</script>
+</body>
+</html>

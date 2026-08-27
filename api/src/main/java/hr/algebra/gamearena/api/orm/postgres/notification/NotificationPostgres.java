@@ -43,7 +43,7 @@ public class NotificationPostgres {
         this.type = notificationSave.getType().toString();
         this.recipientUserId = notificationSave.getRecipientUserId();
         this.referenceId = notificationSave.getReferenceId();
-        this.referenceType = notificationSave.getReferenceType().toString();
+        this.referenceType = notificationSave.getReferenceType() != null ? notificationSave.getReferenceType().toString() : null;
         this.read = false;
         this.createdAt = OffsetDateTime.now(ZoneOffset.UTC);
         return this;

@@ -52,6 +52,25 @@ public final class ApiExceptionMapper {
         return fallback(status, messages);
     }
 
+    public static <T> ApiResult<T> unauthorizedForbiddenOrNotFound(RestClientResponseException ex)
+            throws UnauthorizedException, ForbiddenException, NotFoundException
+    {
+        HttpStatus status = statusOf(ex);
+        List<String> messages = messagesOf(ex);
+
+        if (status == HttpStatus.UNAUTHORIZED) {
+            throw new UnauthorizedException(messages);
+        }
+        if (status == HttpStatus.FORBIDDEN) {
+            throw new ForbiddenException(messages);
+        }
+        if (status == HttpStatus.NOT_FOUND) {
+            throw new NotFoundException(messages);
+        }
+
+        return fallback(status, messages);
+    }
+
     public static <T> ApiResult<T> unauthorizedOrForbidden(RestClientResponseException ex)
             throws UnauthorizedException, ForbiddenException
     {

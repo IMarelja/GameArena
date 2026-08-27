@@ -7,6 +7,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.gamearena.client.api.*;
 import com.gamearena.client.invoker.ApiClient;
+import hr.algebra.gamearena.webapp.client.reactive.ApiReactiveClient;
+import hr.algebra.gamearena.webapp.client.reactive.NotificationReactiveControllerApi;
+import hr.algebra.gamearena.webapp.client.reactive.TournamentReactiveApiClient;
 import hr.algebra.gamearena.webapp.exceptions.extenders.TokenNotFoundException;
 import hr.algebra.gamearena.webapp.exceptions.extenders.TokenNotValidException;
 import hr.algebra.gamearena.webapp.service.jwt.IJwtService;
@@ -106,6 +109,11 @@ public class ApiClientConfig {
         return authenticatedClient(apiClient, jwtService, LoggingControllerApi::new);
     }
 
+    @Bean
+    public AuthenticatedApiClient<NotificationControllerApi> authenticatedNotificationClient(ApiClient apiClient, IJwtService jwtService) {
+        return authenticatedClient(apiClient, jwtService, NotificationControllerApi::new);
+    }
+
     private <T> AuthenticatedApiClient<T> authenticatedClient(ApiClient apiClient, IJwtService jwtService, Function<ApiClient, T> apiFactory) {
         return () -> {
             String token = jwtService.getTokenPlainAndValidate();
@@ -121,6 +129,46 @@ public class ApiClientConfig {
     @FunctionalInterface
     public interface AuthenticatedApiClient<T> {
         T get() throws TokenNotFoundException, TokenNotValidException;
+    }
+    // END
+
+    /** -- 📡🔑 SSE REACTIVE AUTHENTICATED -- */
+    // BEGIN
+    @Bean
+    public ApiReactiveClient reactiveApiClient(@Value("${gamearena.api.base-url}") String baseUrl) {
+        ObjectMapper mapper = com.gamearena.streamclient.invoker.ApiClient.createDefaultMapper(null);
+        mapper.registerModule(offsetsDateTimeModule());
+
+        ApiReactiveClient apiClient = new ApiReactiveClient(mapper, com.gamearena.streamclient.invoker.ApiClient.createDefaultDateFormat());
+        apiClient.setBasePath(baseUrl);
+        return apiClient;
+    }
+
+    @Bean
+    public AuthenticatedApiClient<NotificationReactiveControllerApi> authenticatedReactiveNotificationClient(
+            ApiReactiveClient reactiveApiClient, IJwtService jwtService) {
+        return authenticatedReactiveClient(reactiveApiClient, jwtService, NotificationReactiveControllerApi::new);
+    }
+
+    @Bean
+    public AuthenticatedApiClient<TournamentReactiveApiClient> authenticatedReactiveTournamentClient(
+            ApiReactiveClient reactiveApiClient, IJwtService jwtService) {
+        return authenticatedReactiveClient(reactiveApiClient, jwtService, TournamentReactiveApiClient::new);
+    }
+
+    private <T> AuthenticatedApiClient<T> authenticatedReactiveClient(
+            ApiReactiveClient reactiveApiClient,
+            IJwtService jwtService,
+            Function<ApiReactiveClient, T> apiFactory) {
+        return () -> {
+            String token = jwtService.getTokenPlainAndValidate();
+
+            ApiReactiveClient authenticatedApiClient = new ApiReactiveClient(reactiveApiClient.getWebClient());
+            authenticatedApiClient.setBasePath(reactiveApiClient.getBasePath());
+            authenticatedApiClient.addDefaultHeader("Authorization", "Bearer " + token);
+
+            return apiFactory.apply(authenticatedApiClient);
+        };
     }
     // END
 
