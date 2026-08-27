@@ -7,6 +7,7 @@ import hr.algebra.gamearena.api.dto.team.TeamMinimalView;
 import hr.algebra.gamearena.api.dto.team.invitation.TeamInvitationResponseEditRequest;
 import hr.algebra.gamearena.api.dto.team.invitation.InviterTeamInvitationEditRequest;
 import hr.algebra.gamearena.api.dto.team.invitation.TeamInvitationView;
+import hr.algebra.gamearena.api.dto.team.member.TeamMemberFullView;
 import hr.algebra.gamearena.api.dto.team.member.TeamMemberMinimalView;
 import hr.algebra.gamearena.api.exceptions.extenders.NotFoundException;
 import hr.algebra.gamearena.api.service.team.ITeamService;
@@ -29,8 +30,8 @@ public class TeamController {
         this.teamService = teamService;
     }
 
-    // Team
-
+    /** Team */
+    // BEGIN
     @PreAuthorize("permitAll()")
     @GetMapping
     public ResponseEntity<ApiResponse<List<TeamMinimalView>>> getAllTeams(){
@@ -72,17 +73,33 @@ public class TeamController {
     ){
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(teamService.createInvitationAndPushNotification(caller.userId(), teamId, userId)));
     }
+    // END
 
-    // Team Member
+    /** Team Member */
 
+    // BEGIN
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/{teamId}/member/me")
-    public ResponseEntity<ApiResponse<Boolean>> isCallerPartOfTeam(
+    public ResponseEntity<ApiResponse<TeamMemberFullView>> getMeTeamMember(
             @AuthenticationPrincipal JwtTokenClaim caller,
             @PathVariable Long teamId
     ){
-        return ResponseEntity.ok(ApiResponse.success(teamService.isUserPartOfTeam(caller.userId(), teamId)));
+        return teamService.getTeamMemberByUserIdAndTeamId(caller.userId(), teamId)
+                .map(member -> ResponseEntity.ok(ApiResponse.success(member)))
+                .orElseThrow(() -> new NotFoundException("You are not a member of team with id: " + teamId));
     }
+
+    @PreAuthorize("permitAll()")
+    @GetMapping("/{teamId}/member/{memberId}")
+    public ResponseEntity<ApiResponse<TeamMemberFullView>> getTeamMember(
+            @PathVariable Long teamId,
+            @PathVariable Long memberId
+    ){
+        return teamService.getTeamMemberByIdAndTeamId(memberId, teamId)
+                .map(member -> ResponseEntity.ok(ApiResponse.success(member)))
+                .orElseThrow(() -> new NotFoundException("Team member (" + memberId + ") not found in team with id: " + teamId));
+    }
+
 
     @PreAuthorize("permitAll()")
     @GetMapping("/{teamId}/members")
@@ -113,9 +130,11 @@ public class TeamController {
 
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(null));
     }
+    // END
 
-    // Team Invitation
+    /** Team Invitation */
 
+    // BEGIN
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/invitation/{id}")
     public ResponseEntity<ApiResponse<TeamInvitationView>> getInvitationById(
@@ -149,4 +168,5 @@ public class TeamController {
         // Only the inviter
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(teamService.updateInvitationAndPushNotification(id, caller.userId(), inviterRequest)));
     }
+    // END
 }

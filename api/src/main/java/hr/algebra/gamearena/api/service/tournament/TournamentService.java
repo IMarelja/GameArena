@@ -41,14 +41,15 @@ import java.util.Optional;
 @Service
 public class TournamentService implements ITournamentService {
 
+    private static final String USER_NOT_FOUND = "User was found";
+    private static final String USER_NOT_FOUND_OR_NOT_ACTIVE = "User not found or not active";
+    private static final String NOT_AN_ORGANIZER_OF_THIS_TOURNAMENT = "You are not an organizer of this tournament";
+
     private final ITournamentRepo tournamentRepo;
     private final IGamesRepo gamesRepo;
     private final IUserRepo userRepo;
     private final IInvoiceRepo invoiceRepo;
     private final IPaymentRepo paymentRepo;
-
-    private static final String USER_NOT_FOUND_OR_NOT_ACTIVE = "User not found or not active";
-    private static final String NOT_AN_ORGANIZER_OF_THIS_TOURNAMENT = "You are not an organizer of this tournament";
 
     private static String tournamentNotFoundByIdOutput(Long id) {
         return "Tournament not found with id: " + id;
@@ -75,7 +76,7 @@ public class TournamentService implements ITournamentService {
         this.paymentRepo = paymentRepo;
     }
 
-    // Tournament
+    /** Tournament */
 
     @Override
     public List<TournamentFullView> getAllTournaments() {
@@ -174,7 +175,32 @@ public class TournamentService implements ITournamentService {
     } // applyTournamentEdit
 
 
-    // Tournament member
+    /** Tournament member */
+
+    @Override
+    public Optional<TournamentMemberView> getTournamentMemberByUserIdAndTournamentId(Long userId, Long tournamentId) {
+        if (!tournamentRepo.tournamentExistsById(tournamentId)) {
+            throw new NotFoundException(tournamentNotFoundByIdOutput(tournamentId));
+        }
+
+        return tournamentRepo.getTournamentMember(tournamentId, userId)
+                .map(member -> TournamentMemberView.fromTournamentMember(
+                        member,
+                        userRepo.findById(member.userId()).orElseThrow(() -> new NotFoundException(USER_NOT_FOUND))));
+    }
+
+    @Override
+    public Optional<TournamentMemberView> getTournamentMemberByIdAndTournamentId(Long id, Long tournamentId) {
+        if (!tournamentRepo.tournamentExistsById(tournamentId)) {
+            throw new NotFoundException(tournamentNotFoundByIdOutput(tournamentId));
+        }
+
+        return tournamentRepo.getTournamentMemberById(id)
+                .filter(member -> member.tournamentId().equals(tournamentId))
+                .map(member -> TournamentMemberView.fromTournamentMember(
+                        member,
+                        userRepo.findById(member.userId()).orElseThrow(() -> new NotFoundException(USER_NOT_FOUND))));
+    }
 
     @Override
     public List<TournamentMemberView> getTournamentsMembers(Long tournamentId) {

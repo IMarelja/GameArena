@@ -31,6 +31,8 @@ public interface ITournamentService {
     // END
 
     // Tournament member
+    Optional<TournamentMemberView> getTournamentMemberByUserIdAndTournamentId(Long userId, Long tournamentId);
+    Optional<TournamentMemberView> getTournamentMemberByIdAndTournamentId(Long id, Long tournamentId);
     List<TournamentMemberView> getTournamentsMembers(Long tournamentId);
     Flux<PaymentResponseView> joinAsRegularTournamentMemberAndPay(Long callerId, Long tournamentId, PaymentRequest paymentRequest);
 

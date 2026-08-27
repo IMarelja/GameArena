@@ -34,7 +34,7 @@ public class TournamentController {
         this.tournamentService = tournamentService;
     }
 
-    // Tournament
+    /** Tournament */
     // BEGIN
 
     @GetMapping
@@ -112,14 +112,35 @@ public class TournamentController {
     }
 
     // END
-    // Tournament
 
-    // Tournament Member's
+    /** Tournament Member's */
     // BEGIN
     @GetMapping("/{tournamentId}/members")
     @PreAuthorize("permitAll()")
     public ResponseEntity<ApiResponse<List<TournamentMemberView>>> getMembersOfTournament(@PathVariable Long tournamentId) {
         return ResponseEntity.ok(ApiResponse.success(tournamentService.getTournamentsMembers(tournamentId)));
+    }
+
+    @GetMapping("/{tournamentId}/member/me")
+    @PreAuthorize("isAuthenticated()")
+    public ResponseEntity<ApiResponse<TournamentMemberView>> getMeMemberOfTournament(
+            @AuthenticationPrincipal JwtTokenClaim caller,
+            @PathVariable Long tournamentId
+    ){
+        return tournamentService.getTournamentMemberByUserIdAndTournamentId(caller.userId(), tournamentId)
+                .map(member -> ResponseEntity.ok(ApiResponse.success(member)))
+                .orElseThrow(() -> new NotFoundException("You are not a member of tournament with id: " + tournamentId));
+    }
+
+    @GetMapping("/{tournamentId}/member/{memberId}")
+    @PreAuthorize("permitAll()")
+    public ResponseEntity<ApiResponse<TournamentMemberView>> getMemberOfTournament(
+            @PathVariable Long tournamentId,
+            @PathVariable Long memberId
+    ){
+        return tournamentService.getTournamentMemberByIdAndTournamentId(memberId, tournamentId)
+                .map(member -> ResponseEntity.ok(ApiResponse.success(member)))
+                .orElseThrow(() -> new NotFoundException("Tournament member (" + memberId + ") not found in tournament with id: " + tournamentId));
     }
 
     @PostMapping("/{tournamentId}/join")
@@ -186,5 +207,4 @@ public class TournamentController {
     }
 
     //END
-    // Tournament Member's
 }

@@ -113,6 +113,14 @@ public class TournamentPostgresRepo implements ITournamentRepo {
     }
 
     @Override
+    public Optional<TournamentMember> getTournamentMember(Long tournamentId, Long userId) {
+        return tournamentMemberPostgreSQLRepo.findByTournamentIdAndUserId(tournamentId, userId)
+                .stream()
+                .findFirst()
+                .map(TournamentMember::fromTournamentMemberPostgres);
+    }
+
+    @Override
     public TournamentMember addTournamentMember(TournamentMemberSave tournamentMemberSave) {
         var tournamentMemberPostgres = new TournamentMemberPostgres().fromTournamentMemberSave(tournamentMemberSave);
         var savedMember = tournamentMemberPostgreSQLRepo.save(tournamentMemberPostgres);

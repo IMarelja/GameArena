@@ -8,6 +8,7 @@ import hr.algebra.gamearena.api.dto.team.TeamMinimalView;
 import hr.algebra.gamearena.api.dto.team.invitation.TeamInvitationResponseEditRequest;
 import hr.algebra.gamearena.api.dto.team.invitation.InviterTeamInvitationEditRequest;
 import hr.algebra.gamearena.api.dto.team.invitation.TeamInvitationView;
+import hr.algebra.gamearena.api.dto.team.member.TeamMemberFullView;
 import hr.algebra.gamearena.api.dto.team.member.TeamMemberMinimalView;
 import hr.algebra.gamearena.api.exceptions.extenders.ConflictException;
 import hr.algebra.gamearena.api.exceptions.extenders.ForbiddenAccessException;
@@ -30,6 +31,8 @@ import java.util.Optional;
 
 @Service
 public class TeamService implements ITeamService {
+
+    private static final String USER_NOT_FOUND = "User was found";
 
     private final ITeamRepo teamRepo;
     private final INotificationService notificationService;
@@ -207,6 +210,37 @@ public class TeamService implements ITeamService {
     // Team Member
 
     @Override
+    public Optional<TeamMemberFullView> getTeamMemberByUserIdAndTeamId(Long userId, Long teamId) {
+        if (!teamRepo.doesTeamExist(teamId)) {
+            throw new NotFoundException(teamNotFoundByIdOutput(teamId));
+        }
+
+        return teamRepo.getTeamMember(teamId, userId)
+                .map(member -> {
+                    var user = userRepo.findById(member.userId())
+                            .orElseThrow(() -> new NotFoundException(USER_NOT_FOUND));
+
+                    return TeamMemberFullView.fromTeamMemberAndUser(member, user);
+                });
+    }
+
+    @Override
+    public Optional<TeamMemberFullView> getTeamMemberByIdAndTeamId(Long id, Long teamId) {
+        if (!teamRepo.doesTeamExist(teamId)) {
+            throw new NotFoundException(teamNotFoundByIdOutput(teamId));
+        }
+
+        return teamRepo.getTeamMemberById(id)
+                .filter(member -> member.teamId().equals(teamId))
+                .map(member -> {
+                    var user = userRepo.findById(member.userId())
+                            .orElseThrow(() -> new NotFoundException(USER_NOT_FOUND));
+
+                    return TeamMemberFullView.fromTeamMemberAndUser(member, user);
+                });
+    }
+
+    @Override
     public List<TeamMemberMinimalView> getTeamMembers(Long teamId) {
         if (!teamRepo.doesTeamExist(teamId)) {
             throw new NotFoundException(teamNotFoundByIdOutput(teamId));
@@ -216,7 +250,7 @@ public class TeamService implements ITeamService {
                 .stream()
                 .map(member -> {
                     var user = userRepo.findById(member.userId())
-                            .orElseThrow(() -> new NotFoundException("User not found with id: " + member.userId()));
+                            .orElseThrow(() -> new NotFoundException(USER_NOT_FOUND));
 
                     return TeamMemberMinimalView.fromTeamMemberAndUser(member, user);
                 })
@@ -261,15 +295,6 @@ public class TeamService implements ITeamService {
             throw new InvalidVariableException(onlyCaptainCannotRemoveSelfOutput());
 
         teamRepo.deleteMember(teamId, callerId);
-    }
-
-    @Override
-    public boolean isUserPartOfTeam(Long callerId, Long teamId) {
-        if (!teamRepo.doesTeamExist(teamId)) {
-            throw new NotFoundException(teamNotFoundByIdOutput(teamId));
-        }
-
-        return teamRepo.isUserIdPartOfTeam(callerId, teamId);
     }
 
     private boolean onlyOneCaptain(Long teamId) {

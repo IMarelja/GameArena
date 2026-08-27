@@ -15,12 +15,14 @@ A platform for registering for esports tournaments and tracking results and lead
 
 ### Regenerate OpenAPI.json schema
 
-- Run the command 
+The default should be fine, but if you change anything about an endpoint, delete one or add a new one you are forced to regenerate the schema so webapp can work properly 
+
+- Run the command in /api project
 ```bash
 mvn spring-boot:run
 ```
 
-- Then on a separate terminal run this
+- Then on a separate terminal run this in the /api project
 ```bash
 mvn springdoc-openapi:generate
 ```

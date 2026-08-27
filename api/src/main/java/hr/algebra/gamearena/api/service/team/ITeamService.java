@@ -5,6 +5,7 @@ import hr.algebra.gamearena.api.dto.team.TeamMinimalView;
 import hr.algebra.gamearena.api.dto.team.invitation.TeamInvitationResponseEditRequest;
 import hr.algebra.gamearena.api.dto.team.invitation.InviterTeamInvitationEditRequest;
 import hr.algebra.gamearena.api.dto.team.invitation.TeamInvitationView;
+import hr.algebra.gamearena.api.dto.team.member.TeamMemberFullView;
 import hr.algebra.gamearena.api.dto.team.member.TeamMemberMinimalView;
 
 import java.util.List;
@@ -24,8 +25,9 @@ public interface ITeamService {
     TeamInvitationView updateInvitationAndPushNotification(Long invitationId, Long callerId, InviterTeamInvitationEditRequest request);
 
     // Team member
+    Optional<TeamMemberFullView> getTeamMemberByUserIdAndTeamId(Long userId, Long teamId);
+    Optional<TeamMemberFullView> getTeamMemberByIdAndTeamId(Long id, Long teamId);
     List<TeamMemberMinimalView> getTeamMembers(Long teamId);
     void removeTeamMember(Long callerId, Long teamId, Long teamMemberId);
     void leaveTeam(Long callerId, Long teamId);
-    boolean isUserPartOfTeam(Long callerId, Long teamId);
 }
