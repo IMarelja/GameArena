@@ -41,14 +41,14 @@
 
             var source = new EventSource(streamUrl);
 
-            source.onmessage = function (event) {
+            source.addEventListener('unread-count', function (event) {
                 try {
                     var payload = JSON.parse(event.data);
                     showCount(payload.count || 0);
                 } catch (e) {
                     showUnavailable();
                 }
-            };
+            });
 
             source.onerror = showUnavailable;
         });

@@ -3,7 +3,10 @@ package hr.algebra.gamearena.webapp.controller.rest;
 import hr.algebra.gamearena.webapp.exceptions.extenders.ForbiddenException;
 import hr.algebra.gamearena.webapp.exceptions.extenders.NotFoundException;
 import hr.algebra.gamearena.webapp.exceptions.extenders.UnauthorizedException;
+import hr.algebra.gamearena.webapp.models.cereal.notification.NotificationDecereal;
+import hr.algebra.gamearena.webapp.models.cereal.notification.NotificationUnreadCountDecereal;
 import hr.algebra.gamearena.webapp.models.rest.RestResponse;
+import hr.algebra.gamearena.webapp.models.rest.TypedSseEmitter;
 import hr.algebra.gamearena.webapp.models.rest.notification.NotificationReadStatusRequest;
 import hr.algebra.gamearena.webapp.service.notification.INotificationService;
 import org.springframework.http.HttpStatus;
@@ -16,7 +19,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/notifications")
@@ -30,13 +34,13 @@ public class NotificationRestController {
 
     @GetMapping(value = "/stream/unread", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     @PreAuthorize("isAuthenticated()")
-    public SseEmitter streamUnread() throws UnauthorizedException {
-        return notificationService.streamUnread();
+    public TypedSseEmitter<NotificationUnreadCountDecereal> streamUnreadCount() throws UnauthorizedException {
+        return notificationService.streamUnreadCount();
     }
 
     @GetMapping(value = "/stream/all", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     @PreAuthorize("isAuthenticated()")
-    public SseEmitter streamAll() throws UnauthorizedException {
+    public TypedSseEmitter<List<NotificationDecereal>> streamAll() throws UnauthorizedException {
         return notificationService.streamAll();
     }
 

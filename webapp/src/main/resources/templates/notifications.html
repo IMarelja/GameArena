@@ -91,7 +91,7 @@
 
         var source = new EventSource(streamUrl);
 
-        source.onmessage = function (event) {
+        source.addEventListener('all-notifications', function (event) {
             try {
                 var notifications = JSON.parse(event.data);
                 $error.hide();
@@ -99,7 +99,7 @@
             } catch (e) {
                 $error.show();
             }
-        };
+        });
 
         source.onerror = function () {
             $error.show();

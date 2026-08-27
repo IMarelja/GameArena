@@ -3,6 +3,8 @@ package hr.algebra.gamearena.webapp.controller;
 import hr.algebra.gamearena.webapp.exceptions.GameArenaApiServiceException;
 import hr.algebra.gamearena.webapp.models.rest.RestError;
 import hr.algebra.gamearena.webapp.models.rest.RestResponse;
+import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -15,6 +17,7 @@ import org.springframework.web.client.RestClientResponseException;
 import java.util.List;
 
 @RestControllerAdvice(basePackages = "hr.algebra.gamearena.webapp.controller.rest")
+@Slf4j
 public class RestGlobalExceptionHandler {
 
     // GameArena site exceptions
@@ -54,7 +57,12 @@ public class RestGlobalExceptionHandler {
     // Generic
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<RestResponse<Void>> handleException(Exception ex) {
+    public ResponseEntity<RestResponse<Void>> handleException(Exception ex, HttpServletResponse response) {
+        if (response.isCommitted()) {
+            log.debug("RestGlobalExceptionHandler: exception on already-committed response - {}", ex.getMessage());
+            return null;
+        }
+
         return RestResponse.<Void>error(HttpStatus.INTERNAL_SERVER_ERROR, new RestError(ex.getMessage())).toResponseEntity();
     }
 }

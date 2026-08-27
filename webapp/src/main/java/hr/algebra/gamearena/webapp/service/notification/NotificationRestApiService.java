@@ -3,7 +3,7 @@ package hr.algebra.gamearena.webapp.service.notification;
 import com.gamearena.client.api.NotificationControllerApi;
 import com.gamearena.client.model.NotificationEditRequest;
 import com.gamearena.streamclient.model.NotificationMinimalView;
-import com.gamearena.streamclient.model.NotificationUnreadAndCountView;
+import com.gamearena.streamclient.model.NotificationUnreadCountView;
 import hr.algebra.gamearena.webapp.client.reactive.NotificationReactiveControllerApi;
 import hr.algebra.gamearena.webapp.config.ApiClientConfig.AuthenticatedApiClient;
 import hr.algebra.gamearena.webapp.exceptions.extenders.ForbiddenException;
@@ -11,13 +11,15 @@ import hr.algebra.gamearena.webapp.exceptions.extenders.NotFoundException;
 import hr.algebra.gamearena.webapp.exceptions.extenders.TokenNotFoundException;
 import hr.algebra.gamearena.webapp.exceptions.extenders.TokenNotValidException;
 import hr.algebra.gamearena.webapp.exceptions.extenders.UnauthorizedException;
+import hr.algebra.gamearena.webapp.models.cereal.notification.NotificationDecereal;
+import hr.algebra.gamearena.webapp.models.cereal.notification.NotificationUnreadCountDecereal;
+import hr.algebra.gamearena.webapp.models.rest.TypedSseEmitter;
 import hr.algebra.gamearena.webapp.models.service.ApiExceptionMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.codec.ServerSentEvent;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientResponseException;
-import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import reactor.core.Disposable;
 import reactor.core.publisher.Flux;
 
@@ -60,21 +62,24 @@ public class NotificationRestApiService implements INotificationService {
     }
 
     @Override
-    public SseEmitter streamUnread() throws UnauthorizedException {
-        return relay(client -> client.notificationStreamWithResponseSpec()
-                .bodyToFlux(new ParameterizedTypeReference<ServerSentEvent<NotificationUnreadAndCountView>>() {}));
+    public TypedSseEmitter<NotificationUnreadCountDecereal> streamUnreadCount() throws UnauthorizedException {
+        return relay(
+                client -> client.notificationCountStreamWithResponseSpec()
+                        .bodyToFlux(new ParameterizedTypeReference<ServerSentEvent<NotificationUnreadCountView>>() {}),
+                NotificationUnreadCountDecereal::fromNotificationUnreadCountViewClient);
     }
 
     @Override
-    public SseEmitter streamAll() throws UnauthorizedException {
-        return relay(client -> client.notificationAllStreamWithResponseSpec()
-                .bodyToFlux(new ParameterizedTypeReference<ServerSentEvent<List<NotificationMinimalView>>>() {}));
+    public TypedSseEmitter<List<NotificationDecereal>> streamAll() throws UnauthorizedException {
+        return relay(
+                client -> client.notificationAllStreamWithResponseSpec()
+                        .bodyToFlux(new ParameterizedTypeReference<ServerSentEvent<List<NotificationMinimalView>>>() {}),
+                views -> views.stream().map(NotificationDecereal::fromNotificationMinimalViewClient).toList());
     }
 
-    private <T> SseEmitter relay(
-            Function<NotificationReactiveControllerApi,
-            Flux<ServerSentEvent<T>>> streamFactory
-    )
+    private <T, R> TypedSseEmitter<R> relay(
+            Function<NotificationReactiveControllerApi, Flux<ServerSentEvent<T>>> streamFactory,
+            Function<T, R> toDecereal)
             throws UnauthorizedException {
         NotificationReactiveControllerApi client;
         try {
@@ -83,10 +88,17 @@ public class NotificationRestApiService implements INotificationService {
             throw new UnauthorizedException(List.of("You must be logged in to receive notifications"));
         }
 
-        SseEmitter emitter = new SseEmitter(EMITTER_TIMEOUT_MILLIS);
+        TypedSseEmitter<R> emitter = new TypedSseEmitter<>(EMITTER_TIMEOUT_MILLIS);
         Disposable subscription = streamFactory.apply(client).subscribe(
-                event -> forward(emitter, event),
-                emitter::completeWithError,
+                event -> forward(emitter, event, toDecereal),
+                error -> {
+                    // Complete cleanly (not completeWithError) so the browser's EventSource sees a normal
+                    // stream end and auto-reconnects, instead of the error being routed through the MVC
+                    // exception-handling pipeline, which can't render a body for an already-committed
+                    // text/event-stream response.
+                    log.debug("NotificationRestApiService relay(): upstream stream failed - {}", error.getMessage());
+                    emitter.complete();
+                },
                 emitter::complete);
 
         emitter.onCompletion(subscription::dispose);
@@ -96,22 +108,13 @@ public class NotificationRestApiService implements INotificationService {
         return emitter;
     }
 
-    private <T> void forward(SseEmitter emitter, ServerSentEvent<T> event) {
+    private <T, R> void forward(TypedSseEmitter<R> emitter, ServerSentEvent<T> event, Function<T, R> toDecereal) {
         try {
-            SseEmitter.SseEventBuilder builder = SseEmitter.event();
-            if (event.event() != null) {
-                builder.name(event.event());
-            }
-            if (event.id() != null) {
-                builder.id(event.id());
-            }
-            if (event.data() != null) {
-                builder.data(event.data());
-            }
-            emitter.send(builder);
+            R data = event.data() != null ? toDecereal.apply(event.data()) : null;
+            emitter.sendEvent(event.event(), data);
         } catch (IOException e) {
             log.debug("NotificationRestApiService forward(): failed to relay SSE event - {}", e.getMessage());
-            emitter.completeWithError(e);
+            emitter.complete();
         }
     }
 }
