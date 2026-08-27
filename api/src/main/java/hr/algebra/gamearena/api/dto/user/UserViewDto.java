@@ -14,4 +14,13 @@ public record UserViewDto(Long id, String username, LocalDateTime createdAt, Boo
                 user.isDeleted()
         );
     }
+
+    public static UserViewDto deletedUser(){
+        return new UserViewDto(
+                null,
+                "[DELETED USER]",
+                null,
+                true
+        );
+    }
 }

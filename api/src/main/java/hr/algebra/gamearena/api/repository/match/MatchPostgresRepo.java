@@ -2,6 +2,7 @@ package hr.algebra.gamearena.api.repository.match;
 
 import hr.algebra.gamearena.api.model.match.Match;
 import hr.algebra.gamearena.api.model.match.MatchSave;
+import hr.algebra.gamearena.api.model.match.MatchUpdate;
 import hr.algebra.gamearena.api.orm.postgres.match.MatchPostgres;
 import org.springframework.stereotype.Repository;
 
@@ -28,6 +29,14 @@ public class MatchPostgresRepo implements IMatchRepo {
         var matchPostgres = new MatchPostgres().fromMatchSave(matchSave);
         var saved = matchPostgreSQLRepo.save(matchPostgres);
         return Match.fromMatchPostgres(saved);
+    }
+
+    @Override
+    public Optional<Match> update(Long id, MatchUpdate matchUpdate) {
+        return matchPostgreSQLRepo.findById(id)
+                .map(existing -> existing.fromMatchUpdate(matchUpdate))
+                .map(matchPostgreSQLRepo::save)
+                .map(Match::fromMatchPostgres);
     }
 
     @Override

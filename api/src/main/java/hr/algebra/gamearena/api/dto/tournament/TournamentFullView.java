@@ -6,6 +6,7 @@ import hr.algebra.gamearena.api.model.tournament.Tournament;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 public record TournamentFullView(
     Long id,
@@ -20,7 +21,7 @@ public record TournamentFullView(
     LocalDateTime createdAt
 
 ) {
-    public static TournamentFullView fromTournamentAndGame(Tournament tournament, Games games) {
+    public static TournamentFullView fromTournamentAndGame(Tournament tournament, Optional<Games> games) {
         return new TournamentFullView(
                 tournament.id(),
                 tournament.name(),

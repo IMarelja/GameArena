@@ -1,6 +1,7 @@
 package hr.algebra.gamearena.api.orm.postgres.match;
 
 import hr.algebra.gamearena.api.model.match.MatchSave;
+import hr.algebra.gamearena.api.model.match.MatchUpdate;
 import jakarta.persistence.*;
 import lombok.Getter;
 import org.hibernate.annotations.DynamicInsert;
@@ -59,6 +60,18 @@ public class MatchPostgres {
         this.status = save.getStatus().toString();
         this.scheduledAt = save.getScheduledAt();
         this.createdAt = OffsetDateTime.now(ZoneOffset.UTC);
+        return this;
+    }
+
+    public MatchPostgres fromMatchUpdate(MatchUpdate update) {
+        this.playerOneId = update.getPlayerOneId();
+        this.playerTwoId = update.getPlayerTwoId();
+        this.playerOneScore = update.getPlayerOneScore();
+        this.playerTwoScore = update.getPlayerTwoScore();
+        this.winnerId = update.getWinnerId();
+        this.status = update.getStatus().toString();
+        this.scheduledAt = update.getScheduledAt();
+        this.playedAt = update.getPlayedAt();
         return this;
     }
 }

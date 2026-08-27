@@ -23,21 +23,21 @@ public record MatchDetailedFullView (
         LocalDateTime playedAt,
         LocalDateTime createdAt
 ){
-    public static MatchDetailedFullView fromMatchUserOneUserTwoAndGame(Match match, User playerOne, User playerTwo, Games game) {
-        User winner = null;
-        if (match.winnerId() != null) {
-            winner = match.winnerId().equals(playerOne.id()) ? playerOne : playerTwo;
-        }
+    public static MatchDetailedFullView fromMatchUserOneUserTwoAndGame(Match match, Optional<User> playerOne, Optional<User> playerTwo, Optional<User> winner, Optional<Games> game) {
+
 
         return new MatchDetailedFullView(
                 match.id(),
                 match.tournamentId(),
-                GamesView.fromGamesModelOrNotFound(game),
-                UserJustUsernameView.fromUser(playerOne),
-                UserJustUsernameView.fromUser(playerTwo),
+                game.map(GamesView::fromGamesModel)
+                        .orElse(GamesView.deletedGame()),
+                playerOne.map(UserJustUsernameView::fromUser)
+                        .orElse(UserJustUsernameView.deleteUser()),
+                playerTwo.map(UserJustUsernameView::fromUser)
+                        .orElse(UserJustUsernameView.deleteUser()),
                 match.playerOneScore(),
                 match.playerTwoScore(),
-                Optional.ofNullable(winner).map(UserJustUsernameView::fromUser),
+                winner.map(UserJustUsernameView::fromUser),
                 MatchStatusView.fromMatchStatus(match.status()),
                 match.scheduledAt(),
                 match.playedAt(),

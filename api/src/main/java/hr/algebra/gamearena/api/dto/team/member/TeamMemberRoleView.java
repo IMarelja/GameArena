@@ -12,4 +12,11 @@ public enum TeamMemberRoleView {
             case REGULAR -> REGULAR;
         };
     }
+
+    public TeamMemberRole toTeamMemberRole() {
+        return switch (this) {
+            case CAPTAIN -> TeamMemberRole.CAPTAIN;
+            case REGULAR -> TeamMemberRole.REGULAR;
+        };
+    }
 }

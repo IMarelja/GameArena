@@ -42,7 +42,7 @@ public class TeamPostgresRepo implements ITeamRepo{
     }
 
     @Override
-    public List<Team> getTeamsForUser(Long userId) {
+    public List<Team> getTeamsForUserId(Long userId) {
         var teamIds = teamMemberPostgresSQLRepo.findByUserId(userId)
                 .stream()
                 .map(TeamMemberPostgres::getTeamId)
@@ -60,14 +60,30 @@ public class TeamPostgresRepo implements ITeamRepo{
     }
 
     @Override
-    public Team save(TeamSave team) {
+    public Team saveTeam(TeamSave team) {
         var teamPostgres = new TeamPostgres().fromTeamSave(team);
         var savedTeam = teamPostgresSQLRepo.save(teamPostgres);
         return Team.fromPostgresTeam(savedTeam);
     }
 
     @Override
-    public TeamInvitation save(TeamInvitationSave save) {
+    public Optional<Team> updateTeam(Long id, TeamUpdate teamUpdate) {
+        return teamPostgresSQLRepo.findById(id)
+                .map(existing -> existing.fromTeamUpdate(teamUpdate))
+                .map(teamPostgresSQLRepo::save)
+                .map(Team::fromPostgresTeam);
+    }
+
+    @Override
+    public Optional<TeamMember> updateTeamMember(Long teamMemberId, TeamMemberUpdate teamMemberUpdate) {
+        return teamMemberPostgresSQLRepo.findById(teamMemberId)
+                .map(existing -> existing.fromTeamMemberUpdate(teamMemberUpdate))
+                .map(teamMemberPostgresSQLRepo::save)
+                .map(TeamMember::fromTeamMemberPostgres);
+    }
+
+    @Override
+    public TeamInvitation saveTeam(TeamInvitationSave save) {
         var teamInvitationPostgres = new TeamInvitationPostgres().fromTeamInvitationSave(save);
         var savedInvitation = teamInvitationPostgresSQLRepo.save(teamInvitationPostgres);
         return TeamInvitation.fromTeamInvitationPostgres(savedInvitation);
@@ -142,7 +158,7 @@ public class TeamPostgresRepo implements ITeamRepo{
     }
 
     @Override
-    public Optional<TeamMember> getTeamMember(Long teamId, Long userId) {
+    public Optional<TeamMember> getTeamMemberByTeamIdAndUserId(Long teamId, Long userId) {
         return teamMemberPostgresSQLRepo.findByTeamIdAndUserId(teamId, userId)
                 .map(TeamMember::fromTeamMemberPostgres);
     }

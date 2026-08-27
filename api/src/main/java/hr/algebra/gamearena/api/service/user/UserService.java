@@ -99,7 +99,7 @@ public class UserService implements IUserService {
     }
 
     private void validateNoUnhandedCaptainResponsibilities(Long userId) {
-        for (var team : teamRepo.getTeamsForUser(userId)) {
+        for (var team : teamRepo.getTeamsForUserId(userId)) {
             if (!teamRepo.isUserTeamCaptain(userId, team.id())) {
                 continue;
             }

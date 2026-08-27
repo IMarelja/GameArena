@@ -1,16 +1,20 @@
 package hr.algebra.gamearena.api.service.match;
 
+import hr.algebra.gamearena.api.dto.jwt.JwtTokenClaim;
 import hr.algebra.gamearena.api.dto.match.MatchCreateRequest;
 import hr.algebra.gamearena.api.dto.match.MatchDetailedFullView;
+import hr.algebra.gamearena.api.dto.match.MatchEditRequest;
 import hr.algebra.gamearena.api.dto.notification.NotificationCreateRequest;
 import hr.algebra.gamearena.api.dto.notification.NotificationTypeView;
 import hr.algebra.gamearena.api.dto.notification.ReferenceTypeView;
+import hr.algebra.gamearena.api.dto.user.RoleView;
 import hr.algebra.gamearena.api.exceptions.extenders.BadRequestedException;
 import hr.algebra.gamearena.api.exceptions.extenders.ForbiddenAccessException;
 import hr.algebra.gamearena.api.exceptions.extenders.NotFoundException;
 import hr.algebra.gamearena.api.model.match.Match;
 import hr.algebra.gamearena.api.model.match.MatchSave;
 import hr.algebra.gamearena.api.model.match.MatchStatus;
+import hr.algebra.gamearena.api.model.match.MatchUpdate;
 import hr.algebra.gamearena.api.model.tournament.member.TournamentMemberRole;
 import hr.algebra.gamearena.api.model.user.User;
 import hr.algebra.gamearena.api.repository.games.IGamesRepo;
@@ -69,16 +73,12 @@ public class MatchService implements IMatchService {
     }
 
     @Override
-    public MatchDetailedFullView createMatchAndPushNotification(Long callerId, MatchCreateRequest request) {
+    public MatchDetailedFullView createMatchAndPushNotification(JwtTokenClaim caller, MatchCreateRequest request) {
         var tournament = tournamentRepo.getTournamentById(request.getTournamentId())
                 .orElseThrow(() -> new NotFoundException("Tournament not found with id: " + request.getTournamentId()));
 
-        boolean callerIsOrganizer = tournamentRepo.getAllTournamentMembersFromTournamentId(tournament.id())
-                .stream()
-                .anyMatch(member -> member.userId().equals(callerId) && member.role() == TournamentMemberRole.ORGANIZER);
-
-        if (!callerIsOrganizer) {
-            throw new ForbiddenAccessException("Only the organizer of the tournament can create matches for it");
+        if (callerIsNotAdminOrOrganizerOfTournament(caller, tournament.id())) {
+            throw new ForbiddenAccessException("Only an admin or the organizer of the tournament can create matches for it");
         }
 
         if (request.getPlayerOneId().equals(request.getPlayerTwoId())) {
@@ -109,14 +109,53 @@ public class MatchService implements IMatchService {
         return toDetailedFullView(created);
     }
 
-    private MatchDetailedFullView toDetailedFullView(Match match) {
-        User playerOne = userRepo.findById(match.playerOneId())
-                .orElseThrow(() -> new NotFoundException("User with id: " + match.playerOneId() + " not found"));
-        User playerTwo = userRepo.findById(match.playerTwoId())
-                .orElseThrow(() -> new NotFoundException("User with id: " + match.playerTwoId() + " not found"));
-        var game = match.gameId() != null ? gamesRepo.getById(match.gameId()).orElse(null) : null;
+    @Override
+    public MatchDetailedFullView editMatch(JwtTokenClaim caller, Long id, MatchEditRequest request) {
+        var match = matchRepo.getById(id)
+                .orElseThrow(() -> new NotFoundException("Match with id: " + id + " not found"));
 
-        return MatchDetailedFullView.fromMatchUserOneUserTwoAndGame(match, playerOne, playerTwo, game);
+        if (callerIsNotAdminOrOrganizerOfTournament(caller, match.tournamentId())) {
+            throw new ForbiddenAccessException("Only an admin or the organizer of the tournament can edit this match");
+        }
+
+        if (request.getPlayerOneId().equals(request.getPlayerTwoId())) {
+            throw new BadRequestedException("A match must have two different players");
+        }
+
+        var matchUpdate = new MatchUpdate();
+        matchUpdate.setPlayerOneId(request.getPlayerOneId());
+        matchUpdate.setPlayerTwoId(request.getPlayerTwoId());
+        matchUpdate.setPlayerOneScore(request.getPlayerOneScore());
+        matchUpdate.setPlayerTwoScore(request.getPlayerTwoScore());
+        matchUpdate.setWinnerId(request.getWinnerId());
+        matchUpdate.setStatus(request.getStatus().toMatchStatus());
+        matchUpdate.setScheduledAt(request.getScheduledAt());
+        matchUpdate.setPlayedAt(request.getPlayedAt());
+
+        var updated = matchRepo.update(id, matchUpdate)
+                .orElseThrow(() -> new NotFoundException("Match with id: " + id + " not found"));
+
+        return toDetailedFullView(updated);
+    }
+
+    private boolean callerIsNotAdminOrOrganizerOfTournament(JwtTokenClaim caller, Long tournamentId) {
+        if (caller.role() == RoleView.ADMIN) {
+            return false;
+        }
+
+        return tournamentRepo.getAllTournamentMembersFromTournamentId(tournamentId)
+                .stream()
+                .noneMatch(member -> member.userId().equals(caller.userId()) && member.role() == TournamentMemberRole.ORGANIZER);
+    }
+
+    private MatchDetailedFullView toDetailedFullView(Match match) {
+        return MatchDetailedFullView.fromMatchUserOneUserTwoAndGame(
+                match,
+                userRepo.findById(match.playerOneId()),
+                userRepo.findById(match.playerTwoId()),
+                userRepo.findById(match.winnerId()),
+                gamesRepo.getById(match.gameId())
+        );
     }
 
     private void pushMatchCreatedNotification(Long recipientUserId, Long matchId) {

@@ -6,6 +6,7 @@ import hr.algebra.gamearena.api.model.user.User;
 
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.util.Optional;
 
 public record TeamMemberFullView(
         Long memberId,
@@ -14,12 +15,13 @@ public record TeamMemberFullView(
         UserViewDto user,
         OffsetDateTime joinedAt
 ) {
-    public static TeamMemberFullView fromTeamMemberAndUser(TeamMember member, User user) {
+    public static TeamMemberFullView fromTeamMemberAndUser(TeamMember member, Optional<User> user) {
         return new TeamMemberFullView(
                 member.id(),
                 member.teamId(),
                 TeamMemberRoleView.fromTeamMemberRole(member.role()),
-                UserViewDto.fromUser(user),
+                user.map(UserViewDto::fromUser)
+                        .orElseGet(UserViewDto::deletedUser),
                 member.joinedAt().atOffset(ZoneOffset.UTC)
         );
     }

@@ -3,6 +3,7 @@ package hr.algebra.gamearena.api.controller.rest;
 import hr.algebra.gamearena.api.dto.jwt.JwtTokenClaim;
 import hr.algebra.gamearena.api.dto.match.MatchCreateRequest;
 import hr.algebra.gamearena.api.dto.match.MatchDetailedFullView;
+import hr.algebra.gamearena.api.dto.match.MatchEditRequest;
 import hr.algebra.gamearena.api.dto.other.ApiResponse;
 import hr.algebra.gamearena.api.exceptions.extenders.BadRequestedException;
 import hr.algebra.gamearena.api.exceptions.extenders.NotFoundException;
@@ -59,7 +60,7 @@ public class MatchController {
 
     @PostMapping
     @PreAuthorize("isAuthenticated()")
-    // Tournament Organizer only
+    // Admin or Tournament Organizer only
     public ResponseEntity<ApiResponse<MatchDetailedFullView>> createMatch(
             @AuthenticationPrincipal JwtTokenClaim caller,
             @Valid @RequestBody MatchCreateRequest request
@@ -67,6 +68,22 @@ public class MatchController {
         if(request.getScheduledAt() != null && !request.getScheduledAt().getOffset().equals(ZoneOffset.UTC))
             throw new BadRequestedException("Scheduled at offset is not UTC or 00+00, it is: " + request.getScheduledAt().getOffset());
 
-        return ResponseEntity.ok(ApiResponse.success(matchService.createMatchAndPushNotification(caller.userId(), request)));
+        return ResponseEntity.ok(ApiResponse.success(matchService.createMatchAndPushNotification(caller, request)));
+    }
+
+    @PatchMapping("/{id}")
+    @PreAuthorize("isAuthenticated()")
+    // Admin or Tournament Organizer only
+    public ResponseEntity<ApiResponse<MatchDetailedFullView>> editMatch(
+            @AuthenticationPrincipal JwtTokenClaim caller,
+            @PathVariable Long id,
+            @Valid @RequestBody MatchEditRequest request
+    ) {
+        if(request.getScheduledAt() != null && !request.getScheduledAt().getOffset().equals(ZoneOffset.UTC))
+            throw new BadRequestedException("Scheduled at offset is not UTC or 00+00, it is: " + request.getScheduledAt().getOffset());
+        if(request.getPlayedAt() != null && !request.getPlayedAt().getOffset().equals(ZoneOffset.UTC))
+            throw new BadRequestedException("Played at offset is not UTC or 00+00, it is: " + request.getPlayedAt().getOffset());
+
+        return ResponseEntity.ok(ApiResponse.success(matchService.editMatch(caller, id, request)));
     }
 }

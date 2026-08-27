@@ -17,4 +17,13 @@ public enum MatchStatusView {
             case CANCELED -> CANCELED;
         };
     }
+
+    public MatchStatus toMatchStatus() {
+        return switch (this) {
+            case SCHEDULED -> MatchStatus.SCHEDULED;
+            case IN_PROGRESS -> MatchStatus.IN_PROGRESS;
+            case COMPLETED -> MatchStatus.COMPLETED;
+            case CANCELED -> MatchStatus.CANCELED;
+        };
+    }
 }

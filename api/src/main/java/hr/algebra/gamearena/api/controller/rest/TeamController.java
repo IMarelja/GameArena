@@ -3,10 +3,12 @@ package hr.algebra.gamearena.api.controller.rest;
 import hr.algebra.gamearena.api.dto.jwt.JwtTokenClaim;
 import hr.algebra.gamearena.api.dto.other.ApiResponse;
 import hr.algebra.gamearena.api.dto.team.TeamCreateRequest;
+import hr.algebra.gamearena.api.dto.team.TeamEditRequest;
 import hr.algebra.gamearena.api.dto.team.TeamMinimalView;
 import hr.algebra.gamearena.api.dto.team.invitation.TeamInvitationResponseEditRequest;
 import hr.algebra.gamearena.api.dto.team.invitation.InviterTeamInvitationEditRequest;
 import hr.algebra.gamearena.api.dto.team.invitation.TeamInvitationView;
+import hr.algebra.gamearena.api.dto.team.member.TeamMemberEditRequest;
 import hr.algebra.gamearena.api.dto.team.member.TeamMemberFullView;
 import hr.algebra.gamearena.api.dto.team.member.TeamMemberMinimalView;
 import hr.algebra.gamearena.api.exceptions.extenders.NotFoundException;
@@ -65,6 +67,16 @@ public class TeamController {
     }
 
     @PreAuthorize("isAuthenticated()")
+    @PutMapping("/{id}")
+    public ResponseEntity<ApiResponse<TeamMinimalView>> editTeam(
+            @AuthenticationPrincipal JwtTokenClaim caller,
+            @PathVariable Long id,
+            @Valid @RequestBody TeamEditRequest request
+    ){
+        return ResponseEntity.ok(ApiResponse.success(teamService.editTeam(caller.userId(), id, request)));
+    }
+
+    @PreAuthorize("isAuthenticated()")
     @PostMapping("/{teamId}/invite/user/{userId}")
     public ResponseEntity<ApiResponse<TeamInvitationView>> inviteUser(
             @AuthenticationPrincipal JwtTokenClaim caller,
@@ -107,6 +119,17 @@ public class TeamController {
         return ResponseEntity.ok(ApiResponse.success(teamService.getTeamMembers(teamId)));
     }
 
+
+    @PreAuthorize("isAuthenticated()")
+    @PatchMapping("/{teamId}/member/{memberId}")
+    public ResponseEntity<ApiResponse<TeamMemberFullView>> editTeamMemberRole(
+            @AuthenticationPrincipal JwtTokenClaim caller,
+            @PathVariable Long teamId,
+            @PathVariable Long memberId,
+            @Valid @RequestBody TeamMemberEditRequest request
+    ){
+        return ResponseEntity.ok(ApiResponse.success(teamService.editTeamMemberRole(caller.userId(), teamId, memberId, request)));
+    }
 
     @PreAuthorize("isAuthenticated()")
     @DeleteMapping("/{teamId}/member/{memberId}")

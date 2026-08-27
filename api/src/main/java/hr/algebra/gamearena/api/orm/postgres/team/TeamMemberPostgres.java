@@ -1,6 +1,7 @@
 package hr.algebra.gamearena.api.orm.postgres.team;
 
 import hr.algebra.gamearena.api.model.team.TeamMemberSave;
+import hr.algebra.gamearena.api.model.team.TeamMemberUpdate;
 import jakarta.persistence.*;
 import lombok.Getter;
 import org.hibernate.annotations.DynamicInsert;
@@ -35,6 +36,11 @@ public class TeamMemberPostgres {
         this.userId = save.getUserId();
         this.role = save.getRole().toString();
         this.joinedAt = OffsetDateTime.now(ZoneOffset.UTC);
+        return this;
+    }
+
+    public TeamMemberPostgres fromTeamMemberUpdate(TeamMemberUpdate update) {
+        this.role = update.getRole().toString();
         return this;
     }
 }
