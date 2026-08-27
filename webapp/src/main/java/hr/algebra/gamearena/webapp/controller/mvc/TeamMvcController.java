@@ -37,11 +37,12 @@ public class TeamMvcController {
         try {
             var team = teamService.getTeamById(id).data();
             var members = teamService.getTeamMembers(id).data();
+            var meMember = teamService.getMyTeamMembershipOrEmpty(id).orElse(null);
 
             return MvcResponse.success(
                     HttpStatus.OK,
                     "team",
-                    new TeamDetailViewData(team, members)
+                    new TeamDetailViewData(team, members, meMember)
             ).toModelAndView();
         } catch (NotFoundException e) {
             return MvcResponse.errors(HttpStatus.NOT_FOUND, "team", MvcError.fromListString(e.getMessages())).toModelAndView();

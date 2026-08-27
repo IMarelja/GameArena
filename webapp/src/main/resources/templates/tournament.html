@@ -16,6 +16,8 @@
             <span class="badge fs-6 rounded-pill" th:classappend="${data.tournament().status()?.badgeClass()}" th:text="${data.tournament().status()}"></span>
         </div>
 
+        <div class="alert alert-success fw-bold" th:if="${data.meMember() != null and data.meMember().role().name() == 'ORGANIZER'}">YOU ARE THE ORGANIZER!</div>
+
         <p th:if="${data.tournament().description() != null}" th:text="${data.tournament().description()}"></p>
 
         <table class="table table-borderless w-auto mb-4">

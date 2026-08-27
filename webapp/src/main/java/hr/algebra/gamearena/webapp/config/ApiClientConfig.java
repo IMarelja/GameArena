@@ -36,7 +36,7 @@ public class ApiClientConfig {
         return apiClient;
     }
 
-    // -- ANONYMOUS --
+    /** -- 🎭 ANONYMOUS -- */
     // BEGIN
     @Bean
     public TournamentControllerApi tournamentControllerApi(ApiClient apiClient) {
@@ -74,11 +74,16 @@ public class ApiClientConfig {
     }
     // END
 
-    // -- AUTHORIZATION --
+    /** -- 🔑 AUTHORIZATION -- */
     // BEGIN
     @Bean
     public AuthenticatedApiClient<TournamentControllerApi> authenticatedTournamentClient(ApiClient apiClient, IJwtService jwtService) {
         return authenticatedClient(apiClient, jwtService, TournamentControllerApi::new);
+    }
+
+    @Bean
+    public AuthenticatedApiClient<TeamControllerApi> authenticatedTeamClient(ApiClient apiClient, IJwtService jwtService) {
+        return authenticatedClient(apiClient, jwtService, TeamControllerApi::new);
     }
 
     @Bean

@@ -9,6 +9,7 @@ import java.util.List;
 public record TournamentDetailViewData(
         TournamentFullViewDecereal tournament,
         List<TournamentMemberViewDecereal> members,
-        List<MatchDetailFullViewDecereal> matches
+        List<MatchDetailFullViewDecereal> matches,
+        TournamentMemberViewDecereal meMember
 ) {
 }

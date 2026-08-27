@@ -7,6 +7,7 @@ import hr.algebra.gamearena.webapp.models.cereal.tournament.TournamentMemberView
 import hr.algebra.gamearena.webapp.models.service.ApiResult;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface ITournamentService {
     ApiResult<List<TournamentFullViewDecereal>> getAllTournaments() throws NotFoundException;
@@ -14,4 +15,6 @@ public interface ITournamentService {
     ApiResult<List<TournamentFullViewDecereal>> getTournamentsByUserId(Long id) throws NotFoundException;
     ApiResult<TournamentFullViewDecereal> getTournamentById(Long id) throws NotFoundException;
     ApiResult<List<TournamentMemberViewDecereal>> getTournamentMembers(Long tournamentId) throws NotFoundException;
+    ApiResult<TournamentMemberViewDecereal> getMyTournamentMembership(Long tournamentId) throws UnauthorizedException, NotFoundException;
+    Optional<TournamentMemberViewDecereal> getMyTournamentMembershipOrEmpty(Long tournamentId);
 }

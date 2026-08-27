@@ -13,6 +13,8 @@
     <div th:if="${data != null}">
         <h1 class="mb-3" th:text="${data.team().name()}"></h1>
 
+        <div class="alert alert-success fw-bold" th:if="${data.meMember() != null and data.meMember().role().name() == 'CAPTAIN'}">YOU ARE A CAPTAIN!</div>
+
         <table class="table table-borderless w-auto mb-4">
             <tbody>
             <tr><th>Members</th><td th:text="${data.team().memberCount()}"></td></tr>

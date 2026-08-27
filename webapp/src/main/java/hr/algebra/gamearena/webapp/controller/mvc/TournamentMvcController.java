@@ -45,6 +45,7 @@ public class TournamentMvcController {
             var tournament = tournamentService.getTournamentById(id).data();
             var members = tournamentService.getTournamentMembers(id).data();
             var matches = matchService.getMatchesByTournamentId(id).data();
+            var meMember = tournamentService.getMyTournamentMembershipOrEmpty(id).orElse(null);
 
             return MvcResponse.success(
                     HttpStatus.OK,
@@ -52,7 +53,8 @@ public class TournamentMvcController {
                     new TournamentDetailViewData(
                             tournament,
                             members,
-                            matches
+                            matches,
+                            meMember
                     )
             ).toModelAndView();
         } catch (NotFoundException e) {
