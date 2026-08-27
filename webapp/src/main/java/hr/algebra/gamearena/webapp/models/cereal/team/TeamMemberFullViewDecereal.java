@@ -17,7 +17,7 @@ public record TeamMemberFullViewDecereal(
                 member.getMemberId(),
                 member.getTeamId(),
                 TeamMemberRoleDecereal.fromTeamMemberFullViewRoleClient(member.getRole()),
-                UserViewDtoDecereal.fromUserViewDtoClient(member.getUser()),
+                UserViewDtoDecereal.fromUserViewDtoClientOrUnavailableGarbage(member.getUser()),
                 member.getJoinedAt()
         );
     }

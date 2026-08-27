@@ -31,7 +31,7 @@ public class TeamMvcController {
         }
     }
 
-    @GetMapping("/teams/{id}")
+    @GetMapping("/team/{id}")
     @PreAuthorize("permitAll()")
     public ModelAndView viewTeam(@PathVariable Long id) {
         try {

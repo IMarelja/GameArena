@@ -11,9 +11,9 @@ import hr.algebra.gamearena.webapp.exceptions.extenders.TokenNotValidException;
 import hr.algebra.gamearena.webapp.exceptions.extenders.UnauthorizedException;
 import hr.algebra.gamearena.webapp.exceptions.extenders.UnexpectedApiErrorException;
 import hr.algebra.gamearena.webapp.models.cereal.user.UserFullViewDtoDecereal;
+import hr.algebra.gamearena.webapp.models.service.ApiExceptionMapper;
 import hr.algebra.gamearena.webapp.models.service.ApiResult;
 import hr.algebra.gamearena.webapp.models.cereal.user.UserViewDtoDecereal;
-import hr.algebra.gamearena.webapp.models.service.ApiWrong;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -38,34 +38,42 @@ public class UserRestApiService implements IUserService {
 
     @Override
     public ApiResult<List<UserViewDtoDecereal>> getAllUsers() throws NotFoundException {
-        ResponseEntity<ApiResponseListUserViewDto> response = userControllerApi.findAllWithHttpInfo();
-        ApiResponseListUserViewDto body = response.getBody();
-        if (body == null) {
-            throw new NotFoundException(List.of(NO_RESPONSE_RECEIVED_API));
+        try {
+            ResponseEntity<ApiResponseListUserViewDto> response = userControllerApi.findAllWithHttpInfo();
+            ApiResponseListUserViewDto body = response.getBody();
+            if (body == null) {
+                throw new NotFoundException(List.of(NO_RESPONSE_RECEIVED_API));
+            }
+            HttpStatus status = HttpStatus.valueOf(response.getStatusCode().value());
+
+            List<UserViewDtoDecereal> data = body.getData() == null
+                    ? null
+                    : body.getData().stream().map(UserViewDtoDecereal::fromUserViewDtoClient).toList();
+
+            return ApiResult.fromApiResponseClient(status, data, body.getErrors());
+        } catch (RestClientResponseException ex) {
+            return ApiExceptionMapper.notFoundOnly(ex);
         }
-        HttpStatus status = HttpStatus.valueOf(response.getStatusCode().value());
-
-        List<UserViewDtoDecereal> data = body.getData() == null
-                ? null
-                : body.getData().stream().map(UserViewDtoDecereal::fromUserViewDtoClient).toList();
-
-        return ApiResult.fromApiResponseClient(status, data, body.getErrors());
     }
 
     @Override
     public ApiResult<UserViewDtoDecereal> getUserById(Long id) throws NotFoundException {
-        ResponseEntity<ApiResponseUserViewDto> response = userControllerApi.getByIdWithHttpInfo(id);
-        ApiResponseUserViewDto body = response.getBody();
-        if (body == null) {
-            throw new NotFoundException(List.of(NO_RESPONSE_RECEIVED_API));
+        try {
+            ResponseEntity<ApiResponseUserViewDto> response = userControllerApi.getByIdWithHttpInfo(id);
+            ApiResponseUserViewDto body = response.getBody();
+            if (body == null) {
+                throw new NotFoundException(List.of(NO_RESPONSE_RECEIVED_API));
+            }
+            HttpStatus status = HttpStatus.valueOf(response.getStatusCode().value());
+
+            UserViewDtoDecereal data = body.getData() == null
+                    ? null
+                    : UserViewDtoDecereal.fromUserViewDtoClient(body.getData());
+
+            return ApiResult.fromApiResponseClient(status, data, body.getErrors());
+        } catch (RestClientResponseException ex) {
+            return ApiExceptionMapper.notFoundOnly(ex);
         }
-        HttpStatus status = HttpStatus.valueOf(response.getStatusCode().value());
-
-        UserViewDtoDecereal data = body.getData() == null
-                ? null
-                : UserViewDtoDecereal.fromUserViewDtoClient(body.getData());
-
-        return ApiResult.fromApiResponseClient(status, data, body.getErrors());
     }
 
     @Override
@@ -93,15 +101,7 @@ public class UserRestApiService implements IUserService {
 
             return ApiResult.fromApiResponseClient(status, data, body.getErrors());
         } catch (RestClientResponseException ex) {
-            HttpStatus status = HttpStatus.valueOf(ex.getStatusCode().value());
-            List<String> messages = ApiWrong.fromRestClientResponseExceptionToListString(ex);
-
-            if (status == HttpStatus.UNAUTHORIZED) {
-                throw new UnauthorizedException(messages);
-            }
-
-            List<ApiWrong> wrongs = messages.stream().map(ApiWrong::new).toList();
-            return new ApiResult<>(null, wrongs, status);
+            return ApiExceptionMapper.unauthorizedOnly(ex);
         }
     }
 }

@@ -11,7 +11,7 @@ public record TournamentMemberViewDecereal(
     public static TournamentMemberViewDecereal fromTournamentMemberViewClient(TournamentMemberView member) {
         return new TournamentMemberViewDecereal(
                 member.getId(),
-                UserJustUsernameDecereal.fromUserJustUsernameClient(member.getUser()),
+                UserJustUsernameDecereal.fromUserJustUsernameClientOrUnavailableGarbage(member.getUser()),
                 TournamentMemberRoleDecereal.fromTournamentMemberRoleClient(member.getRole())
         );
     }

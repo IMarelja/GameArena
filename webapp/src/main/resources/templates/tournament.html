@@ -33,7 +33,7 @@
         <div class="list-group" th:if="${not #lists.isEmpty(data.members())}">
             <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
                th:each="member : ${data.members()}"
-               th:href="@{/users/{id}(id=${member.user().id()})}">
+               th:href="@{/user/{id}(id=${member.user().id()})}">
                 <span th:text="${member.user().username()}"></span>
                 <span class="badge rounded-pill" th:classappend="${member.role()?.badgeClass()}" th:text="${member.role()}"></span>
             </a>

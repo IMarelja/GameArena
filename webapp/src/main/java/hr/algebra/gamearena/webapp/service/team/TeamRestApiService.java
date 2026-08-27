@@ -13,8 +13,8 @@ import hr.algebra.gamearena.webapp.exceptions.extenders.UnauthorizedException;
 import hr.algebra.gamearena.webapp.models.cereal.team.TeamMemberFullViewDecereal;
 import hr.algebra.gamearena.webapp.models.cereal.team.TeamMemberMinimalViewDecereal;
 import hr.algebra.gamearena.webapp.models.cereal.team.TeamMinimalViewDecereal;
+import hr.algebra.gamearena.webapp.models.service.ApiExceptionMapper;
 import hr.algebra.gamearena.webapp.models.service.ApiResult;
-import hr.algebra.gamearena.webapp.models.service.ApiWrong;
 import hr.algebra.gamearena.webapp.security.AuthenticatedUser;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -39,50 +39,62 @@ public class TeamRestApiService implements ITeamService {
 
     @Override
     public ApiResult<List<TeamMinimalViewDecereal>> getAllTeams() throws NotFoundException {
-        ResponseEntity<ApiResponseListTeamMinimalView> response = teamControllerApi.getAllTeamsWithHttpInfo();
-        ApiResponseListTeamMinimalView body = response.getBody();
-        if (body == null) {
-            throw new NotFoundException(List.of(NO_RESPONSE_RECEIVED_API));
+        try {
+            ResponseEntity<ApiResponseListTeamMinimalView> response = teamControllerApi.getAllTeamsWithHttpInfo();
+            ApiResponseListTeamMinimalView body = response.getBody();
+            if (body == null) {
+                throw new NotFoundException(List.of(NO_RESPONSE_RECEIVED_API));
+            }
+            HttpStatus status = HttpStatus.valueOf(response.getStatusCode().value());
+
+            List<TeamMinimalViewDecereal> data = body.getData() == null
+                    ? null
+                    : body.getData().stream().map(TeamMinimalViewDecereal::fromTeamMinimalViewClient).toList();
+
+            return ApiResult.fromApiResponseClient(status, data, body.getErrors());
+        } catch (RestClientResponseException ex) {
+            return ApiExceptionMapper.notFoundOnly(ex);
         }
-        HttpStatus status = HttpStatus.valueOf(response.getStatusCode().value());
-
-        List<TeamMinimalViewDecereal> data = body.getData() == null
-                ? null
-                : body.getData().stream().map(TeamMinimalViewDecereal::fromTeamMinimalViewClient).toList();
-
-        return ApiResult.fromApiResponseClient(status, data, body.getErrors());
     }
 
     @Override
     public ApiResult<TeamMinimalViewDecereal> getTeamById(Long id) throws NotFoundException {
-        ResponseEntity<ApiResponseTeamMinimalView> response = teamControllerApi.getTeamByIdWithHttpInfo(id);
-        ApiResponseTeamMinimalView body = response.getBody();
-        if (body == null) {
-            throw new NotFoundException(List.of(NO_RESPONSE_RECEIVED_API));
+        try {
+            ResponseEntity<ApiResponseTeamMinimalView> response = teamControllerApi.getTeamByIdWithHttpInfo(id);
+            ApiResponseTeamMinimalView body = response.getBody();
+            if (body == null) {
+                throw new NotFoundException(List.of(NO_RESPONSE_RECEIVED_API));
+            }
+            HttpStatus status = HttpStatus.valueOf(response.getStatusCode().value());
+
+            TeamMinimalViewDecereal data = body.getData() == null
+                    ? null
+                    : TeamMinimalViewDecereal.fromTeamMinimalViewClient(body.getData());
+
+            return ApiResult.fromApiResponseClient(status, data, body.getErrors());
+        } catch (RestClientResponseException ex) {
+            return ApiExceptionMapper.notFoundOnly(ex);
         }
-        HttpStatus status = HttpStatus.valueOf(response.getStatusCode().value());
-
-        TeamMinimalViewDecereal data = body.getData() == null
-                ? null
-                : TeamMinimalViewDecereal.fromTeamMinimalViewClient(body.getData());
-
-        return ApiResult.fromApiResponseClient(status, data, body.getErrors());
     }
 
     @Override
     public ApiResult<List<TeamMemberMinimalViewDecereal>> getTeamMembers(Long teamId) throws NotFoundException {
-        ResponseEntity<ApiResponseListTeamMemberMinimalView> response = teamControllerApi.getTeamMembersWithHttpInfo(teamId);
-        ApiResponseListTeamMemberMinimalView body = response.getBody();
-        if (body == null) {
-            throw new NotFoundException(List.of(NO_RESPONSE_RECEIVED_API));
+        try {
+            ResponseEntity<ApiResponseListTeamMemberMinimalView> response = teamControllerApi.getTeamMembersWithHttpInfo(teamId);
+            ApiResponseListTeamMemberMinimalView body = response.getBody();
+            if (body == null) {
+                throw new NotFoundException(List.of(NO_RESPONSE_RECEIVED_API));
+            }
+            HttpStatus status = HttpStatus.valueOf(response.getStatusCode().value());
+
+            List<TeamMemberMinimalViewDecereal> data = body.getData() == null
+                    ? null
+                    : body.getData().stream().map(TeamMemberMinimalViewDecereal::fromTeamMemberMinimalViewClient).toList();
+
+            return ApiResult.fromApiResponseClient(status, data, body.getErrors());
+        } catch (RestClientResponseException ex) {
+            return ApiExceptionMapper.notFoundOnly(ex);
         }
-        HttpStatus status = HttpStatus.valueOf(response.getStatusCode().value());
-
-        List<TeamMemberMinimalViewDecereal> data = body.getData() == null
-                ? null
-                : body.getData().stream().map(TeamMemberMinimalViewDecereal::fromTeamMemberMinimalViewClient).toList();
-
-        return ApiResult.fromApiResponseClient(status, data, body.getErrors());
     }
 
     @Override
@@ -108,18 +120,7 @@ public class TeamRestApiService implements ITeamService {
 
             return ApiResult.fromApiResponseClient(status, data, body.getErrors());
         } catch (RestClientResponseException ex) {
-            HttpStatus status = HttpStatus.valueOf(ex.getStatusCode().value());
-            List<String> messages = ApiWrong.fromRestClientResponseExceptionToListString(ex);
-
-            if (status == HttpStatus.UNAUTHORIZED) {
-                throw new UnauthorizedException(messages);
-            }
-            if (status == HttpStatus.NOT_FOUND) {
-                throw new NotFoundException(messages);
-            }
-
-            List<ApiWrong> wrongs = messages.stream().map(ApiWrong::new).toList();
-            return new ApiResult<>(null, wrongs, status);
+            return ApiExceptionMapper.unauthorizedOrNotFound(ex);
         }
     }
 

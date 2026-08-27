@@ -38,7 +38,7 @@ public class TournamentMvcController {
         }
     }
 
-    @GetMapping("/tournaments/{id}")
+    @GetMapping("/tournament/{id}")
     @PreAuthorize("permitAll()")
     public ModelAndView viewTournament(@PathVariable Long id) {
         try {

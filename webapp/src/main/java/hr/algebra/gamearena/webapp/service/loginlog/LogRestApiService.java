@@ -5,8 +5,8 @@ import com.gamearena.client.model.ApiResponseListLoginLogsFullView;
 import hr.algebra.gamearena.webapp.config.ApiClientConfig;
 import hr.algebra.gamearena.webapp.exceptions.extenders.*;
 import hr.algebra.gamearena.webapp.models.cereal.loginog.LoginLogDecereal;
+import hr.algebra.gamearena.webapp.models.service.ApiExceptionMapper;
 import hr.algebra.gamearena.webapp.models.service.ApiResult;
-import hr.algebra.gamearena.webapp.models.service.ApiWrong;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -49,19 +49,7 @@ public class LogRestApiService implements ILogService {
 
             return ApiResult.fromApiResponseClient(status, data, body.getErrors());
         } catch (RestClientResponseException ex) {
-            HttpStatus status = HttpStatus.valueOf(ex.getStatusCode().value());
-            List<String> messages = ApiWrong.fromRestClientResponseExceptionToListString(ex);
-
-            if (status == HttpStatus.UNAUTHORIZED) {
-                throw new UnauthorizedException(messages);
-            }
-
-            if (status == HttpStatus.FORBIDDEN) {
-                throw new ForbiddenException(messages);
-            }
-
-            List<ApiWrong> wrongs = messages.stream().map(ApiWrong::new).toList();
-            return new ApiResult<>(null, wrongs, status);
+            return ApiExceptionMapper.unauthorizedOrForbidden(ex);
         }
     }
 }

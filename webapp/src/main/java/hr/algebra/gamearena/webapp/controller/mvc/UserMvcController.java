@@ -1,8 +1,6 @@
 package hr.algebra.gamearena.webapp.controller.mvc;
 
 import hr.algebra.gamearena.webapp.exceptions.extenders.NotFoundException;
-import hr.algebra.gamearena.webapp.exceptions.extenders.TokenNotFoundException;
-import hr.algebra.gamearena.webapp.exceptions.extenders.TokenNotValidException;
 import hr.algebra.gamearena.webapp.models.mvc.MvcError;
 import hr.algebra.gamearena.webapp.models.mvc.MvcResponse;
 import hr.algebra.gamearena.webapp.models.mvc.data.user.UserProfileViewData;
@@ -51,15 +49,12 @@ public class UserMvcController {
         }
     }
 
-    @GetMapping("/users/{id}")
+    @GetMapping("/user/{id}")
     @PreAuthorize("permitAll()")
     public ModelAndView viewUser(@PathVariable Long id) {
-        try {
-            if (jwtService.getTokenClaimsAndValidate().userId().equals(id)) {
-                return MvcResponse.redirect("/me");
-            }
-        } catch (TokenNotFoundException | TokenNotValidException e) {
-            // not logged in - show the public profile below
+        var claims = jwtService.getTokenClaimsAndValidateOrNull();
+        if (claims != null && claims.userId().equals(id)) {
+            return MvcResponse.redirect("/me");
         }
 
         try {

@@ -9,4 +9,5 @@ public interface IJwtService {
     void clearToken();
     String getTokenPlainAndValidate() throws TokenNotFoundException, TokenNotValidException;
     JwtClaimDecereal getTokenClaimsAndValidate() throws TokenNotFoundException, TokenNotValidException;
+    JwtClaimDecereal getTokenClaimsAndValidateOrNull();
 }

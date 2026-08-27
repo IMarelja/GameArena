@@ -8,8 +8,8 @@ import hr.algebra.gamearena.webapp.exceptions.extenders.TokenNotFoundException;
 import hr.algebra.gamearena.webapp.exceptions.extenders.TokenNotValidException;
 import hr.algebra.gamearena.webapp.exceptions.extenders.UnauthorizedException;
 import hr.algebra.gamearena.webapp.models.cereal.leaderboard.TournamentStatsEntryViewDecereal;
+import hr.algebra.gamearena.webapp.models.service.ApiExceptionMapper;
 import hr.algebra.gamearena.webapp.models.service.ApiResult;
-import hr.algebra.gamearena.webapp.models.service.ApiWrong;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -56,31 +56,27 @@ public class LeaderboardRestApiService implements ILeaderboardService {
 
             return ApiResult.fromApiResponseClient(status, data, body.getErrors());
         } catch (RestClientResponseException ex) {
-            HttpStatus status = HttpStatus.valueOf(ex.getStatusCode().value());
-            List<String> messages = ApiWrong.fromRestClientResponseExceptionToListString(ex);
-
-            if (status == HttpStatus.UNAUTHORIZED) {
-                throw new UnauthorizedException(messages);
-            }
-
-            List<ApiWrong> wrongs = messages.stream().map(ApiWrong::new).toList();
-            return new ApiResult<>(null, wrongs, status);
+            return ApiExceptionMapper.unauthorizedOnly(ex);
         }
     }
 
     @Override
     public ApiResult<List<TournamentStatsEntryViewDecereal>> getStatsByUserId(Long id) throws NotFoundException {
-        ResponseEntity<ApiResponseListTournamentStatsEntryView> response = leaderboardControllerApi.getStatsForUserWithHttpInfo(id);
-        ApiResponseListTournamentStatsEntryView body = response.getBody();
-        if (body == null) {
-            throw new NotFoundException(List.of(NO_RESPONSE_RECEIVED_API));
+        try {
+            ResponseEntity<ApiResponseListTournamentStatsEntryView> response = leaderboardControllerApi.getStatsForUserWithHttpInfo(id);
+            ApiResponseListTournamentStatsEntryView body = response.getBody();
+            if (body == null) {
+                throw new NotFoundException(List.of(NO_RESPONSE_RECEIVED_API));
+            }
+            HttpStatus status = HttpStatus.valueOf(response.getStatusCode().value());
+
+            List<TournamentStatsEntryViewDecereal> data = body.getData() == null
+                    ? null
+                    : body.getData().stream().map(TournamentStatsEntryViewDecereal::fromTournamentStatsEntryViewClient).toList();
+
+            return ApiResult.fromApiResponseClient(status, data, body.getErrors());
+        } catch (RestClientResponseException ex) {
+            return ApiExceptionMapper.notFoundOnly(ex);
         }
-        HttpStatus status = HttpStatus.valueOf(response.getStatusCode().value());
-
-        List<TournamentStatsEntryViewDecereal> data = body.getData() == null
-                ? null
-                : body.getData().stream().map(TournamentStatsEntryViewDecereal::fromTournamentStatsEntryViewClient).toList();
-
-        return ApiResult.fromApiResponseClient(status, data, body.getErrors());
     }
 }

@@ -87,6 +87,15 @@ public class JwtCookieService implements IJwtService {
         return claims;
     }
 
+    @Override
+    public JwtClaimDecereal getTokenClaimsAndValidateOrNull() {
+        try {
+            return getTokenClaimsAndValidate();
+        } catch (TokenNotFoundException | TokenNotValidException e) {
+            return null;
+        }
+    }
+
     private Optional<String> findCookieValue() {
         if (request.getCookies() == null) {
             return Optional.empty();

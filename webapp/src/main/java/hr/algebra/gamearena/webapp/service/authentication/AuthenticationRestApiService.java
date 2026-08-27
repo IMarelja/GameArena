@@ -6,8 +6,8 @@ import hr.algebra.gamearena.webapp.exceptions.extenders.*;
 import hr.algebra.gamearena.webapp.models.cereal.authentication.LoginCereal;
 import hr.algebra.gamearena.webapp.models.cereal.authentication.RegisterCereal;
 import hr.algebra.gamearena.webapp.models.cereal.authentication.TokenDecereal;
+import hr.algebra.gamearena.webapp.models.service.ApiExceptionMapper;
 import hr.algebra.gamearena.webapp.models.service.ApiResult;
-import hr.algebra.gamearena.webapp.models.service.ApiWrong;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -45,26 +45,7 @@ public class AuthenticationRestApiService implements IAuthenticationService {
 
             return ApiResult.fromApiResponseClient(status, data, body.getErrors());
         } catch (RestClientResponseException ex) {
-
-            HttpStatus status = HttpStatus.valueOf(ex.getStatusCode().value());
-            List<String> messages = ApiWrong.fromRestClientResponseExceptionToListString(ex);
-
-            if(status == HttpStatus.UNAUTHORIZED) {
-                throw new UnauthorizedException(messages);
-            }
-
-            if (status == HttpStatus.BAD_REQUEST) {
-                throw new BadRequestedExceptions(messages);
-            }
-            if (status == HttpStatus.NOT_FOUND) {
-                throw new NotFoundException(messages);
-            }
-            if (status == HttpStatus.FORBIDDEN) {
-                throw new ForbiddenException(messages);
-            }
-
-            List<ApiWrong> wrongs = messages.stream().map(ApiWrong::new).toList();
-            return new ApiResult<>(null, wrongs, status);
+            return ApiExceptionMapper.unauthorizedBadRequestNotFoundOrForbidden(ex);
         }
     }
 
@@ -87,26 +68,7 @@ public class AuthenticationRestApiService implements IAuthenticationService {
 
             return ApiResult.fromApiResponseClient(status, data, body.getErrors());
         } catch (RestClientResponseException ex) {
-
-            HttpStatus status = HttpStatus.valueOf(ex.getStatusCode().value());
-            List<String> messages = ApiWrong.fromRestClientResponseExceptionToListString(ex);
-
-            if(status == HttpStatus.UNAUTHORIZED) {
-                throw new UnauthorizedException(messages);
-            }
-
-            if (status == HttpStatus.BAD_REQUEST) {
-                throw new BadRequestedExceptions(messages);
-            }
-            if (status == HttpStatus.NOT_FOUND) {
-                throw new NotFoundException(messages);
-            }
-            if (status == HttpStatus.FORBIDDEN) {
-                throw new ForbiddenException(messages);
-            }
-
-            List<ApiWrong> wrongs = messages.stream().map(ApiWrong::new).toList();
-            return new ApiResult<>(null, wrongs, status);
+            return ApiExceptionMapper.unauthorizedBadRequestNotFoundOrForbidden(ex);
         }
     }
 }

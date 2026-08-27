@@ -24,7 +24,7 @@ public record TournamentFullViewDecereal(
                 tournament.getName(),
                 tournament.getDescription(),
                 tournament.getStatus() != null ? TournamentStatusDecereal.fromTournamentStatusClient(tournament.getStatus()) : null,
-                tournament.getGames() != null ? GamesViewDecereal.fromGamesViewClient(tournament.getGames()) : null,
+                GamesViewDecereal.fromGamesViewClientOrUnavailableGarbage(tournament.getGames()),
                 tournament.getSoloPrice(),
                 tournament.getCurrency(),
                 tournament.getStartsAt(),
