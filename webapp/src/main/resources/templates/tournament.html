@@ -41,32 +41,17 @@
         <p class="text-muted fst-italic" th:if="${#lists.isEmpty(data.members())}">No members found.</p>
 
         <h2 class="h4 mb-3 mt-4">Matches</h2>
-        <table class="table table-striped table-bordered" th:if="${not #lists.isEmpty(data.matches())}">
-            <thead>
-            <tr>
-                <th>ID</th>
-                <th>Game</th>
-                <th>Status</th>
-                <th>Players</th>
-                <th>Score</th>
-                <th>Winner</th>
-                <th>Scheduled At</th>
-                <th>Played At</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr th:each="match : ${data.matches()}">
-                <td th:text="${match.id()}"></td>
-                <td th:text="${match.game().name()}"></td>
-                <td th:text="${match.status()}"></td>
-                <td th:text="${match.player1().username()} + ' VS ' + ${match.player2().username()}"></td>
-                <td th:text="${match.playerOneScore()} + ' - ' + ${match.playerTwoScore()}"></td>
-                <td th:text="${match.winner().isPresent() ? match.winner().get().username() : '-'}"></td>
-                <td th:text="${match.scheduledAt()}"></td>
-                <td th:text="${match.playedAt()}"></td>
-            </tr>
-            </tbody>
-        </table>
+        <div class="list-group" th:if="${not #lists.isEmpty(data.matches())}">
+            <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
+               th:each="match : ${data.matches()}"
+               th:href="@{/match/{id}(id=${match.id()})}">
+                <span>
+                    <span th:text="${match.player1().username()} + ' VS ' + ${match.player2().username()}"></span>
+                    <small class="text-muted" th:text="'(' + ${match.game().name()} + ')'"></small>
+                </span>
+                <span class="badge rounded-pill" th:classappend="${match.status()?.badgeClass()}" th:text="${match.status()}"></span>
+            </a>
+        </div>
         <p class="text-muted fst-italic" th:if="${#lists.isEmpty(data.matches())}">No matches found.</p>
     </div>
 </main>

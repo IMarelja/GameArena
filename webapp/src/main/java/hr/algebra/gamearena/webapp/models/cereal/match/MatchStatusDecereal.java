@@ -16,4 +16,13 @@ public enum MatchStatusDecereal {
             case CANCELED -> CANCELED;
         };
     }
+
+    public String badgeClass() {
+        return switch (this) {
+            case SCHEDULED -> "text-bg-info";
+            case IN_PROGRESS -> "text-bg-success";
+            case COMPLETED -> "text-bg-secondary";
+            case CANCELED -> "text-bg-danger";
+        };
+    }
 }

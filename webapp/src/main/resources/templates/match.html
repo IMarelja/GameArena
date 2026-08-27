@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Match')}">
+    <title>GameArena - Match</title>
+</head>
+<body>
+<!--/*@thymesVar id="data" type="hr.algebra.gamearena.webapp.models.cereal.match.MatchDetailFullViewDecereal"*/-->
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<main class="container py-4">
+    <div th:replace="~{fragments/errors :: errors(${errors})}"></div>
+
+    <div th:if="${data != null}">
+        <div class="d-flex justify-content-between align-items-start mb-3">
+            <h1 class="mb-0" th:text="${data.player1().username()} + ' VS ' + ${data.player2().username()}"></h1>
+            <span class="badge fs-6 rounded-pill" th:classappend="${data.status()?.badgeClass()}" th:text="${data.status()}"></span>
+        </div>
+
+        <table class="table table-borderless w-auto mb-4">
+            <tbody>
+            <tr>
+                <th>Tournament</th>
+                <td><a th:href="@{/tournament/{id}(id=${data.tournamentId()})}" th:text="${data.tournamentId()}"></a></td>
+            </tr>
+            <tr><th>Game</th><td th:text="${data.game().name()}"></td></tr>
+            <tr>
+                <th>Player 1</th>
+                <td><a th:href="@{/user/{id}(id=${data.player1().id()})}" th:text="${data.player1().username()}"></a></td>
+            </tr>
+            <tr>
+                <th>Player 2</th>
+                <td><a th:href="@{/user/{id}(id=${data.player2().id()})}" th:text="${data.player2().username()}"></a></td>
+            </tr>
+            <tr><th>Score</th><td th:text="${data.playerOneScore()} + ' - ' + ${data.playerTwoScore()}"></td></tr>
+            <tr>
+                <th>Winner</th>
+                <td>
+                    <a th:if="${data.winner().isPresent()}"
+                       th:href="@{/user/{id}(id=${data.winner().get().id()})}"
+                       th:text="${data.winner().get().username()}"></a>
+                    <span th:unless="${data.winner().isPresent()}">-</span>
+                </td>
+            </tr>
+            <tr><th>Scheduled At</th><td th:text="${data.scheduledAt()}"></td></tr>
+            <tr><th>Played At</th><td th:text="${data.playedAt()}"></td></tr>
+            <tr><th>Created At</th><td th:text="${data.createdAt()}"></td></tr>
+            </tbody>
+        </table>
+    </div>
+</main>
+</body>
+</html>

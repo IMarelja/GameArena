@@ -10,10 +10,14 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ITournamentService {
+
+    /** Tournament */
     ApiResult<List<TournamentFullViewDecereal>> getAllTournaments() throws NotFoundException;
     ApiResult<List<TournamentFullViewDecereal>> getMyTournaments() throws UnauthorizedException, NotFoundException;
     ApiResult<List<TournamentFullViewDecereal>> getTournamentsByUserId(Long id) throws NotFoundException;
     ApiResult<TournamentFullViewDecereal> getTournamentById(Long id) throws NotFoundException;
+
+    /** Tournament members */
     ApiResult<List<TournamentMemberViewDecereal>> getTournamentMembers(Long tournamentId) throws NotFoundException;
     ApiResult<TournamentMemberViewDecereal> getMyTournamentMembership(Long tournamentId) throws UnauthorizedException, NotFoundException;
     Optional<TournamentMemberViewDecereal> getMyTournamentMembershipOrEmpty(Long tournamentId);

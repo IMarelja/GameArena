@@ -3,7 +3,9 @@ package hr.algebra.gamearena.webapp.service.match;
 import com.gamearena.client.api.GamesControllerApi;
 import com.gamearena.client.api.MatchControllerApi;
 import com.gamearena.client.model.ApiResponseListMatchDetailedFullView;
+import com.gamearena.client.model.ApiResponseMatchDetailedFullView;
 import com.gamearena.client.model.GamesView;
+import com.gamearena.client.model.MatchDetailedFullView;
 import hr.algebra.gamearena.webapp.config.ApiClientConfig.AuthenticatedApiClient;
 import hr.algebra.gamearena.webapp.exceptions.extenders.NotFoundException;
 import hr.algebra.gamearena.webapp.exceptions.extenders.TokenNotFoundException;
@@ -57,22 +59,7 @@ public class MatchRestApiService implements IMatchService {
 
             List<MatchDetailFullViewDecereal> data = body.getData() == null
                     ? null
-                    : body.getData().stream()
-                            .map(match -> {
-                                GamesView game = null;
-
-                                if(match.getGameId() != null){
-                                    try {
-                                        game = gamesControllerApi.getGames(match.getGameId()).getData();
-                                    } catch (RestClientResponseException ex) {
-                                        game = null;
-                                    }
-                                }
-
-                                return MatchDetailFullViewDecereal.fromMatchDetailFullViewClientAndGameView(match, game);
-
-                            })
-                            .toList();
+                    : body.getData().stream().map(this::toDecereal).toList();
 
             return ApiResult.fromApiResponseClient(status, data, body.getErrors());
         } catch (RestClientResponseException ex) {
@@ -92,22 +79,7 @@ public class MatchRestApiService implements IMatchService {
 
             List<MatchDetailFullViewDecereal> data = body.getData() == null
                     ? null
-                    : body.getData().stream()
-                            .map(match -> {
-                                GamesView game = null;
-
-                                if(match.getGameId() != null){
-                                    try {
-                                        game = gamesControllerApi.getGames(match.getGameId()).getData();
-                                    } catch (RestClientResponseException ex) {
-                                        game = null;
-                                    }
-                                }
-
-                                return MatchDetailFullViewDecereal.fromMatchDetailFullViewClientAndGameView(match, game);
-
-                            })
-                            .toList();
+                    : body.getData().stream().map(this::toDecereal).toList();
 
             return ApiResult.fromApiResponseClient(status, data, body.getErrors());
         } catch (RestClientResponseException ex) {
@@ -127,27 +99,44 @@ public class MatchRestApiService implements IMatchService {
 
             List<MatchDetailFullViewDecereal> data = body.getData() == null
                     ? null
-                    : body.getData().stream()
-                    .map(match -> {
-                        GamesView game = null;
-
-                        if(match.getGameId() != null){
-                            try {
-                                game = gamesControllerApi.getGames(match.getGameId()).getData();
-                            } catch (RestClientResponseException ex) {
-                                game = null;
-                            }
-                        }
-
-                        return MatchDetailFullViewDecereal.fromMatchDetailFullViewClientAndGameView(match, game);
-
-                    })
-                    .toList();
+                    : body.getData().stream().map(this::toDecereal).toList();
 
             return ApiResult.fromApiResponseClient(status, data, body.getErrors());
         } catch (RestClientResponseException ex) {
             return ApiExceptionMapper.notFoundOnly(ex);
         }
+    }
+
+    @Override
+    public ApiResult<MatchDetailFullViewDecereal> getMatchById(Long id) throws NotFoundException {
+        try {
+            ResponseEntity<ApiResponseMatchDetailedFullView> response = matchControllerApi.getMatchWithHttpInfo(id);
+            ApiResponseMatchDetailedFullView body = response.getBody();
+            if (body == null) {
+                throw new NotFoundException(List.of(NO_RESPONSE_RECEIVED_API));
+            }
+            HttpStatus status = HttpStatus.valueOf(response.getStatusCode().value());
+
+            MatchDetailFullViewDecereal data = body.getData() == null ? null : toDecereal(body.getData());
+
+            return ApiResult.fromApiResponseClient(status, data, body.getErrors());
+        } catch (RestClientResponseException ex) {
+            return ApiExceptionMapper.notFoundOnly(ex);
+        }
+    }
+
+    private MatchDetailFullViewDecereal toDecereal(MatchDetailedFullView match) {
+        GamesView game = null;
+
+        if (match.getGameId() != null) {
+            try {
+                game = gamesControllerApi.getGames(match.getGameId()).getData();
+            } catch (RestClientResponseException ex) {
+                game = null;
+            }
+        }
+
+        return MatchDetailFullViewDecereal.fromMatchDetailFullViewClientAndGameView(match, game);
     }
 
 }

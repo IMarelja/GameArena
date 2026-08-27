@@ -11,4 +11,5 @@ public interface IMatchService {
     ApiResult<List<MatchDetailFullViewDecereal>> getMyMatches() throws UnauthorizedException, NotFoundException;
     ApiResult<List<MatchDetailFullViewDecereal>> getMatchesByUserId(Long id) throws NotFoundException;
     ApiResult<List<MatchDetailFullViewDecereal>> getMatchesByTournamentId(Long id) throws NotFoundException;
+    ApiResult<MatchDetailFullViewDecereal> getMatchById(Long id) throws NotFoundException;
 }
