@@ -65,6 +65,24 @@ public class NotificationRestApiService implements INotificationService {
         }
     }
 
+    /*Thank god this was easier*/
+
+    @Override
+    public void deleteNotification(Long id) throws UnauthorizedException, ForbiddenException, NotFoundException {
+        NotificationControllerApi client;
+        try {
+            client = authenticatedNotificationClient.get();
+        } catch (TokenNotFoundException | TokenNotValidException e) {
+            throw new UnauthorizedException(List.of("You must be logged in to delete notifications"));
+        }
+
+        try {
+            client.deleteNotificationWithHttpInfo(id);
+        } catch (RestClientResponseException ex) {
+            ApiExceptionMapper.unauthorizedForbiddenOrNotFound(ex);
+        }
+    }
+
     @Override
     public TypedSseEmitter<NotificationUnreadCountDecereal> streamUnreadCount() throws UnauthorizedException {
         return relay(

@@ -11,6 +11,7 @@ import java.util.List;
 
 public interface INotificationService {
     void setReadStatus(Long id, boolean read) throws UnauthorizedException, ForbiddenException, NotFoundException;
+    void deleteNotification(Long id) throws UnauthorizedException, ForbiddenException, NotFoundException;
     TypedSseEmitter<NotificationUnreadCountDecereal> streamUnreadCount() throws UnauthorizedException;
     TypedSseEmitter<List<NotificationDecereal>> streamAll() throws UnauthorizedException;
 }

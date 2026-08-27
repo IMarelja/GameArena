@@ -47,7 +47,18 @@
                 type: 'PATCH',
                 contentType: 'application/json',
                 data: JSON.stringify({ read })
-            });
+            }).fail(() => this.showError());
+        }
+
+        deleteNotification(id) {
+            if (!window.confirm('Delete this notification?')) {
+                return;
+            }
+
+            $.ajax({
+                url: `${this.statusBaseUrl}/${id}`,
+                type: 'DELETE'
+            }).fail(() => this.showError());
         }
 
         buildRow(notification) {
@@ -59,10 +70,15 @@
                 .text(notification.read ? 'Read' : 'Unread');
             const $status = $('<td>').append($badge);
 
-            const $button = $('<button type="button" class="btn btn-sm btn-outline-secondary">')
+            const $readButton = $('<button type="button" class="btn btn-sm btn-outline-secondary">')
                 .text(notification.read ? 'Mark as unread' : 'Mark as read')
                 .on('click', () => this.setReadStatus(notification.id, !notification.read));
-            const $actions = $('<td>').append($button);
+
+            const $deleteButton = $('<button type="button" class="btn btn-sm btn-outline-danger ms-1">')
+                .text('Delete')
+                .on('click', () => this.deleteNotification(notification.id));
+
+            const $actions = $('<td>').append($readButton, $deleteButton);
 
             return $('<tr>').append($type, $createdAt, $status, $actions);
         }
