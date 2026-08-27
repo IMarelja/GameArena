@@ -44,6 +44,8 @@ public class NotificationRestController {
         return notificationService.streamAll();
     }
 
+    /** This should be illegal */
+
     @PatchMapping("/{id}/read-status")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<RestResponse<Void>> setReadStatus(

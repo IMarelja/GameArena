@@ -32,78 +32,80 @@
 </main>
 
 <script>
-    $(function () {
-        var $app = $('#notifications-app');
-        var streamUrl = $app.data('stream-url');
-        var statusBaseUrl = $app.data('status-base-url');
+    class NotificationsView {
+        constructor($root) {
+            this.statusBaseUrl = $root.data('status-base-url');
+            this.$table = $('#notifications-table');
+            this.$body = $('#notifications-body');
+            this.$empty = $('#notifications-empty');
+            this.$error = $('#notifications-error');
+        }
 
-        var $table = $('#notifications-table');
-        var $body = $('#notifications-body');
-        var $empty = $('#notifications-empty');
-        var $error = $('#notifications-error');
-
-        function setReadStatus(id, read) {
+        setReadStatus(id, read) {
             $.ajax({
-                url: statusBaseUrl + '/' + id + '/read-status',
+                url: `${this.statusBaseUrl}/${id}/read-status`,
                 type: 'PATCH',
                 contentType: 'application/json',
-                data: JSON.stringify({ read: read })
+                data: JSON.stringify({ read })
             });
         }
 
-        function renderRow(notification) {
-            var $tr = $('<tr>');
-            $tr.append($('<td>').text(notification.type));
-            $tr.append($('<td>').text(notification.createdAt));
-            $tr.append($('<td>').append(
-                $('<span class="badge">')
-                    .addClass(notification.read ? 'text-bg-secondary' : 'text-bg-primary')
-                    .text(notification.read ? 'Read' : 'Unread')
-            ));
+        buildRow(notification) {
+            const $type = $('<td>').text(notification.type);
+            const $createdAt = $('<td>').text(notification.createdAt);
 
-            var $button = $('<button type="button" class="btn btn-sm btn-outline-secondary">')
+            const $badge = $('<span class="badge">')
+                .addClass(notification.read ? 'text-bg-secondary' : 'text-bg-primary')
+                .text(notification.read ? 'Read' : 'Unread');
+            const $status = $('<td>').append($badge);
+
+            const $button = $('<button type="button" class="btn btn-sm btn-outline-secondary">')
                 .text(notification.read ? 'Mark as unread' : 'Mark as read')
-                .on('click', function () {
-                    setReadStatus(notification.id, !notification.read);
-                });
+                .on('click', () => this.setReadStatus(notification.id, !notification.read));
+            const $actions = $('<td>').append($button);
 
-            $tr.append($('<td>').append($button));
-
-            return $tr;
+            return $('<tr>').append($type, $createdAt, $status, $actions);
         }
 
-        function render(notifications) {
-            $body.empty();
+        render(notifications) {
+            this.$body.empty();
 
             if (!notifications || notifications.length === 0) {
-                $table.hide();
-                $empty.show();
+                this.$table.hide();
+                this.$empty.show();
                 return;
             }
 
-            notifications.forEach(function (notification) {
-                $body.append(renderRow(notification));
-            });
+            notifications.forEach((notification) => this.$body.append(this.buildRow(notification)));
 
-            $empty.hide();
-            $table.show();
+            this.$empty.hide();
+            this.$table.show();
         }
 
-        var source = new EventSource(streamUrl);
+        showError() {
+            this.$error.show();
+        }
 
-        source.addEventListener('all-notifications', function (event) {
+        hideError() {
+            this.$error.hide();
+        }
+    }
+
+    $(function () {
+        const $app = $('#notifications-app');
+        const view = new NotificationsView($app);
+        const source = new EventSource($app.data('stream-url'));
+
+        source.addEventListener('all-notifications', (event) => {
             try {
-                var notifications = JSON.parse(event.data);
-                $error.hide();
-                render(notifications);
+                view.hideError();
+                view.render(JSON.parse(event.data));
             } catch (e) {
-                $error.show();
+                view.showError();
             }
         });
 
-        source.onerror = function () {
-            $error.show();
-        };
+        source.onerror = () => view.showError();
     });
 </script>
 </body>

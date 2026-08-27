@@ -26,31 +26,36 @@
     </div>
 
     <script th:if="${authenticated}">
+        class NotificationBadge {
+            constructor($link) {
+                this.$link = $link;
+            }
+
+            showCount(count) {
+                this.$link.css('text-decoration', 'none');
+                this.$link.text(count > 0 ? `Notifications (${count})` : 'Notifications');
+            }
+
+            showUnavailable() {
+                this.$link.css('text-decoration', 'line-through').text('Notifications');
+            }
+        }
+
         $(function () {
-            var $link = $('#notifications-nav-link');
-            var streamUrl = $link.data('stream-url');
+            const $link = $('#notifications-nav-link');
+            const badge = new NotificationBadge($link);
+            const source = new EventSource($link.data('stream-url'));
 
-            function showUnavailable() {
-                $link.css('text-decoration', 'line-through').text('Notifications');
-            }
-
-            function showCount(count) {
-                $link.css('text-decoration', 'none');
-                $link.text(count > 0 ? 'Notifications (' + count + ')' : 'Notifications');
-            }
-
-            var source = new EventSource(streamUrl);
-
-            source.addEventListener('unread-count', function (event) {
+            source.addEventListener('unread-count', (event) => {
                 try {
-                    var payload = JSON.parse(event.data);
-                    showCount(payload.count || 0);
+                    const payload = JSON.parse(event.data);
+                    badge.showCount(payload.count || 0);
                 } catch (e) {
-                    showUnavailable();
+                    badge.showUnavailable();
                 }
             });
 
-            source.onerror = showUnavailable;
+            source.onerror = () => badge.showUnavailable();
         });
     </script>
 </nav>

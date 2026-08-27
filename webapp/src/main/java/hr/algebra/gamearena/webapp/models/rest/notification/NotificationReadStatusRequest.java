@@ -1,4 +1,6 @@
 package hr.algebra.gamearena.webapp.models.rest.notification;
 
-public record NotificationReadStatusRequest(Boolean read) {
+public record NotificationReadStatusRequest(
+        Boolean read
+) {
 }

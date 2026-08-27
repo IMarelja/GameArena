@@ -32,6 +32,10 @@ import java.util.function.Function;
 @Slf4j
 public class NotificationRestApiService implements INotificationService {
 
+    /**
+     * I am actually gonna cry I can't take this anymore
+     * */
+
     private static final long EMITTER_TIMEOUT_MILLIS = Duration.ofMinutes(30).toMillis();
 
     private final AuthenticatedApiClient<NotificationControllerApi> authenticatedNotificationClient;
@@ -92,10 +96,6 @@ public class NotificationRestApiService implements INotificationService {
         Disposable subscription = streamFactory.apply(client).subscribe(
                 event -> forward(emitter, event, toDecereal),
                 error -> {
-                    // Complete cleanly (not completeWithError) so the browser's EventSource sees a normal
-                    // stream end and auto-reconnects, instead of the error being routed through the MVC
-                    // exception-handling pipeline, which can't render a body for an already-committed
-                    // text/event-stream response.
                     log.debug("NotificationRestApiService relay(): upstream stream failed - {}", error.getMessage());
                     emitter.complete();
                 },
