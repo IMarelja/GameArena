@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Suspend User')}">
+    <title>GameArena - Suspend User</title>
+</head>
+<body>
+<!--/*@thymesVar id="data" type="hr.algebra.gamearena.webapp.models.mvc.data.user.UserFullViewData"*/-->
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<main class="container py-4" style="max-width: 480px;">
+    <h1 class="mb-4">Account Status</h1>
+
+    <div th:replace="~{fragments/errors :: errors(${errors})}"></div>
+
+    <div th:if="${data != null}">
+        <p>
+            <strong th:text="${data.username()}"></strong> is currently
+            <span th:text="${data.isActive()} ? 'active' : 'suspended'"></span>.
+        </p>
+
+        <form method="post">
+            <button type="submit" class="btn btn-lg w-100"
+                    th:classappend="${data.isActive()} ?
+                        'btn-warning' :
+                        'btn-success'"
+                    th:text="${data.isActive()} ?
+                     'Suspend this account' :
+                     'Unsuspend this account'"
+            ></button>
+        </form>
+    </div>
+</main>
+</body>
+</html>

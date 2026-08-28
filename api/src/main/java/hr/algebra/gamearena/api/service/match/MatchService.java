@@ -114,6 +114,13 @@ public class MatchService implements IMatchService {
         var match = matchRepo.getById(id)
                 .orElseThrow(() -> new NotFoundException("Match with id: " + id + " not found"));
 
+        if (request.getWinnerId() != null &&
+            !request.getWinnerId().equals(request.getPlayerOneId()) &&
+            !request.getWinnerId().equals(request.getPlayerTwoId()))
+        {
+            throw new BadRequestedException("Winner must be one of the match players");
+        }
+
         if (callerIsNotAdminOrOrganizerOfTournament(caller, match.tournamentId())) {
             throw new ForbiddenAccessException("Only an admin or the organizer of the tournament can edit this match");
         }
@@ -153,8 +160,8 @@ public class MatchService implements IMatchService {
                 match,
                 userRepo.findById(match.playerOneId()),
                 userRepo.findById(match.playerTwoId()),
-                userRepo.findById(match.winnerId()),
-                gamesRepo.getById(match.gameId())
+                Optional.ofNullable(match.winnerId()).flatMap(userRepo::findById),
+                Optional.ofNullable(match.gameId()).flatMap(gamesRepo::getById)
         );
     }
 

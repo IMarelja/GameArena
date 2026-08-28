@@ -118,7 +118,7 @@ public class TournamentService implements ITournamentService {
 
         tournamentSave.setPriceSolo(request.getPrice().getSoloPrice());
         tournamentSave.setPriceGroup(request.getPrice().getGroupPrice());
-        tournamentSave.setCurrency(request.getPrice().getCurrency());
+        tournamentSave.setCurrency(request.getPrice().getCurrency().name());
 
         var organizerSave = new TournamentMemberSave();
         organizerSave.setUserId(callerId);
@@ -152,7 +152,7 @@ public class TournamentService implements ITournamentService {
 
         tournamentUpdate.setPriceSolo(request.getPrice().getSoloPrice());
         tournamentUpdate.setPriceGroup(request.getPrice().getGroupPrice());
-        tournamentUpdate.setCurrency(request.getPrice().getCurrency());
+        tournamentUpdate.setCurrency(request.getPrice().getCurrency().name());
 
         tournamentUpdate.setStartsAt(request.getStartsAt());
         tournamentUpdate.setEndsAt(request.getEndsAt());

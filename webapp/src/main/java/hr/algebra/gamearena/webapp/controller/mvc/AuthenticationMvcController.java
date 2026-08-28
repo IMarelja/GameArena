@@ -6,7 +6,6 @@ import hr.algebra.gamearena.webapp.models.mvc.MvcError;
 import hr.algebra.gamearena.webapp.models.mvc.MvcResponse;
 import hr.algebra.gamearena.webapp.models.mvc.data.authentication.LoginPostViewModel;
 import hr.algebra.gamearena.webapp.models.mvc.data.authentication.RegisterPostViewModel;
-import hr.algebra.gamearena.webapp.models.service.ApiResult;
 import hr.algebra.gamearena.webapp.security.AuthenticatedUser;
 import hr.algebra.gamearena.webapp.service.authentication.IAuthenticationService;
 import hr.algebra.gamearena.webapp.service.jwt.IJwtService;
@@ -40,76 +39,99 @@ public class AuthenticationMvcController {
     @GetMapping("/login")
     public ModelAndView loginForm() {
         if (AuthenticatedUser.isAuthenticated()) {
-            return new ModelAndView("redirect:/");
+            return MvcResponse.redirect("/");
         }
-        return MvcResponse.success(HttpStatus.OK, LOGIN_VIEW, null).toModelAndView();
+        return MvcResponse.success(
+                HttpStatus.OK,
+                LOGIN_VIEW,
+                null
+        ).toModelAndView();
     }
 
     @PostMapping("/login")
     public ModelAndView login(
             @Valid @ModelAttribute LoginPostViewModel loginForm,
             BindingResult bindingResult
-    ) throws UnexpectedApiErrorException {
+    ) {
         if (bindingResult.hasErrors()) {
-            List<MvcError> errors = bindingResult.getAllErrors().stream()
+            List<MvcError> errors = bindingResult.getAllErrors()
+                    .stream()
                     .map(error -> new MvcError(error.getDefaultMessage()))
                     .toList();
-            return MvcResponse.errors(HttpStatus.BAD_REQUEST, LOGIN_VIEW, errors).toModelAndView();
+            return MvcResponse.errors(
+                    HttpStatus.BAD_REQUEST,
+                    LOGIN_VIEW,
+                    errors
+            ).toModelAndView();
         }
 
-        ApiResult<TokenDecereal> apiResult;
+        TokenDecereal token;
 
         try {
-            apiResult = authenticationService.login(loginForm.toLoginCereal());
-        } catch (UnauthorizedException | BadRequestedExceptions | NotFoundException | ForbiddenException ex) {
-            List<MvcError> errors = ex.getMessages().stream().map(MvcError::new).toList();
-            return MvcResponse.errors(ex.getStatus(), LOGIN_VIEW, errors).toModelAndView();
+            token = authenticationService.login(loginForm.toLoginCereal());
+        } catch (UnauthorizedException | BadRequestedExceptions | NotFoundException | ForbiddenException | UnexpectedApiErrorException ex) {
+            List<MvcError> errors = ex.getMessages()
+                    .stream()
+                    .map(MvcError::new)
+                    .toList();
+            return MvcResponse.errors(
+                    ex.getStatus(),
+                    LOGIN_VIEW,
+                    errors
+            ).toModelAndView();
         }
 
-        if (apiResult.data() == null){
-            var error = new MvcError("Unexpected error with storing your session");
-            return MvcResponse.error(HttpStatus.INTERNAL_SERVER_ERROR, LOGIN_VIEW, error).toModelAndView();
-        }
-
-        jwtService.storeToken(apiResult.data().token());
+        jwtService.storeToken(token.token());
         return MvcResponse.redirect("/");
     }
 
     @GetMapping("/register")
     public ModelAndView registerForm() {
         if (AuthenticatedUser.isAuthenticated()) {
-            return new ModelAndView("redirect:/");
+            return MvcResponse.redirect("/");
         }
-        return MvcResponse.success(HttpStatus.OK, REGISTER_VIEW, null).toModelAndView();
+        return MvcResponse.success(
+                HttpStatus.OK,
+                REGISTER_VIEW,
+                null
+        ).toModelAndView();
     }
 
     @PostMapping("/register")
     public ModelAndView register(
             @Valid @ModelAttribute RegisterPostViewModel registerForm,
             BindingResult bindingResult
-    ) throws UnexpectedApiErrorException {
+    ) {
         if (bindingResult.hasErrors()) {
-            List<MvcError> errors = bindingResult.getAllErrors().stream()
+            List<MvcError> errors = bindingResult.getAllErrors()
+                    .stream()
                     .map(error -> new MvcError(error.getDefaultMessage()))
                     .toList();
-            return MvcResponse.errors(HttpStatus.BAD_REQUEST, REGISTER_VIEW, errors).toModelAndView();
+            return MvcResponse.errors(
+                    HttpStatus.BAD_REQUEST,
+                    REGISTER_VIEW,
+                    errors
+            ).toModelAndView();
         }
 
-        ApiResult<TokenDecereal> apiResult;
+        TokenDecereal token;
 
         try {
-            apiResult = authenticationService.register(registerForm.toRegisterCereal());
-        } catch (UnauthorizedException | BadRequestedExceptions | NotFoundException | ForbiddenException ex) {
-            List<MvcError> errors = ex.getMessages().stream().map(MvcError::new).toList();
-            return MvcResponse.errors(ex.getStatus(), REGISTER_VIEW, errors).toModelAndView();
+            token = authenticationService.register(registerForm.toRegisterCereal());
+        } catch (UnauthorizedException | BadRequestedExceptions | NotFoundException | ForbiddenException |
+                 ConflictException | UnexpectedApiErrorException ex) {
+            List<MvcError> errors = ex.getMessages()
+                    .stream()
+                    .map(MvcError::new)
+                    .toList();
+            return MvcResponse.errors(
+                    ex.getStatus(),
+                    REGISTER_VIEW,
+                    errors
+            ).toModelAndView();
         }
 
-        if (apiResult.data() == null){
-            var error = new MvcError("Unexpected error with storing your session");
-            return MvcResponse.error(HttpStatus.INTERNAL_SERVER_ERROR, REGISTER_VIEW, error).toModelAndView();
-        }
-
-        jwtService.storeToken(apiResult.data().token());
+        jwtService.storeToken(token.token());
         return MvcResponse.redirect("/");
     }
 

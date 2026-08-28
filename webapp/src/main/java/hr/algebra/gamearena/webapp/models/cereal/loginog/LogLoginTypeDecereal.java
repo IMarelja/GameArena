@@ -24,13 +24,4 @@ public enum LogLoginTypeDecereal {
             case  UNEXPECTED_FAILURE -> LogLoginTypeDecereal.UNEXPECTED_FAILURE;
         });
     }
-
-    public String badgeClass() {
-        return switch (this) {
-            case SUCCESS -> "text-bg-success";
-            case BAD_PASSWORD, BAD_CREDENTIALS -> "text-bg-warning";
-            case DISABLED_ACCOUNT -> "text-bg-secondary";
-            case UNEXPECTED_FAILURE -> "text-bg-danger";
-        };
-    }
 }

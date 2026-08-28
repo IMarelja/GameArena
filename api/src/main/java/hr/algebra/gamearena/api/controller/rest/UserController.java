@@ -6,6 +6,7 @@ import hr.algebra.gamearena.api.dto.user.UserFullViewDto;
 import hr.algebra.gamearena.api.dto.user.UserSuspendRequest;
 import hr.algebra.gamearena.api.dto.user.UserViewDto;
 import hr.algebra.gamearena.api.exceptions.extenders.ConflictException;
+import hr.algebra.gamearena.api.exceptions.extenders.NotFoundException;
 import hr.algebra.gamearena.api.service.user.IUserService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -38,7 +39,7 @@ public class UserController {
         var user = this.userService.findById(id);
 
         return user.map(userViewDto -> ResponseEntity.ok(ApiResponse.success(userViewDto)))
-                .orElseThrow(() -> new ConflictException("User with id: " + id + " not found"));
+                .orElseThrow(() -> new NotFoundException("User with id: " + id + " not found"));
     }
 
     @PreAuthorize("hasRole('ADMIN')")
@@ -47,7 +48,7 @@ public class UserController {
         var user = this.userService.findFullInfoById(id);
 
         return user.map(userFullViewDto -> ResponseEntity.ok(ApiResponse.success(userFullViewDto)))
-                .orElseThrow(() -> new ConflictException("User with id: " + id + " not found"));
+                .orElseThrow(() -> new NotFoundException("User with id: " + id + " not found"));
     }
 
     /*

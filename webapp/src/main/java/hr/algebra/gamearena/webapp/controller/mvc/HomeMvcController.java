@@ -13,6 +13,10 @@ public class HomeMvcController {
 
     @GetMapping("/")
     public ModelAndView home() {
-        return MvcResponse.success(HttpStatus.OK, "home", null).toModelAndView();
+        return MvcResponse.success(
+                HttpStatus.OK,
+                "home",
+                null
+        ).toModelAndView();
     }
 }

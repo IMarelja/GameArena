@@ -8,11 +8,20 @@
 <div th:replace="~{fragments/navbar :: navbar}"></div>
 
 <main class="container py-4">
-    <h1 class="mb-4">Me</h1>
+    <div class="d-flex justify-content-between align-items-start mb-4">
+        <h1 class="mb-0">Me</h1>
+        <a class="btn btn-outline-danger btn-sm" th:href="@{/me/delete}">Delete Account</a>
+    </div>
 
     <div th:replace="~{fragments/errors :: errors(${errors})}"></div>
 
-    <div th:if="${data != null}">
+    <div th:if="${data != null}"
+         th:with="leaderboardFailed=${data.leaderboard().isEmpty()},
+                  leaderboard=${data.leaderboard().orElse(null)},
+                  tournamentsFailed=${data.tournaments().isEmpty()},
+                  tournaments=${data.tournaments().orElse(null)},
+                  matchesFailed=${data.matches().isEmpty()},
+                  matches=${data.matches().orElse(null)}">
 
         <section class="mb-5" th:if="${data.user() != null}">
             <h2 class="h4 mb-3">Profile</h2>
@@ -30,7 +39,8 @@
 
         <section class="mb-5">
             <h2 class="h4 mb-3">Leaderboard Stats</h2>
-            <table class="table table-striped table-bordered" th:if="${not #lists.isEmpty(data.leaderboard())}">
+            <div class="alert alert-danger" th:if="${leaderboardFailed}">Failed to load leaderboard stats on your profile.</div>
+            <table class="table table-striped table-bordered" th:if="${not leaderboardFailed and not #lists.isEmpty(leaderboard)}">
                 <thead>
                 <tr>
                     <th>Tournament</th>
@@ -41,7 +51,7 @@
                 </tr>
                 </thead>
                 <tbody>
-                <tr th:each="entry : ${data.leaderboard()}">
+                <tr th:each="entry : ${leaderboard}">
                     <td th:text="${entry.tournamentName()}"></td>
                     <td th:text="${entry.matchesPlayed()}"></td>
                     <td th:text="${entry.matchesWon()}"></td>
@@ -50,12 +60,13 @@
                 </tr>
                 </tbody>
             </table>
-            <p class="text-muted fst-italic" th:if="${#lists.isEmpty(data.leaderboard())}">No leaderboard stats found.</p>
+            <p class="text-muted fst-italic" th:if="${not leaderboardFailed and #lists.isEmpty(leaderboard)}">No leaderboard stats found.</p>
         </section>
 
         <section class="mb-5">
             <h2 class="h4 mb-3">My Tournaments</h2>
-            <table class="table table-striped table-bordered" th:if="${not #lists.isEmpty(data.tournaments())}">
+            <div class="alert alert-danger" th:if="${tournamentsFailed}">Failed to load tournaments on your profile.</div>
+            <table class="table table-striped table-bordered" th:if="${not tournamentsFailed and not #lists.isEmpty(tournaments)}">
                 <thead>
                 <tr>
                     <th>ID</th>
@@ -67,9 +78,9 @@
                 </tr>
                 </thead>
                 <tbody>
-                <tr th:each="tournament : ${data.tournaments()}">
+                <tr th:each="tournament : ${tournaments}">
                     <td th:text="${tournament.id()}"></td>
-                    <td th:text="${tournament.name()}"></td>
+                    <td><a th:href="@{/tournament/{id}(id=${tournament.id()})}" th:text="${tournament.name()}"></a></td>
                     <td th:text="${tournament.games()?.name()}"></td>
                     <td th:text="${tournament.status()}"></td>
                     <td th:text="${tournament.startsAt()}"></td>
@@ -77,14 +88,15 @@
                 </tr>
                 </tbody>
             </table>
-            <p class="text-muted fst-italic" th:if="${#lists.isEmpty(data.tournaments())}">No tournaments found.</p>
+            <p class="text-muted fst-italic" th:if="${not tournamentsFailed and #lists.isEmpty(tournaments)}">No tournaments found.</p>
         </section>
 
         <section class="mb-5">
             <h2 class="h4 mb-3">My Matches</h2>
-            <div class="list-group" th:if="${not #lists.isEmpty(data.matches())}">
+            <div class="alert alert-danger" th:if="${matchesFailed}">Failed to load matches on your profile.</div>
+            <div class="list-group" th:if="${not matchesFailed and not #lists.isEmpty(matches)}">
                 <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
-                   th:each="match : ${data.matches()}"
+                   th:each="match : ${matches}"
                    th:href="@{/match/{id}(id=${match.id()})}">
                     <span>
                         <span th:text="${match.player1().username()} + ' VS ' + ${match.player2().username()}"></span>
@@ -93,7 +105,7 @@
                     <span class="badge rounded-pill" th:classappend="${match.status()?.badgeClass()}" th:text="${match.status()}"></span>
                 </a>
             </div>
-            <p class="text-muted fst-italic" th:if="${#lists.isEmpty(data.matches())}">No matches found.</p>
+            <p class="text-muted fst-italic" th:if="${not matchesFailed and #lists.isEmpty(matches)}">No matches found.</p>
         </section>
 
     </div>

@@ -1,14 +1,14 @@
 package hr.algebra.gamearena.webapp.models.mvc.data.team;
 
-import hr.algebra.gamearena.webapp.models.cereal.team.TeamMemberFullViewDecereal;
-import hr.algebra.gamearena.webapp.models.cereal.team.TeamMemberMinimalViewDecereal;
-import hr.algebra.gamearena.webapp.models.cereal.team.TeamMinimalViewDecereal;
+import hr.algebra.gamearena.webapp.models.mvc.data.team.member.TeamMemberFullViewData;
+import hr.algebra.gamearena.webapp.models.mvc.data.team.member.TeamMemberMinimalViewData;
 
 import java.util.List;
+import java.util.Optional;
 
 public record TeamDetailViewData(
-        TeamMinimalViewDecereal team,
-        List<TeamMemberMinimalViewDecereal> members,
-        TeamMemberFullViewDecereal meMember
+        TeamMinimalViewData team,
+        Optional<List<TeamMemberMinimalViewData>> members,
+        Optional<TeamMemberFullViewData> meMember
 ) {
 }

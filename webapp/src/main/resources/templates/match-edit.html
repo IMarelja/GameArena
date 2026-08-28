@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Edit Match')}">
+    <title>GameArena - Edit Match</title>
+</head>
+<body>
+<!--/*@thymesVar id="data" type="hr.algebra.gamearena.webapp.models.mvc.data.match.MatchEditFormViewData"*/-->
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<main class="container py-4" style="max-width: 480px;">
+    <h1 class="mb-4">Edit Match</h1>
+
+    <div th:replace="~{fragments/errors :: errors(${errors})}"></div>
+
+    <form method="post" th:if="${data != null}" th:action="@{/match/{id}/edit(id=${data.matchId()})}"
+          th:with="membersFailed=${data.members().isEmpty()},
+                   members=${data.members().orElse(null)}">
+        <div class="alert alert-danger" th:if="${membersFailed}">Failed to load this tournament's members.</div>
+        <div class="mb-3" th:if="${not membersFailed}">
+            <label class="form-label">Player One
+                <select class="form-select" name="playerOneId">
+                    <option th:each="member : ${members}"
+                            th:value="${member.user().id()}"
+                            th:selected="${data.form().playerOneId() != null and member.user().id() == data.form().playerOneId()}"
+                            th:text="${member.user().username()} + ' (' + ${member.role()} + ')'"></option>
+                </select>
+            </label>
+
+            <label class="form-label">Player Two
+                <select class="form-select" name="playerTwoId">
+                    <option th:each="member : ${members}"
+                            th:value="${member.user().id()}"
+                            th:selected="${data.form().playerTwoId() != null and member.user().id() == data.form().playerTwoId()}"
+                            th:text="${member.user().username()} + ' (' + ${member.role()} + ')'"></option>
+                </select>
+            </label>
+        </div>
+        <div class="row mb-3">
+            <div class="col">
+                <label class="form-label">
+                    Player One Score
+                    <input type="number" class="form-control" name="playerOneScore" th:value="${data.form().playerOneScore()}">
+                </label>
+            </div>
+            <div class="col">
+                <label class="form-label">
+                    Player Two Score
+                    <input type="number" class="form-control" name="playerTwoScore" th:value="${data.form().playerTwoScore()}">
+                </label>
+            </div>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Winner
+                <select class="form-select" name="winnerId">
+                    <option value="">- None -</option>
+                    <option th:each="member : ${members}" th:if="${not membersFailed}"
+                            th:value="${member.user().id()}"
+                            th:selected="${data.form().winnerId() != null and member.user().id() == data.form().winnerId()}"
+                            th:text="${member.user().username()}"></option>
+                </select>
+            </label>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Status
+                <select class="form-select" name="status">
+                    <option th:each="status : ${T(hr.algebra.gamearena.webapp.models.mvc.data.match.MatchStatusViewEnum).values()}"
+                            th:value="${status}"
+                            th:selected="${status == data.form().status()}"
+                            th:text="${status}"></option>
+                </select>
+            </label>
+        </div>
+        <div class="row mb-3">
+            <div class="col">
+                <label class="form-label">Scheduled At
+                    <input type="datetime-local" class="form-control" name="scheduledAt" th:value="${data.form().scheduledAt()}">
+                </label>
+            </div>
+            <div class="col">
+                <label class="form-label">Played At
+                    <input type="datetime-local" class="form-control" name="playedAt" th:value="${data.form().playedAt()}">
+                </label>
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Save Changes</button>
+    </form>
+</main>
+</body>
+</html>

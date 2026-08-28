@@ -11,10 +11,11 @@ import hr.algebra.gamearena.webapp.exceptions.extenders.NotFoundException;
 import hr.algebra.gamearena.webapp.exceptions.extenders.TokenNotFoundException;
 import hr.algebra.gamearena.webapp.exceptions.extenders.TokenNotValidException;
 import hr.algebra.gamearena.webapp.exceptions.extenders.UnauthorizedException;
+import hr.algebra.gamearena.webapp.exceptions.extenders.UnexpectedApiErrorException;
 import hr.algebra.gamearena.webapp.models.cereal.notification.NotificationDecereal;
 import hr.algebra.gamearena.webapp.models.cereal.notification.NotificationUnreadCountDecereal;
 import hr.algebra.gamearena.webapp.models.rest.TypedSseEmitter;
-import hr.algebra.gamearena.webapp.models.service.ApiExceptionMapper;
+import hr.algebra.gamearena.webapp.service.ApiExceptionMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.codec.ServerSentEvent;
@@ -50,7 +51,7 @@ public class NotificationRestApiService implements INotificationService {
     }
 
     @Override
-    public void setReadStatus(Long id, boolean read) throws UnauthorizedException, ForbiddenException, NotFoundException {
+    public void setReadStatus(Long id, boolean read) throws UnauthorizedException, ForbiddenException, NotFoundException, UnexpectedApiErrorException {
         NotificationControllerApi client;
         try {
             client = authenticatedNotificationClient.get();
@@ -68,7 +69,7 @@ public class NotificationRestApiService implements INotificationService {
     /*Thank god this was easier*/
 
     @Override
-    public void deleteNotification(Long id) throws UnauthorizedException, ForbiddenException, NotFoundException {
+    public void deleteNotification(Long id) throws UnauthorizedException, ForbiddenException, NotFoundException, UnexpectedApiErrorException {
         NotificationControllerApi client;
         try {
             client = authenticatedNotificationClient.get();
@@ -115,9 +116,9 @@ public class NotificationRestApiService implements INotificationService {
                 event -> forward(emitter, event, toDecereal),
                 error -> {
                     log.debug("NotificationRestApiService relay(): upstream stream failed - {}", error.getMessage());
-                    emitter.complete();
+                    emitter.completeSafely();
                 },
-                emitter::complete);
+                emitter::completeSafely);
 
         emitter.onCompletion(subscription::dispose);
         emitter.onTimeout(subscription::dispose);
@@ -132,7 +133,7 @@ public class NotificationRestApiService implements INotificationService {
             emitter.sendEvent(event.event(), data);
         } catch (IOException e) {
             log.debug("NotificationRestApiService forward(): failed to relay SSE event - {}", e.getMessage());
-            emitter.complete();
+            emitter.completeSafely();
         }
     }
 }

@@ -1,9 +1,11 @@
 package hr.algebra.gamearena.webapp.models.rest;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.io.IOException;
 
+@Slf4j
 public class TypedSseEmitter<T> extends SseEmitter {
 
     public TypedSseEmitter(long timeoutMillis) {
@@ -19,5 +21,15 @@ public class TypedSseEmitter<T> extends SseEmitter {
             builder.data(data);
         }
         send(builder);
+    }
+
+    // The client can disconnect (recycling the servlet response) in the same instant the
+    // upstream stream terminates on another thread, so complete() here is inherently racy.
+    public void completeSafely() {
+        try {
+            complete();
+        } catch (IllegalStateException e) {
+            log.debug("TypedSseEmitter completeSafely(): response already recycled, ignoring - {}", e.getMessage());
+        }
     }
 }

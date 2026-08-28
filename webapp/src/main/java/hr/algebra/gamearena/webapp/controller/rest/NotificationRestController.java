@@ -3,6 +3,7 @@ package hr.algebra.gamearena.webapp.controller.rest;
 import hr.algebra.gamearena.webapp.exceptions.extenders.ForbiddenException;
 import hr.algebra.gamearena.webapp.exceptions.extenders.NotFoundException;
 import hr.algebra.gamearena.webapp.exceptions.extenders.UnauthorizedException;
+import hr.algebra.gamearena.webapp.exceptions.extenders.UnexpectedApiErrorException;
 import hr.algebra.gamearena.webapp.models.cereal.notification.NotificationDecereal;
 import hr.algebra.gamearena.webapp.models.cereal.notification.NotificationUnreadCountDecereal;
 import hr.algebra.gamearena.webapp.models.rest.RestResponse;
@@ -52,7 +53,7 @@ public class NotificationRestController {
     public ResponseEntity<RestResponse<Void>> setReadStatus(
             @PathVariable Long id,
             @RequestBody NotificationReadStatusRequest request
-    ) throws UnauthorizedException, ForbiddenException, NotFoundException {
+    ) throws UnauthorizedException, ForbiddenException, NotFoundException, UnexpectedApiErrorException {
         notificationService.setReadStatus(id, Boolean.TRUE.equals(request.read()));
 
         return RestResponse.<Void>success(HttpStatus.NO_CONTENT, null).toResponseEntity();
@@ -61,7 +62,7 @@ public class NotificationRestController {
     @DeleteMapping("/{id}")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<RestResponse<Void>> deleteNotification(@PathVariable Long id)
-            throws UnauthorizedException, ForbiddenException, NotFoundException {
+            throws UnauthorizedException, ForbiddenException, NotFoundException, UnexpectedApiErrorException {
         notificationService.deleteNotification(id);
 
         return RestResponse.<Void>success(HttpStatus.NO_CONTENT, null).toResponseEntity();

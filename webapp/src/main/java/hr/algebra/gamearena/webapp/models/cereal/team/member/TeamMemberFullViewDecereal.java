@@ -1,4 +1,4 @@
-package hr.algebra.gamearena.webapp.models.cereal.team;
+package hr.algebra.gamearena.webapp.models.cereal.team.member;
 
 import com.gamearena.client.model.TeamMemberFullView;
 import hr.algebra.gamearena.webapp.models.cereal.user.UserViewDtoDecereal;

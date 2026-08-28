@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Edit Tournament')}">
+    <title>GameArena - Edit Tournament</title>
+</head>
+<body>
+<!--/*@thymesVar id="data" type="hr.algebra.gamearena.webapp.models.mvc.data.tournament.TournamentEditFormViewData"*/-->
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<main class="container py-4" style="max-width: 560px;">
+    <h1 class="mb-4">Edit Tournament</h1>
+
+    <div th:replace="~{fragments/errors :: errors(${errors})}"></div>
+
+    <form method="post" th:if="${data != null}"
+          th:action="@{/tournament/{id}/edit(id=${data.tournamentId()})}"
+          th:with="gamesFailed=${data.activeGames().isEmpty()},
+                   activeGames=${data.activeGames().orElse(null)}">
+        <div class="mb-3">
+            <label class="form-label">
+                Name
+                <input type="text" class="form-control" name="name" th:value="${data.form().name()}">
+            </label>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">
+                Description
+                <textarea class="form-control" name="description" th:text="${data.form().description()}"></textarea>
+            </label>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Game</label>
+            <div class="alert alert-danger" th:if="${gamesFailed}">Failed to load available games. Please try again later.</div>
+            <select class="form-select" name="gameId" th:if="${not gamesFailed}">
+                <option th:each="game : ${activeGames}"
+                        th:value="${game.id()}"
+                        th:selected="${data.form().gameId() != null and game.id() == data.form().gameId()}"
+                        th:text="${game.name()}"></option>
+            </select>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">
+                Status
+                <select class="form-select" name="status">
+                    <!--/*@thymesVar id="TournamentStatusViewEnum" type=""*/-->
+                    <option th:each="status : ${T(hr.algebra.gamearena.webapp.models.mvc.data.tournament.TournamentStatusViewEnum).values()}"
+                            th:if="${status.name() != 'STATUS_ERROR'}"
+                            th:value="${status}"
+                            th:selected="${status == data.form().status()}"
+                            th:text="${status}"></option>
+                </select>
+            </label>
+        </div>
+        <div class="row mb-3">
+            <div class="col">
+                <label class="form-label">
+                    Solo Price
+                    <input type="number" step="0.01" class="form-control" name="soloPrice" th:value="${data.form().soloPrice()}">
+                </label>
+            </div>
+            <div class="col">
+                <label class="form-label">
+                    Group Price
+                    <input type="number" step="0.01" class="form-control" name="groupPrice" th:value="${data.form().groupPrice()}">
+                </label>
+            </div>
+            <div class="col">
+                <label class="form-label">
+                    Currency
+                    <select class="form-select" name="currency">
+                        <option th:each="currency : ${T(hr.algebra.gamearena.webapp.models.mvc.data.tournament.AcceptedCurrencyDataView).values()}"
+                                th:value="${currency}"
+                                th:selected="${currency == data.form().currency()}"
+                                th:text="${currency}"></option>
+                    </select>
+                </label>
+            </div>
+        </div>
+        <div class="row mb-3">
+            <div class="col">
+                <label for="startsAt" class="form-label">Starts At</label>
+                <input type="datetime-local" id="startsAt" name="startsAt" class="form-control"
+                       th:value="${{data.form().startsAt()}}">
+            </div>
+            <div class="col">
+                <label for="endsAt" class="form-label">Ends At</label>
+                <input type="datetime-local" id="endsAt" name="endsAt" class="form-control"
+                       th:value="${{data.form().endsAt()}}">
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Save Changes</button>
+    </form>
+</main>
+</body>
+</html>

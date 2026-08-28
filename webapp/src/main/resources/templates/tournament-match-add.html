@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Add Match')}">
+    <title>GameArena - Add Match</title>
+</head>
+<body>
+<!--/*@thymesVar id="data" type="hr.algebra.gamearena.webapp.models.mvc.data.match.MatchCreateFormViewData"*/-->
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<main class="container py-4" style="max-width: 480px;">
+    <h1 class="mb-4">Add Match</h1>
+
+    <div th:replace="~{fragments/errors :: errors(${errors})}"></div>
+
+    <form method="post" th:if="${data != null}" th:action="@{/tournament/{id}/match/add(id=${data.tournamentId()})}">
+        <div class="mb-3">
+            <label class="form-label">Player One
+                <select class="form-select" name="playerOneId">
+                    <option th:each="member : ${data.members()}"
+                            th:value="${member.user().id()}"
+                            th:selected="${data.form().playerOneId() != null and member.user().id() == data.form().playerOneId()}"
+                            th:text="${member.user().username()} + ' (' + ${member.role()} + ')'"></option>
+                </select>
+            </label>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Player Two
+                <select class="form-select" name="playerTwoId">
+                    <option th:each="member : ${data.members()}"
+                            th:value="${member.user().id()}"
+                            th:selected="${data.form().playerTwoId() != null and member.user().id() == data.form().playerTwoId()}"
+                            th:text="${member.user().username()} + ' (' + ${member.role()} + ')'"></option>
+                </select>
+            </label>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Scheduled At
+                <input type="datetime-local" class="form-control" name="scheduledAt" th:value="${data.form().scheduledAt()}">
+            </label>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Add Match</button>
+    </form>
+</main>
+</body>
+</html>

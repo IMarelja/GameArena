@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Add To Tournament')}">
+    <title>GameArena - Add To Tournament</title>
+</head>
+<body>
+<!--/*@thymesVar id="data" type="hr.algebra.gamearena.webapp.models.mvc.data.tournament.member.TournamentMemberAddFormViewData"*/-->
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<main class="container py-4" style="max-width: 480px;">
+    <h1 class="mb-4">Add <span
+            th:text="${data != null} ? ${data.username()} : ''"></span> To Tournament</h1>
+    <p class="text-muted">Admins can add to any tournament; organizers can only add to tournaments they organize.</p>
+
+    <div th:replace="~{fragments/errors :: errors(${errors})}"></div>
+
+    <form method="post"
+          th:if="${data != null}"
+          th:action="@{/user/{id}/tournaments/add(id=${data.userId()})}">
+        <div class="mb-3">
+            <label class="form-label">Tournament
+                <select class="form-select" name="tournamentId">
+                    <option th:each="tournament : ${data.tournaments()}"
+                            th:value="${tournament.id()}"
+                            th:selected="${data.form().tournamentId() != null and tournament.id() == data.form().tournamentId()}"
+                            th:text="${tournament.name()}"></option>
+                </select>
+            </label>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Role
+                <select class="form-select" name="role">
+                    <option th:each="role : ${T(hr.algebra.gamearena.webapp.models.mvc.data.tournament.member.TournamentMemberRoleCreateViewEnum).values()}"
+                            th:value="${role}"
+                            th:selected="${role == data.form().role()}"
+                            th:text="${role}"></option>
+                </select>
+            </label>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Add To Tournament</button>
+    </form>
+</main>
+</body>
+</html>

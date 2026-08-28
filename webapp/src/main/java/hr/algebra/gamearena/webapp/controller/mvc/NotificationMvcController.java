@@ -13,6 +13,10 @@ public class NotificationMvcController {
     @GetMapping("/notifications")
     @PreAuthorize("isAuthenticated()")
     public ModelAndView viewNotifications() {
-        return MvcResponse.success(HttpStatus.OK, "notifications", null).toModelAndView();
+        return MvcResponse.success(
+                HttpStatus.OK,
+                "notifications",
+                null
+        ).toModelAndView();
     }
 }

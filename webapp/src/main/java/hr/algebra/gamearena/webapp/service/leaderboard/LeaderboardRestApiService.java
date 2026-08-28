@@ -7,10 +7,9 @@ import hr.algebra.gamearena.webapp.exceptions.extenders.NotFoundException;
 import hr.algebra.gamearena.webapp.exceptions.extenders.TokenNotFoundException;
 import hr.algebra.gamearena.webapp.exceptions.extenders.TokenNotValidException;
 import hr.algebra.gamearena.webapp.exceptions.extenders.UnauthorizedException;
+import hr.algebra.gamearena.webapp.exceptions.extenders.UnexpectedApiErrorException;
 import hr.algebra.gamearena.webapp.models.cereal.leaderboard.TournamentStatsEntryViewDecereal;
-import hr.algebra.gamearena.webapp.models.service.ApiExceptionMapper;
-import hr.algebra.gamearena.webapp.models.service.ApiResult;
-import org.springframework.http.HttpStatus;
+import hr.algebra.gamearena.webapp.service.ApiExceptionMapper;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientResponseException;
@@ -34,7 +33,7 @@ public class LeaderboardRestApiService implements ILeaderboardService {
     }
 
     @Override
-    public ApiResult<List<TournamentStatsEntryViewDecereal>> getMyStats() throws UnauthorizedException, NotFoundException {
+    public List<TournamentStatsEntryViewDecereal> getMyStats() throws UnauthorizedException, NotFoundException, UnexpectedApiErrorException {
         LeaderboardControllerApi client;
         try {
             client = authenticatedLeaderboardClient.get();
@@ -48,33 +47,35 @@ public class LeaderboardRestApiService implements ILeaderboardService {
             if (body == null) {
                 throw new NotFoundException(List.of(NO_RESPONSE_RECEIVED_API));
             }
-            HttpStatus status = HttpStatus.valueOf(response.getStatusCode().value());
 
-            List<TournamentStatsEntryViewDecereal> data = body.getData() == null
-                    ? null
-                    : body.getData().stream().map(TournamentStatsEntryViewDecereal::fromTournamentStatsEntryViewClient).toList();
+            if (body.getData() == null) {
+                throw new NotFoundException(List.of("Failed to fetch your leaderboard stats"));
+            }
 
-            return ApiResult.fromApiResponseClient(status, data, body.getErrors());
+            return body.getData().stream()
+                    .map(TournamentStatsEntryViewDecereal::fromTournamentStatsEntryViewClient)
+                    .toList();
         } catch (RestClientResponseException ex) {
             return ApiExceptionMapper.unauthorizedOnly(ex);
         }
     }
 
     @Override
-    public ApiResult<List<TournamentStatsEntryViewDecereal>> getStatsByUserId(Long id) throws NotFoundException {
+    public List<TournamentStatsEntryViewDecereal> getStatsByUserId(Long id) throws NotFoundException, UnexpectedApiErrorException {
         try {
             ResponseEntity<ApiResponseListTournamentStatsEntryView> response = leaderboardControllerApi.getStatsForUserWithHttpInfo(id);
             ApiResponseListTournamentStatsEntryView body = response.getBody();
             if (body == null) {
                 throw new NotFoundException(List.of(NO_RESPONSE_RECEIVED_API));
             }
-            HttpStatus status = HttpStatus.valueOf(response.getStatusCode().value());
 
-            List<TournamentStatsEntryViewDecereal> data = body.getData() == null
-                    ? null
-                    : body.getData().stream().map(TournamentStatsEntryViewDecereal::fromTournamentStatsEntryViewClient).toList();
+            if (body.getData() == null) {
+                throw new NotFoundException(List.of("Failed to fetch user's leaderboard stats"));
+            }
 
-            return ApiResult.fromApiResponseClient(status, data, body.getErrors());
+            return body.getData().stream()
+                    .map(TournamentStatsEntryViewDecereal::fromTournamentStatsEntryViewClient)
+                    .toList();
         } catch (RestClientResponseException ex) {
             return ApiExceptionMapper.notFoundOnly(ex);
         }

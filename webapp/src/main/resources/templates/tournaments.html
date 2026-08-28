@@ -4,11 +4,14 @@
     <title>GameArena - Tournaments</title>
 </head>
 <body>
-<!--/*@thymesVar id="data" type="java.util.List<hr.algebra.gamearena.webapp.models.cereal.tournament.TournamentFullViewDecereal>"*/-->
+<!--/*@thymesVar id="data" type="java.util.List<hr.algebra.gamearena.webapp.models.mvc.data.tournament.TournamentViewData>"*/-->
 <div th:replace="~{fragments/navbar :: navbar}"></div>
 
 <main class="container py-4">
-    <h1 class="mb-4">Tournaments</h1>
+    <div class="d-flex justify-content-between align-items-start mb-4">
+        <h1 class="mb-0">Tournaments</h1>
+        <a class="btn btn-primary btn-sm" th:if="${isAdmin}" th:href="@{/tournaments/add}">Add Tournament</a>
+    </div>
 
     <div th:replace="~{fragments/errors :: errors(${errors})}"></div>
 

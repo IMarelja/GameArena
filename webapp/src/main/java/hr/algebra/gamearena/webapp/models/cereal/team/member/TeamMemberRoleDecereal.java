@@ -1,4 +1,4 @@
-package hr.algebra.gamearena.webapp.models.cereal.team;
+package hr.algebra.gamearena.webapp.models.cereal.team.member;
 
 import com.gamearena.client.model.TeamMemberFullView;
 import com.gamearena.client.model.TeamMemberMinimalView;
@@ -21,14 +21,6 @@ public enum TeamMemberRoleDecereal {
             case CAPTAIN -> CAPTAIN;
             case REGULAR -> REGULAR;
             default -> ERROR;
-        };
-    }
-
-    public String badgeClass() {
-        return switch (this) {
-            case CAPTAIN -> "text-bg-primary";
-            case REGULAR -> "text-bg-secondary";
-            case ERROR -> "text-bg-warning";
         };
     }
 }

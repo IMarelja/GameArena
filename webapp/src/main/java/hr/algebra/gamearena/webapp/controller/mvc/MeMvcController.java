@@ -3,9 +3,12 @@ package hr.algebra.gamearena.webapp.controller.mvc;
 import hr.algebra.gamearena.webapp.exceptions.extenders.NotFoundException;
 import hr.algebra.gamearena.webapp.exceptions.extenders.UnauthorizedException;
 import hr.algebra.gamearena.webapp.exceptions.extenders.UnexpectedApiErrorException;
-import hr.algebra.gamearena.webapp.models.mvc.MvcError;
 import hr.algebra.gamearena.webapp.models.mvc.MvcResponse;
+import hr.algebra.gamearena.webapp.models.mvc.data.leaderboard.TournamentStatsEntryViewData;
+import hr.algebra.gamearena.webapp.models.mvc.data.match.MatchViewData;
+import hr.algebra.gamearena.webapp.models.mvc.data.tournament.TournamentViewData;
 import hr.algebra.gamearena.webapp.models.mvc.data.user.MeProfileViewData;
+import hr.algebra.gamearena.webapp.models.mvc.data.user.UserFullViewData;
 import hr.algebra.gamearena.webapp.service.jwt.IJwtService;
 import hr.algebra.gamearena.webapp.service.leaderboard.ILeaderboardService;
 import hr.algebra.gamearena.webapp.service.match.IMatchService;
@@ -15,7 +18,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.ModelAndView;
+
+import java.util.List;
+import java.util.Optional;
 
 @Controller
 public class MeMvcController {
@@ -25,6 +32,8 @@ public class MeMvcController {
     private final ITournamentService tournamentService;
     private final IMatchService matchService;
     private final IJwtService jwtService;
+
+    private static final String ME_VIEW = "me";
 
     public MeMvcController(
             IUserService userService,
@@ -42,30 +51,68 @@ public class MeMvcController {
 
     @GetMapping("/me")
     @PreAuthorize("isAuthenticated()")
-    public ModelAndView me() throws UnauthorizedException {
+    public ModelAndView me() throws UnauthorizedException, UnexpectedApiErrorException, NotFoundException {
+        var user = UserFullViewData.from(userService.getMe());
+
+        Optional<List<TournamentStatsEntryViewData>> leaderboard;
         try {
-            var user = userService.getMe().data();
-            var leaderboard = leaderboardService.getMyStats().data();
-            var tournaments = tournamentService.getMyTournaments().data();
-            var matches = matchService.getMyMatches().data();
-
-            return MvcResponse.success(
-                    HttpStatus.OK,
-                    "me",
-                    new MeProfileViewData(
-                            user,
-                            leaderboard,
-                            tournaments,
-                            matches)
-            ).toModelAndView();
-        } catch (NotFoundException | UnexpectedApiErrorException e) {
-            jwtService.clearToken();
-
-            return MvcResponse.errors(
-                    e.getStatus(),
-                    "me",
-                    MvcError.fromListString(e.getMessages())
-            ).toModelAndView();
+            leaderboard = Optional.of(leaderboardService.getMyStats()
+                    .stream()
+                    .map(TournamentStatsEntryViewData::fromTournamentStatsEntryViewDecereal)
+                    .toList());
+        } catch (NotFoundException | UnexpectedApiErrorException ex) {
+            leaderboard = Optional.empty();
         }
+
+        Optional<List<TournamentViewData>> tournaments;
+        try {
+            tournaments = Optional.of(tournamentService.getMyTournaments()
+                    .stream()
+                    .map(TournamentViewData::fromTournamentFullViewDecereal)
+                    .toList()
+            );
+        } catch (NotFoundException | UnexpectedApiErrorException ex) {
+            tournaments = Optional.empty();
+        }
+
+        Optional<List<MatchViewData>> matches;
+        try {
+            matches = Optional.of(matchService.getMyMatches()
+                    .stream()
+                    .map(MatchViewData::fromMatchDetailFullViewDecereal)
+                    .toList()
+            );
+        } catch (NotFoundException | UnexpectedApiErrorException ex) {
+            matches = Optional.empty();
+        }
+
+        return MvcResponse.success(
+                HttpStatus.OK,
+                ME_VIEW,
+                new MeProfileViewData(
+                        user,
+                        leaderboard,
+                        tournaments,
+                        matches)
+        ).toModelAndView();
+    }
+
+    @GetMapping("/me/delete")
+    @PreAuthorize("isAuthenticated()")
+    public ModelAndView deleteAccountConfirm() {
+        return MvcResponse.success(
+                HttpStatus.OK,
+                "delete-account",
+                null)
+        .toModelAndView();
+    }
+
+    @PostMapping("/me/delete")
+    @PreAuthorize("isAuthenticated()")
+    public ModelAndView deleteAccount() throws UnauthorizedException {
+        userService.deleteMyAccount();
+        jwtService.clearToken();
+
+        return MvcResponse.redirect("/");
     }
 }

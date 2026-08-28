@@ -5,9 +5,7 @@ import com.gamearena.client.model.ApiResponseListLoginLogsFullView;
 import hr.algebra.gamearena.webapp.config.ApiClientConfig;
 import hr.algebra.gamearena.webapp.exceptions.extenders.*;
 import hr.algebra.gamearena.webapp.models.cereal.loginog.LoginLogDecereal;
-import hr.algebra.gamearena.webapp.models.service.ApiExceptionMapper;
-import hr.algebra.gamearena.webapp.models.service.ApiResult;
-import org.springframework.http.HttpStatus;
+import hr.algebra.gamearena.webapp.service.ApiExceptionMapper;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientResponseException;
@@ -26,7 +24,7 @@ public class LogRestApiService implements ILogService {
     }
 
     @Override
-    public ApiResult<List<LoginLogDecereal>> getLoginLogs() throws UnauthorizedException, ForbiddenException, NotFoundException {
+    public List<LoginLogDecereal> getLoginLogs() throws UnauthorizedException, ForbiddenException, NotFoundException, UnexpectedApiErrorException {
         LoggingControllerApi client;
 
         try {
@@ -41,13 +39,12 @@ public class LogRestApiService implements ILogService {
             if (body == null) {
                 throw new NotFoundException(List.of(NO_RESPONSE_RECEIVED_API));
             }
-            HttpStatus status = HttpStatus.valueOf(response.getStatusCode().value());
 
-            List<LoginLogDecereal> data = body.getData() == null
-                    ? null
-                    : body.getData().stream().map(LoginLogDecereal::fromLoginLogsFullViewClient).toList();
+            if (body.getData() == null) {
+                throw new NotFoundException(List.of("Failed to fetch login logs"));
+            }
 
-            return ApiResult.fromApiResponseClient(status, data, body.getErrors());
+            return body.getData().stream().map(LoginLogDecereal::fromLoginLogsFullViewClient).toList();
         } catch (RestClientResponseException ex) {
             return ApiExceptionMapper.unauthorizedOrForbidden(ex);
         }

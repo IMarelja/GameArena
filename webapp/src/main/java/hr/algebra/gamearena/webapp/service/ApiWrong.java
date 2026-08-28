@@ -1,4 +1,4 @@
-package hr.algebra.gamearena.webapp.models.service;
+package hr.algebra.gamearena.webapp.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;

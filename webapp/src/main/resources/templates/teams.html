@@ -4,11 +4,14 @@
     <title>GameArena - Teams</title>
 </head>
 <body>
-<!--/*@thymesVar id="data" type="java.util.List<hr.algebra.gamearena.webapp.models.cereal.team.TeamMinimalViewDecereal>"*/-->
+<!--/*@thymesVar id="data" type="java.util.List<hr.algebra.gamearena.webapp.models.mvc.data.team.TeamMinimalViewData>"*/-->
 <div th:replace="~{fragments/navbar :: navbar}"></div>
 
 <main class="container py-4">
-    <h1 class="mb-4">Teams</h1>
+    <div class="d-flex justify-content-between align-items-start mb-4">
+        <h1 class="mb-0">Teams</h1>
+        <a class="btn btn-primary btn-sm" th:if="${authenticated}" th:href="@{/team/add}">Add Team</a>
+    </div>
 
     <div th:replace="~{fragments/errors :: errors(${errors})}"></div>
 

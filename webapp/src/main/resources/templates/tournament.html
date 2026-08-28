@@ -10,13 +10,20 @@
 <main class="container py-4">
     <div th:replace="~{fragments/errors :: errors(${errors})}"></div>
 
-    <div th:if="${data != null}">
+    <div th:if="${data != null}"
+         th:with="meMember=${data.meMember().orElse(null)},
+                  canEdit=${isAdmin or (meMember != null and meMember.role().name() == 'ORGANIZER')},
+                  membersFailed=${data.members().isEmpty()},
+                  members=${data.members().orElse(null)},
+                  matchesFailed=${data.matches().isEmpty()},
+                  matches=${data.matches().orElse(null)}">
         <div class="d-flex justify-content-between align-items-start mb-3">
             <h1 class="mb-0" th:text="${data.tournament().name()}"></h1>
-            <span class="badge fs-6 rounded-pill" th:classappend="${data.tournament().status()?.badgeClass()}" th:text="${data.tournament().status()}"></span>
+            <div>
+                <span class="badge fs-6 rounded-pill" th:classappend="${data.tournament().status()?.badgeClass()}" th:text="${data.tournament().status()}"></span>
+                <a class="btn btn-outline-secondary btn-sm" th:if="${canEdit}" th:href="@{/tournament/{id}/edit(id=${data.tournament().id()})}">Edit Tournament</a>
+            </div>
         </div>
-
-        <div class="alert alert-success fw-bold" th:if="${data.meMember() != null and data.meMember().role().name() == 'ORGANIZER'}">YOU ARE THE ORGANIZER!</div>
 
         <p th:if="${data.tournament().description() != null}" th:text="${data.tournament().description()}"></p>
 
@@ -30,29 +37,34 @@
         </table>
 
         <h2 class="h4 mb-3">Members</h2>
-        <div class="list-group" th:if="${not #lists.isEmpty(data.members())}">
-            <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
-               th:each="member : ${data.members()}"
-               th:href="@{/user/{id}(id=${member.user().id()})}">
-                <span th:text="${member.user().username()}"></span>
-                <span class="badge rounded-pill" th:classappend="${member.role()?.badgeClass()}" th:text="${member.role()}"></span>
-            </a>
+        <div class="alert alert-danger" th:if="${membersFailed}">Failed to load members of this tournament.</div>
+        <div class="list-group" th:if="${not membersFailed and not #lists.isEmpty(members)}">
+            <div class="list-group-item d-flex justify-content-between align-items-center" th:each="member : ${members}">
+                <a class="text-decoration-none flex-grow-1" th:href="@{/user/{id}(id=${member.user().id()})}" th:text="${member.user().username()}"></a>
+                <span class="badge rounded-pill me-2" th:classappend="${member.role()?.badgeClass()}" th:text="${member.role()}"></span>
+                <a class="btn btn-outline-secondary btn-sm" th:if="${canEdit}"
+                   th:href="@{/tournament/{tournamentId}/member/{memberId}/edit(tournamentId=${data.tournament().id()},memberId=${member.id()})}">Edit</a>
+            </div>
         </div>
-        <p class="text-muted fst-italic" th:if="${#lists.isEmpty(data.members())}">No members found.</p>
+        <p class="text-muted fst-italic" th:if="${not membersFailed and #lists.isEmpty(members)}">No members in this tournament.</p>
 
-        <h2 class="h4 mb-3 mt-4">Matches</h2>
-        <div class="list-group" th:if="${not #lists.isEmpty(data.matches())}">
-            <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
-               th:each="match : ${data.matches()}"
-               th:href="@{/match/{id}(id=${match.id()})}">
-                <span>
+        <div class="d-flex justify-content-between align-items-center mb-3 mt-4">
+            <h2 class="h4 mb-0">Matches</h2>
+            <a class="btn btn-primary btn-sm" th:if="${canEdit}" th:href="@{/tournament/{id}/match/add(id=${data.tournament().id()})}">Add Match</a>
+        </div>
+        <div class="alert alert-danger" th:if="${matchesFailed}">Failed to load matches of this tournament.</div>
+        <div class="list-group" th:if="${not matchesFailed and not #lists.isEmpty(matches)}">
+            <div class="list-group-item d-flex justify-content-between align-items-center" th:each="match : ${matches}">
+                <a class="text-decoration-none flex-grow-1" th:href="@{/match/{id}(id=${match.id()})}">
                     <span th:text="${match.player1().username()} + ' VS ' + ${match.player2().username()}"></span>
                     <small class="text-muted" th:text="'(' + ${match.game().name()} + ')'"></small>
-                </span>
-                <span class="badge rounded-pill" th:classappend="${match.status()?.badgeClass()}" th:text="${match.status()}"></span>
-            </a>
+                </a>
+                <span class="badge rounded-pill me-2" th:classappend="${match.status()?.badgeClass()}" th:text="${match.status()}"></span>
+                <a class="btn btn-outline-secondary btn-sm" th:if="${canEdit}"
+                   th:href="@{/match/{id}/edit(id=${match.id()})}">Edit</a>
+            </div>
         </div>
-        <p class="text-muted fst-italic" th:if="${#lists.isEmpty(data.matches())}">No matches found.</p>
+        <p class="text-muted fst-italic" th:if="${not matchesFailed and #lists.isEmpty(matches)}">No matches in this tournament.</p>
     </div>
 </main>
 </body>

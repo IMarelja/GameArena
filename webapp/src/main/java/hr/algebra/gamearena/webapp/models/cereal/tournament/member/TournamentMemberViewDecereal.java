@@ -1,4 +1,4 @@
-package hr.algebra.gamearena.webapp.models.cereal.tournament;
+package hr.algebra.gamearena.webapp.models.cereal.tournament.member;
 
 import com.gamearena.client.model.TournamentMemberView;
 import hr.algebra.gamearena.webapp.models.cereal.user.UserJustUsernameDecereal;

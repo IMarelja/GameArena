@@ -1,7 +1,6 @@
 package hr.algebra.gamearena.webapp.models.rest;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import hr.algebra.gamearena.webapp.models.service.ApiResult;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -31,13 +30,6 @@ public class RestResponse<T> {
 
     public static <T> RestResponse<T> errors(HttpStatus status, List<RestError> errors) {
         return new RestResponse<>(null, errors, status);
-    }
-
-    public static <T> RestResponse<T> fromApiResult(ApiResult<T> result) {
-        List<RestError> errors = result.errors().stream()
-                .map(e -> new RestError(e.message()))
-                .toList();
-        return new RestResponse<>(result.data(), errors, result.status());
     }
 
     public ResponseEntity<RestResponse<T>> toResponseEntity() {

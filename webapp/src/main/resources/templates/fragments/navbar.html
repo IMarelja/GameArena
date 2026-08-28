@@ -11,9 +11,13 @@
         <div class="navbar-nav bg-info rounded px-2 me-2" th:if="${isAdmin}">
             <a class="nav-link" th:href="@{/logs}">Logs</a>
         </div>
-        <div class="navbar-nav" th:if="${authenticated}">
-            <a class="nav-link" id="notifications-nav-link" th:href="@{/notifications}"
-               th:attr="data-stream-url=@{/notifications/stream/unread}">Notifications</a>
+        <div class="navbar-nav"
+             th:if="${authenticated}">
+            <a class="nav-link" id="notifications-nav-link"
+               th:href="@{/notifications}"
+               th:attr="data-stream-url=@{/notifications/stream/unread}">
+                Notifications
+            </a>
             <a class="nav-link" th:href="@{/me}">Me</a>
             <form method="post" th:action="@{/logout}" class="d-flex">
                 <button type="submit" class="nav-link btn btn-link">Log Out</button>

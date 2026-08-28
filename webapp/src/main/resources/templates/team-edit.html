@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Edit Team')}">
+    <title>GameArena - Edit Team</title>
+</head>
+<body>
+<!--/*@thymesVar id="data" type="hr.algebra.gamearena.webapp.models.mvc.data.team.TeamEditFormViewData"*/-->
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<main class="container py-4" style="max-width: 560px;">
+    <h1 class="mb-4">Edit Team</h1>
+
+    <div th:replace="~{fragments/errors :: errors(${errors})}"></div>
+
+    <form method="post" th:if="${data != null}" th:action="@{/team/{id}/edit(id=${data.teamId()})}"
+          th:with="activeGames=${data.activeGames().orElse(null)}">
+        <div class="mb-3">
+            <label class="form-label">Name
+                <input type="text" class="form-control" name="name" th:value="${data.form().name()}">
+            </label>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Game
+                <select class="form-select" name="gameId">
+                    <option th:if="${#lists.isEmpty(activeGames)}" value="" disabled selected>Could not load active games, create new one or reactive other</option>
+                    <option th:each="game : ${activeGames}"
+                            th:value="${game.id()}"
+                            th:selected="${data.form().gameId() != null and game.id() == data.form().gameId()}"
+                            th:text="${game.name()}"></option>
+                </select>
+            </label>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Save Changes</button>
+    </form>
+</main>
+</body>
+</html>
