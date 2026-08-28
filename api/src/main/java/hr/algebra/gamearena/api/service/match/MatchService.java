@@ -4,10 +4,8 @@ import hr.algebra.gamearena.api.dto.jwt.JwtTokenClaim;
 import hr.algebra.gamearena.api.dto.match.MatchCreateRequest;
 import hr.algebra.gamearena.api.dto.match.MatchDetailedFullView;
 import hr.algebra.gamearena.api.dto.match.MatchEditRequest;
-import hr.algebra.gamearena.api.dto.notification.NotificationCreateRequest;
-import hr.algebra.gamearena.api.dto.notification.NotificationTypeView;
-import hr.algebra.gamearena.api.dto.notification.ReferenceTypeView;
 import hr.algebra.gamearena.api.dto.user.RoleView;
+import hr.algebra.gamearena.api.event.notification.MatchCreatedEvent;
 import hr.algebra.gamearena.api.exceptions.extenders.BadRequestedException;
 import hr.algebra.gamearena.api.exceptions.extenders.ForbiddenAccessException;
 import hr.algebra.gamearena.api.exceptions.extenders.NotFoundException;
@@ -16,12 +14,11 @@ import hr.algebra.gamearena.api.model.match.MatchSave;
 import hr.algebra.gamearena.api.model.match.MatchStatus;
 import hr.algebra.gamearena.api.model.match.MatchUpdate;
 import hr.algebra.gamearena.api.model.tournament.member.TournamentMemberRole;
-import hr.algebra.gamearena.api.model.user.User;
 import hr.algebra.gamearena.api.repository.games.IGamesRepo;
 import hr.algebra.gamearena.api.repository.match.IMatchRepo;
 import hr.algebra.gamearena.api.repository.tournament.ITournamentRepo;
 import hr.algebra.gamearena.api.repository.user.IUserRepo;
-import hr.algebra.gamearena.api.service.notification.INotificationService;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -34,20 +31,20 @@ public class MatchService implements IMatchService {
     private final ITournamentRepo tournamentRepo;
     private final IUserRepo userRepo;
     private final IGamesRepo gamesRepo;
-    private final INotificationService notificationService;
+    private final ApplicationEventPublisher eventPublisher;
 
     public MatchService(
             IMatchRepo matchRepo,
             ITournamentRepo tournamentRepo,
             IUserRepo userRepo,
             IGamesRepo gamesRepo,
-            INotificationService notificationService)
+            ApplicationEventPublisher eventPublisher)
     {
         this.matchRepo = matchRepo;
         this.tournamentRepo = tournamentRepo;
         this.userRepo = userRepo;
         this.gamesRepo = gamesRepo;
-        this.notificationService = notificationService;
+        this.eventPublisher = eventPublisher;
     }
 
     @Override
@@ -166,13 +163,6 @@ public class MatchService implements IMatchService {
     }
 
     private void pushMatchCreatedNotification(Long recipientUserId, Long matchId) {
-        var notificationRequest = new NotificationCreateRequest(
-                NotificationTypeView.CREATED_MATCH,
-                recipientUserId,
-                matchId,
-                ReferenceTypeView.MATCH
-        );
-
-        notificationService.createAndPush(notificationRequest);
+        eventPublisher.publishEvent(new MatchCreatedEvent(recipientUserId, matchId));
     }
 }

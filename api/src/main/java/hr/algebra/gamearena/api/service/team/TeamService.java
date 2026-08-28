@@ -1,8 +1,5 @@
 package hr.algebra.gamearena.api.service.team;
 
-import hr.algebra.gamearena.api.dto.notification.NotificationCreateRequest;
-import hr.algebra.gamearena.api.dto.notification.NotificationTypeView;
-import hr.algebra.gamearena.api.dto.notification.ReferenceTypeView;
 import hr.algebra.gamearena.api.dto.team.TeamCreateRequest;
 import hr.algebra.gamearena.api.dto.team.TeamEditRequest;
 import hr.algebra.gamearena.api.dto.team.TeamMinimalView;
@@ -16,12 +13,13 @@ import hr.algebra.gamearena.api.exceptions.extenders.ConflictException;
 import hr.algebra.gamearena.api.exceptions.extenders.ForbiddenAccessException;
 import hr.algebra.gamearena.api.exceptions.extenders.InvalidVariableException;
 import hr.algebra.gamearena.api.exceptions.extenders.NotFoundException;
+import hr.algebra.gamearena.api.event.notification.TeamInvitationEvent;
 import hr.algebra.gamearena.api.model.notification.NotificationType;
 import hr.algebra.gamearena.api.model.team.*;
 import hr.algebra.gamearena.api.repository.games.IGamesRepo;
 import hr.algebra.gamearena.api.repository.team.ITeamRepo;
 import hr.algebra.gamearena.api.repository.user.IUserRepo;
-import hr.algebra.gamearena.api.service.notification.INotificationService;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -33,7 +31,7 @@ public class TeamService implements ITeamService {
     private static final String USER_NOT_FOUND = "User was found";
 
     private final ITeamRepo teamRepo;
-    private final INotificationService notificationService;
+    private final ApplicationEventPublisher eventPublisher;
     private final IUserRepo userRepo;
     private final IGamesRepo gamesRepo;
 
@@ -58,9 +56,9 @@ public class TeamService implements ITeamService {
                 + "Assign someone else to be the Captain for this Team";
     }
 
-    public TeamService(ITeamRepo teamRepo, INotificationService notificationService, IUserRepo userRepo, IGamesRepo gamesRepo) {
+    public TeamService(ITeamRepo teamRepo, ApplicationEventPublisher eventPublisher, IUserRepo userRepo, IGamesRepo gamesRepo) {
         this.teamRepo = teamRepo;
-        this.notificationService = notificationService;
+        this.eventPublisher = eventPublisher;
         this.userRepo = userRepo;
         this.gamesRepo = gamesRepo;
     }
@@ -370,10 +368,6 @@ public class TeamService implements ITeamService {
     }
 
     private void pushInvitationNotification(NotificationType type, Long recipientUserId, Long invitationId) {
-        notificationService.createAndPush(new NotificationCreateRequest(
-                NotificationTypeView.fromNotificationType(type),
-                recipientUserId,
-                invitationId,
-                ReferenceTypeView.TEAM_INVITATION));
+        eventPublisher.publishEvent(new TeamInvitationEvent(type, recipientUserId, invitationId));
     }
 }
