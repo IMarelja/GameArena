@@ -26,3 +26,8 @@ mvn spring-boot:run
 ```bash
 mvn springdoc-openapi:generate
 ```
+
+- When the openapi.json has been generate in /webapp/src/main/resources
+```bash
+mvn generate-sources
+```

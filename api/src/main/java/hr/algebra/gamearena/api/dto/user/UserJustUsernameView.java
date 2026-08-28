@@ -12,4 +12,11 @@ public record UserJustUsernameView(
                 user.username()
         );
     }
+
+    public static UserJustUsernameView deleteUser(){
+        return new UserJustUsernameView(
+                null,
+                "[DELETED]"
+        );
+    }
 }

@@ -1,6 +1,5 @@
 package hr.algebra.gamearena.api.service.tournament;
 
-import hr.algebra.gamearena.api.dto.jwt.JwtTokenClaim;
 import hr.algebra.gamearena.api.dto.payment.PaymentRequest;
 import hr.algebra.gamearena.api.dto.tournament.TournamentCreateRequest;
 import hr.algebra.gamearena.api.dto.tournament.TournamentEditRequest;
@@ -22,24 +21,13 @@ public interface ITournamentService {
     TournamentFullView createTournament(Long callerId, TournamentCreateRequest request);
 
     /* Admin or organizer of this tournament */
-    TournamentFullView editTournament(JwtTokenClaim caller, Long tournamentId, TournamentEditRequest request);
+    TournamentFullView editTournamentAsOrganizerOrAdmin(Long calledId, Long tournamentId, TournamentEditRequest request);
 
     // Tournament member
     Optional<TournamentMemberView> getTournamentMemberByUserIdAndTournamentId(Long userId, Long tournamentId);
     Optional<TournamentMemberView> getTournamentMemberByIdAndTournamentId(Long id, Long tournamentId);
     List<TournamentMemberView> getTournamentsMembers(Long tournamentId);
+    TournamentMemberView addTournamentMemberAsOrganizerOrAdmin(Long callerId, Long tournamentId, TournamentMemberCreateRequest request);
+    TournamentMemberView editTournamentMemberAsOrganizerOrAdmin(Long callerId, Long tournamentMemberId, TournamentMemberEditRequest request);
     Flux<PaymentResponseView> joinAsRegularTournamentMemberAndPay(Long callerId, Long tournamentId, PaymentRequest paymentRequest);
-
-    /* Admin only (NO role checker) */
-    // BEGIN
-    TournamentMemberView addTournamentMemberAsAdmin(Long tournamentId, TournamentMemberCreateRequest request);
-    // END
-
-    /* Organizer only (checker) */
-    // BEGIN
-    TournamentMemberView addTournamentMemberAsOrganizer(Long callerId, Long tournamentId, TournamentMemberCreateRequest request);
-    // END
-
-    /* Admin or organizer of this tournament */
-    TournamentMemberView editTournamentMember(JwtTokenClaim caller, Long tournamentMemberId, TournamentMemberEditRequest request);
 }

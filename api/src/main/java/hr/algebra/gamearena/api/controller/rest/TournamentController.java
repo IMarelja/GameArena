@@ -94,7 +94,7 @@ public class TournamentController {
         if(request.getEndsAt() != null && !request.getEndsAt().getOffset().equals(ZoneOffset.UTC))
             throw new BadRequestedException("Ends at offset is not UTC or 00+00, it is: " + request.getEndsAt().getOffset());
 
-        return ResponseEntity.ok(ApiResponse.success(tournamentService.editTournament(caller, id, request)));
+        return ResponseEntity.ok(ApiResponse.success(tournamentService.editTournamentAsOrganizerOrAdmin(caller.userId(), id, request)));
     }
 
     // END
@@ -154,23 +154,14 @@ public class TournamentController {
                 });
     }
 
-    @PostMapping("/{tournamentId}/member/admin")
-    @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<ApiResponse<TournamentMemberView>> jAsAdmin(
-            @PathVariable Long tournamentId,
-            @Valid @RequestBody TournamentMemberCreateRequest request
-    ){
-        return ResponseEntity.ok(ApiResponse.success(tournamentService.addTournamentMemberAsAdmin(tournamentId, request)));
-    }
-
     @PostMapping("/{tournamentId}/member/organizer")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<ApiResponse<TournamentMemberView>> addTournamentMemberAsOrganizer(
+    public ResponseEntity<ApiResponse<TournamentMemberView>> addTournamentMember(
             @AuthenticationPrincipal JwtTokenClaim caller,
             @PathVariable Long tournamentId,
             @Valid @RequestBody TournamentMemberCreateRequest request
     ){
-        return ResponseEntity.ok(ApiResponse.success(tournamentService.addTournamentMemberAsOrganizer(caller.userId(), tournamentId, request)));
+        return ResponseEntity.ok(ApiResponse.success(tournamentService.addTournamentMemberAsOrganizerOrAdmin(caller.userId(), tournamentId, request)));
     }
 
     @PatchMapping("/member/{id}")
@@ -181,7 +172,7 @@ public class TournamentController {
             @PathVariable Long id,
             @Valid @RequestBody TournamentMemberEditRequest request
     ){
-        return ResponseEntity.ok(ApiResponse.success(tournamentService.editTournamentMember(caller, id, request)));
+        return ResponseEntity.ok(ApiResponse.success(tournamentService.editTournamentMemberAsOrganizerOrAdmin(caller.userId(), id, request)));
     }
 
     //END

@@ -1,6 +1,5 @@
 package hr.algebra.gamearena.api.service.tournament;
 
-import hr.algebra.gamearena.api.dto.jwt.JwtTokenClaim;
 import hr.algebra.gamearena.api.dto.payment.PaymentRequest;
 import hr.algebra.gamearena.api.dto.tournament.TournamentCreateRequest;
 import hr.algebra.gamearena.api.dto.tournament.TournamentEditRequest;
@@ -11,7 +10,6 @@ import hr.algebra.gamearena.api.dto.tournament.member.TournamentMemberEditReques
 import hr.algebra.gamearena.api.dto.tournament.member.TournamentMemberRoleEdit;
 import hr.algebra.gamearena.api.dto.tournament.member.TournamentMemberCreateRequest;
 import hr.algebra.gamearena.api.dto.tournament.member.TournamentMemberView;
-import hr.algebra.gamearena.api.dto.user.RoleView;
 import hr.algebra.gamearena.api.exceptions.extenders.*;
 import hr.algebra.gamearena.api.model.invoice.BillingInfoSave;
 import hr.algebra.gamearena.api.model.payment.Payment;
@@ -23,6 +21,7 @@ import hr.algebra.gamearena.api.model.tournament.member.TournamentMember;
 import hr.algebra.gamearena.api.model.tournament.member.TournamentMemberRole;
 import hr.algebra.gamearena.api.model.tournament.member.TournamentMemberSave;
 import hr.algebra.gamearena.api.model.tournament.member.TournamentMemberUpdate;
+import hr.algebra.gamearena.api.model.user.Role;
 import hr.algebra.gamearena.api.repository.games.IGamesRepo;
 import hr.algebra.gamearena.api.repository.invoice.IInvoiceRepo;
 import hr.algebra.gamearena.api.repository.payment.IPaymentRepo;
@@ -132,24 +131,15 @@ public class TournamentService implements ITournamentService {
     } // createTournament
 
     @Override
-    public TournamentFullView editTournament(JwtTokenClaim caller, Long tournamentId, TournamentEditRequest request) {
+    public TournamentFullView editTournamentAsOrganizerOrAdmin(Long callerId, Long tournamentId, TournamentEditRequest request) {
         if (!tournamentRepo.tournamentExistsById(tournamentId)) {
             throw new NotFoundException(tournamentNotFoundByIdOutput(tournamentId));
         }
 
-        if (callerIsNotAdminOrOrganizerOfTournament(caller, tournamentId)) {
+        if (callerIsNotAdminOrOrganizerOfTournament(callerId, tournamentId)) {
             throw new ForbiddenAccessException(NOT_AN_ORGANIZER_OF_THIS_TOURNAMENT);
         }
 
-        return applyTournamentEdit(tournamentId, request);
-    } // editTournament
-
-    private boolean callerIsNotAdminOrOrganizerOfTournament(JwtTokenClaim caller, Long tournamentId) {
-        return caller.role() == RoleView.ADMIN
-                || tournamentRepo.isUserPartOfTournamentActiveAndOrganizer(caller.userId(), tournamentId);
-    }
-
-    private TournamentFullView applyTournamentEdit(Long tournamentId, TournamentEditRequest request) {
         var game = gamesRepo.getById(request.getGameId())
                 .orElseThrow(() -> new NotFoundException(gameNotFoundByIdOutput(request.getGameId())));
 
@@ -171,8 +161,7 @@ public class TournamentService implements ITournamentService {
                 .orElseThrow(() -> new NotFoundException(tournamentNotFoundByIdOutput(tournamentId)));
 
         return TournamentFullView.fromTournamentAndGame(updated, Optional.of(game));
-    } // applyTournamentEdit
-
+    } // editTournamentAsOrganizerOrAdmin
 
     /** Tournament member */
 
@@ -215,6 +204,70 @@ public class TournamentService implements ITournamentService {
                 )
                 .toList();
     }
+
+    @Override
+    public TournamentMemberView addTournamentMemberAsOrganizerOrAdmin(Long callerId, Long tournamentId, TournamentMemberCreateRequest request) {
+        if (!tournamentRepo.tournamentExistsById(tournamentId)) {
+            throw new NotFoundException(tournamentNotFoundByIdOutput(tournamentId));
+        }
+
+        if (callerIsNotAdminOrOrganizerOfTournament(callerId, tournamentId)) {
+            throw new ForbiddenAccessException(NOT_AN_ORGANIZER_OF_THIS_TOURNAMENT);
+        }
+
+        return applyAddTournamentMember(tournamentId, request);
+    } // addTournamentMemberAsOrganizerOrAdmin
+
+    private TournamentMemberView applyAddTournamentMember(Long tournamentId, TournamentMemberCreateRequest request) {
+        var user = userRepo.findById(request.getUserId())
+                .filter(u -> Boolean.TRUE.equals(u.isActive()))
+                .orElseThrow(() -> new NotFoundException(USER_NOT_FOUND_OR_NOT_ACTIVE));
+
+        if (tournamentRepo.isUserPartOfTournament(request.getUserId(), tournamentId)) {
+            throw new ConflictException("User is already a member of this tournament");
+        }
+
+        var tournamentMemberSave = new TournamentMemberSave();
+        tournamentMemberSave.setUserId(request.getUserId());
+        tournamentMemberSave.setTournamentId(tournamentId);
+        tournamentMemberSave.setRole(request.getRole().toTournamentMemberRole());
+        tournamentMemberSave.setConfirmed(true);
+
+        var created = tournamentRepo.addTournamentMember(tournamentMemberSave);
+        return TournamentMemberView.fromTournamentMember(created, Optional.of(user));
+    } // applyAddTournamentMember
+
+    @Override
+    public TournamentMemberView editTournamentMemberAsOrganizerOrAdmin(Long callerId, Long tournamentMemberId, TournamentMemberEditRequest request) {
+        var member = tournamentRepo.getTournamentMemberById(tournamentMemberId)
+                .orElseThrow(() -> new NotFoundException(tournamentMemberNotFoundByIdOutput(tournamentMemberId)));
+
+        if (callerIsNotAdminOrOrganizerOfTournament(callerId, member.tournamentId())) {
+            throw new ForbiddenAccessException(NOT_AN_ORGANIZER_OF_THIS_TOURNAMENT);
+        }
+
+        boolean demotingTheOnlyOrganizer =
+                member.role() == TournamentMemberRole.ORGANIZER
+                        && request.getRole() != TournamentMemberRoleEdit.ORGANIZER
+                        && tournamentRepo.countTournamentMembersByRole(member.tournamentId(), TournamentMemberRole.ORGANIZER) <= 1;
+
+        if (demotingTheOnlyOrganizer) {
+            throw new InvalidVariableException("This member is the only Organizer in this Tournament, their role can not be changed. "
+                    + "Assign someone else to be the Organizer for this Tournament first");
+        }
+
+        var tournamentMemberUpdate = new TournamentMemberUpdate();
+        tournamentMemberUpdate.setRole(request.getRole().toTournamentMemberRole());
+
+        var updated = tournamentRepo.updateTournamentMember(member.id(), tournamentMemberUpdate)
+                .orElseThrow(() -> new NotFoundException(tournamentMemberNotFoundByIdOutput(member.id())));
+
+        return TournamentMemberView.fromTournamentMember(
+                updated,
+                userRepo.findById(updated.userId())
+        );
+    } // editTournamentMemberAsOrganizerOrAdmin
+
 
     @Override
     public Flux<PaymentResponseView> joinAsRegularTournamentMemberAndPay(Long callerId, Long tournamentId, PaymentRequest paymentRequest) {
@@ -303,84 +356,16 @@ public class TournamentService implements ITournamentService {
         return new TournamentJoinRecords(payment, member);
     } // createPaymentRecords
 
-    @Override
-    public TournamentMemberView addTournamentMemberAsAdmin(Long tournamentId, TournamentMemberCreateRequest request) {
-        if (!tournamentRepo.tournamentExistsById(tournamentId)) {
-            throw new NotFoundException(tournamentNotFoundByIdOutput(tournamentId));
+    private boolean callerIsNotAdminOrOrganizerOfTournament(Long callerId, Long tournamentId) {
+        boolean isAdmin = userRepo.findById(callerId)
+                .map(user -> user.role() == Role.ADMIN)
+                .orElse(false);
+
+        if (isAdmin) {
+            return false;
         }
 
-        return applyAddTournamentMember(tournamentId, request);
-    } // addTournamentMemberAsAdmin
-
-    @Override
-    public TournamentMemberView addTournamentMemberAsOrganizer(Long callerId, Long tournamentId, TournamentMemberCreateRequest request) {
-        if (!tournamentRepo.tournamentExistsById(tournamentId)) {
-            throw new NotFoundException(tournamentNotFoundByIdOutput(tournamentId));
-        }
-
-        if (!tournamentRepo.isUserPartOfTournamentActiveAndOrganizer(callerId, tournamentId)) {
-            throw new ForbiddenAccessException(NOT_AN_ORGANIZER_OF_THIS_TOURNAMENT);
-        }
-
-        return applyAddTournamentMember(tournamentId, request);
-    } // addTournamentMemberAsOrganizer
-
-    private TournamentMemberView applyAddTournamentMember(Long tournamentId, TournamentMemberCreateRequest request) {
-        var user = userRepo.findById(request.getUserId())
-                .filter(u -> Boolean.TRUE.equals(u.isActive()))
-                .orElseThrow(() -> new NotFoundException(USER_NOT_FOUND_OR_NOT_ACTIVE));
-
-        if (tournamentRepo.isUserPartOfTournament(request.getUserId(), tournamentId)) {
-            throw new ConflictException("User is already a member of this tournament");
-        }
-
-        var tournamentMemberSave = new TournamentMemberSave();
-        tournamentMemberSave.setUserId(request.getUserId());
-        tournamentMemberSave.setTournamentId(tournamentId);
-        tournamentMemberSave.setRole(request.getRole().toTournamentMemberRole());
-        tournamentMemberSave.setConfirmed(true);
-
-        var created = tournamentRepo.addTournamentMember(tournamentMemberSave);
-        return TournamentMemberView.fromTournamentMember(created, Optional.of(user));
-    } // applyAddTournamentMember
-
-    @Override
-    public TournamentMemberView editTournamentMember(JwtTokenClaim caller, Long tournamentMemberId, TournamentMemberEditRequest request) {
-        var member = tournamentRepo.getTournamentMemberById(tournamentMemberId)
-                .orElseThrow(() -> new NotFoundException(tournamentMemberNotFoundByIdOutput(tournamentMemberId)));
-
-        if (!callerIsNotAdminOrOrganizerOfTournament(caller, member.tournamentId())) {
-            throw new ForbiddenAccessException(NOT_AN_ORGANIZER_OF_THIS_TOURNAMENT);
-        }
-
-        return applyEditTournamentMember(member, request);
-    } // editTournamentMember
-
-
-    private TournamentMemberView applyEditTournamentMember(TournamentMember member, TournamentMemberEditRequest request) {
-        boolean demotingTheOnlyOrganizer =
-                member.role() == TournamentMemberRole.ORGANIZER
-                && request.getRole() != TournamentMemberRoleEdit.ORGANIZER
-                && onlyOneOrganizer(member.tournamentId());
-
-        if (demotingTheOnlyOrganizer) {
-            throw new InvalidVariableException("This member is the only Organizer in this Tournament, their role can not be changed. "
-                                                + "Assign someone else to be the Organizer for this Tournament first");
-        }
-
-        var tournamentMemberUpdate = new TournamentMemberUpdate();
-        tournamentMemberUpdate.setRole(request.getRole().toTournamentMemberRole());
-
-        var updated = tournamentRepo.updateTournamentMember(member.id(), tournamentMemberUpdate)
-                .orElseThrow(() -> new NotFoundException(tournamentMemberNotFoundByIdOutput(member.id())));
-
-        return TournamentMemberView.fromTournamentMember(
-                updated,
-                userRepo.findById(updated.userId())
-        );
-    } // applyEditTournamentMember
-
-    private boolean onlyOneOrganizer(Long tournamentId) {
-        return tournamentRepo.countTournamentMembersByRole(tournamentId, TournamentMemberRole.ORGANIZER) <= 1;
+        return !tournamentRepo.isUserPartOfTournamentActiveAndOrganizer(callerId, tournamentId);
     }
+
 }

@@ -1,10 +1,8 @@
 package hr.algebra.gamearena.api.dto.team;
 
 import hr.algebra.gamearena.api.dto.games.GamesView;
-import hr.algebra.gamearena.api.dto.user.UserJustUsernameView;
 import hr.algebra.gamearena.api.model.games.Games;
 import hr.algebra.gamearena.api.model.team.Team;
-import hr.algebra.gamearena.api.model.user.User;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
