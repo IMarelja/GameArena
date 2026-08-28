@@ -18,7 +18,7 @@
             <span th:text="${data.isActive()} ? 'active' : 'suspended'"></span>.
         </p>
 
-        <form method="post">
+        <form method="post" th:action="@{/user/{id}/suspend(id=${data.id()})}">
             <button type="submit" class="btn btn-lg w-100"
                     th:classappend="${data.isActive()} ?
                         'btn-warning' :

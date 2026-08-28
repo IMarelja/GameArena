@@ -22,7 +22,7 @@
             <div>
                 <span class="badge fs-6 text-bg-danger rounded-pill" th:if="${data.user().isDeleted()}">Deleted</span>
                 <a class="btn btn-outline-secondary btn-sm" th:if="${data.canAddToTournament()}" th:href="@{/user/{id}/tournaments/add(id=${data.user().id()})}">Add To Tournament</a>
-                <a class="btn btn-outline-warning btn-sm" th:if="${isAdmin}" th:href="@{/user/{id}/full(id=${data.user().id()})}">Suspend / Unsuspend</a>
+                <a class="btn btn-outline-warning btn-sm" th:if="${isAdmin}" th:href="@{/user/{id}/suspend(id=${data.user().id()})}">Suspend / Unsuspend</a>
             </div>
         </div>
 

@@ -120,14 +120,14 @@ public class UserMvcController {
         ).toModelAndView();
     }
 
-    @GetMapping("/user/{id}/full")
+    @GetMapping("/user/{id}/suspend")
     @PreAuthorize("hasRole('ADMIN')")
     public ModelAndView suspendConfirm(@PathVariable Long id) throws UnauthorizedException, ForbiddenException, NotFoundException, UnexpectedApiErrorException {
         var user = UserFullViewData.from(userService.getUserFullById(id));
         return MvcResponse.success(HttpStatus.OK, USER_SUSPEND_VIEW, user).toModelAndView();
     }
 
-    @PostMapping("/user/{id}/full")
+    @PostMapping("/user/{id}/suspend")
     @PreAuthorize("hasRole('ADMIN')")
     public ModelAndView suspend(@PathVariable Long id) throws UnauthorizedException, ForbiddenException, NotFoundException, UnexpectedApiErrorException {
         var current = userService.getUserFullById(id);

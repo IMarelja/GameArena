@@ -30,13 +30,13 @@ public class UserController {
     @PreAuthorize("permitAll()")
     @GetMapping
     public ResponseEntity<ApiResponse<List<UserViewDto>>> findAll() {
-        return ResponseEntity.ok(ApiResponse.success(this.userService.findAll()));
+        return ResponseEntity.ok(ApiResponse.success(userService.findAll()));
     }
 
     @PreAuthorize("permitAll()")
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<UserViewDto>> getById(@PathVariable Long id) {
-        var user = this.userService.findById(id);
+        var user = userService.findById(id);
 
         return user.map(userViewDto -> ResponseEntity.ok(ApiResponse.success(userViewDto)))
                 .orElseThrow(() -> new NotFoundException("User with id: " + id + " not found"));
@@ -45,7 +45,7 @@ public class UserController {
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/{id}/full")
     public ResponseEntity<ApiResponse<UserFullViewDto>> getByIdFullInfo(@PathVariable Long id) {
-        var user = this.userService.findFullInfoById(id);
+        var user = userService.findFullInfoById(id);
 
         return user.map(userFullViewDto -> ResponseEntity.ok(ApiResponse.success(userFullViewDto)))
                 .orElseThrow(() -> new NotFoundException("User with id: " + id + " not found"));
@@ -62,7 +62,7 @@ public class UserController {
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/me")
     public ResponseEntity<ApiResponse<UserFullViewDto>> getMe(@AuthenticationPrincipal JwtTokenClaim caller) {
-        var user = this.userService.findFullInfoById(caller.userId());
+        var user = userService.findFullInfoById(caller.userId());
 
         return user.map(userFullViewDto -> ResponseEntity.ok(ApiResponse.success(userFullViewDto)))
                 .orElseThrow(() -> new ConflictException("This user no longer exists"));
