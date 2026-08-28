@@ -4,6 +4,7 @@ import hr.algebra.gamearena.api.dto.payment.PaymentRequest;
 import hr.algebra.gamearena.api.dto.tournament.TournamentCreateRequest;
 import hr.algebra.gamearena.api.dto.tournament.TournamentEditRequest;
 import hr.algebra.gamearena.api.dto.tournament.TournamentFullView;
+import hr.algebra.gamearena.api.dto.tournament.TournamentQueryDto;
 import hr.algebra.gamearena.api.dto.payment.responce.PaymentResponseView;
 import hr.algebra.gamearena.api.dto.tournament.member.TournamentMemberEditRequest;
 import hr.algebra.gamearena.api.dto.tournament.member.TournamentMemberCreateRequest;
@@ -19,6 +20,7 @@ public interface ITournamentService {
     Optional<TournamentFullView> getTournament(Long id);
     List<TournamentFullView> getTournamentsFromUserId(Long userId);
     TournamentFullView createTournament(Long callerId, TournamentCreateRequest request);
+    List<TournamentFullView> queryTournaments(TournamentQueryDto query);
 
     /* Admin or organizer of this tournament */
     TournamentFullView editTournamentAsOrganizerOrAdmin(Long calledId, Long tournamentId, TournamentEditRequest request);

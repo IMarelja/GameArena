@@ -4,15 +4,13 @@ import hr.algebra.gamearena.api.dto.jwt.JwtTokenClaim;
 import hr.algebra.gamearena.api.dto.match.MatchCreateRequest;
 import hr.algebra.gamearena.api.dto.match.MatchDetailedFullView;
 import hr.algebra.gamearena.api.dto.match.MatchEditRequest;
+import hr.algebra.gamearena.api.dto.match.MatchQueryDto;
 import hr.algebra.gamearena.api.dto.user.RoleView;
 import hr.algebra.gamearena.api.event.notification.MatchCreatedEvent;
 import hr.algebra.gamearena.api.exceptions.extenders.BadRequestedException;
 import hr.algebra.gamearena.api.exceptions.extenders.ForbiddenAccessException;
 import hr.algebra.gamearena.api.exceptions.extenders.NotFoundException;
-import hr.algebra.gamearena.api.model.match.Match;
-import hr.algebra.gamearena.api.model.match.MatchSave;
-import hr.algebra.gamearena.api.model.match.MatchStatus;
-import hr.algebra.gamearena.api.model.match.MatchUpdate;
+import hr.algebra.gamearena.api.model.match.*;
 import hr.algebra.gamearena.api.model.tournament.member.TournamentMemberRole;
 import hr.algebra.gamearena.api.repository.games.IGamesRepo;
 import hr.algebra.gamearena.api.repository.match.IMatchRepo;
@@ -64,6 +62,24 @@ public class MatchService implements IMatchService {
     @Override
     public List<MatchDetailedFullView> getMatchesTournamentId(Long tournamentId) {
         return matchRepo.getAllByTournamentId(tournamentId)
+                .stream()
+                .map(this::toDetailedFullView)
+                .toList();
+    }
+
+    @Override
+    public List<MatchDetailedFullView> queryMatches(MatchQueryDto query) {
+
+        if (query.getGameId() != null && gamesRepo.getById(query.getGameId()).isEmpty()){
+            throw new BadRequestedException("The game does not exist");
+        }
+
+        MatchQuery matchQuery = new MatchQuery();
+
+        matchQuery.setGameId(Optional.ofNullable(query.getGameId()));
+        matchQuery.setAscending(query.getAscending());
+
+        return matchRepo.getAllByQuery(matchQuery)
                 .stream()
                 .map(this::toDetailedFullView)
                 .toList();

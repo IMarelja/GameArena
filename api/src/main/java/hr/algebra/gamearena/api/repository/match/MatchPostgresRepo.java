@@ -1,6 +1,7 @@
 package hr.algebra.gamearena.api.repository.match;
 
 import hr.algebra.gamearena.api.model.match.Match;
+import hr.algebra.gamearena.api.model.match.MatchQuery;
 import hr.algebra.gamearena.api.model.match.MatchSave;
 import hr.algebra.gamearena.api.model.match.MatchUpdate;
 import hr.algebra.gamearena.api.orm.postgres.match.MatchPostgres;
@@ -50,6 +51,14 @@ public class MatchPostgresRepo implements IMatchRepo {
     @Override
     public List<Match> getAllByPlayerId(Long userId) {
         return matchPostgreSQLRepo.findByPlayerOneIdOrPlayerTwoId(userId, userId)
+                .stream()
+                .map(Match::fromMatchPostgres)
+                .toList();
+    }
+
+    @Override
+    public List<Match> getAllByQuery(MatchQuery query) {
+        return matchPostgreSQLRepo.findMyQuery(query.getGameId(), query.getAscending())
                 .stream()
                 .map(Match::fromMatchPostgres)
                 .toList();

@@ -1,6 +1,7 @@
 package hr.algebra.gamearena.api.repository.tournament;
 
 import hr.algebra.gamearena.api.model.tournament.Tournament;
+import hr.algebra.gamearena.api.model.tournament.TournamentQuery;
 import hr.algebra.gamearena.api.model.tournament.TournamentSave;
 import hr.algebra.gamearena.api.model.tournament.TournamentUpdate;
 import hr.algebra.gamearena.api.model.tournament.member.TournamentMember;
@@ -39,6 +40,14 @@ public class TournamentPostgresRepo implements ITournamentRepo {
     @Override
     public List<Tournament> getAllTournament() {
         return tournamentPostgreSQLRepo.findAll()
+                .stream()
+                .map(Tournament::fromTournamentPostgres)
+                .toList();
+    }
+
+    @Override
+    public List<Tournament> getAllByQuery(TournamentQuery query) {
+        return tournamentPostgreSQLRepo.findAllByOptionalGameIdOrderByCreatedAt(query.getGameId(), query.getAscending())
                 .stream()
                 .map(Tournament::fromTournamentPostgres)
                 .toList();

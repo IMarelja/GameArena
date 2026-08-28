@@ -4,6 +4,7 @@ import hr.algebra.gamearena.api.dto.payment.PaymentRequest;
 import hr.algebra.gamearena.api.dto.tournament.TournamentCreateRequest;
 import hr.algebra.gamearena.api.dto.tournament.TournamentEditRequest;
 import hr.algebra.gamearena.api.dto.tournament.TournamentFullView;
+import hr.algebra.gamearena.api.dto.tournament.TournamentQueryDto;
 import hr.algebra.gamearena.api.dto.payment.responce.PaymentStagesView;
 import hr.algebra.gamearena.api.dto.payment.responce.PaymentResponseView;
 import hr.algebra.gamearena.api.dto.tournament.member.TournamentMemberEditRequest;
@@ -14,6 +15,7 @@ import hr.algebra.gamearena.api.exceptions.extenders.*;
 import hr.algebra.gamearena.api.model.invoice.BillingInfoSave;
 import hr.algebra.gamearena.api.model.payment.Payment;
 import hr.algebra.gamearena.api.model.payment.PaymentSave;
+import hr.algebra.gamearena.api.model.tournament.TournamentQuery;
 import hr.algebra.gamearena.api.model.tournament.TournamentSave;
 import hr.algebra.gamearena.api.model.tournament.TournamentStatus;
 import hr.algebra.gamearena.api.model.tournament.TournamentUpdate;
@@ -101,6 +103,22 @@ public class TournamentService implements ITournamentService {
                 .map(tournament -> TournamentFullView.fromTournamentAndGame(tournament, gamesRepo.getById(tournament.gameId())))
                 .toList();
     } // getTournamentsForUser
+
+    @Override
+    public List<TournamentFullView> queryTournaments(TournamentQueryDto query) {
+        if (query.getGameId() != null && gamesRepo.getById(query.getGameId()).isEmpty()) {
+                throw new NotFoundException(gameNotFoundByIdOutput(query.getGameId()));
+        }
+
+        var tournamentQuery = new TournamentQuery();
+        tournamentQuery.setGameId(Optional.ofNullable(query.getGameId()));
+        tournamentQuery.setAscending(query.getAscending());
+
+        return tournamentRepo.getAllByQuery(tournamentQuery)
+                .stream()
+                .map(tournament -> TournamentFullView.fromTournamentAndGame(tournament, gamesRepo.getById(tournament.gameId())))
+                .toList();
+    }
 
     @Override
     public TournamentFullView createTournament(Long callerId, TournamentCreateRequest request) {
