@@ -1,7 +1,6 @@
 package hr.algebra.gamearena.webapp.models.mvc.data.team.member;
 
 import hr.algebra.gamearena.webapp.models.cereal.team.member.TeamMemberMinimalViewDecereal;
-import hr.algebra.gamearena.webapp.models.cereal.team.member.TeamMemberRoleDecereal;
 
 public record TeamMemberMinimalViewData(
         Long memberId,
