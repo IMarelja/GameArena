@@ -178,7 +178,14 @@ public class TournamentMvcController {
         var form = TournamentEditPostViewModel.fromTournamentFullViewDecereal(tournament);
         var activeGames = loadActiveGames();
 
-        return MvcResponse.success(HttpStatus.OK, TOURNAMENT_EDIT_VIEW, new TournamentEditFormViewData(id, form, activeGames)).toModelAndView();
+        return MvcResponse.success(
+                HttpStatus.OK,
+                TOURNAMENT_EDIT_VIEW,
+                new TournamentEditFormViewData(
+                        id,
+                        form,
+                        activeGames)
+        ).toModelAndView();
     }
 
     @PostMapping("/tournament/{id}/edit")
@@ -196,14 +203,32 @@ public class TournamentMvcController {
 
         if (bindingResult.hasErrors()) {
             var errors = bindingResult.getAllErrors().stream().map(err -> new MvcError(err.getDefaultMessage())).toList();
-            return MvcResponse.errorsWithData(HttpStatus.BAD_REQUEST, TOURNAMENT_EDIT_VIEW, new TournamentEditFormViewData(id, form, activeGames), errors).toModelAndView();
+            return MvcResponse.errorsWithData(
+                    HttpStatus.BAD_REQUEST,
+                    TOURNAMENT_EDIT_VIEW,
+                    new TournamentEditFormViewData(
+                            id,
+                            form,
+                            activeGames
+                    ),
+                    errors
+            ).toModelAndView();
         }
 
         try {
             tournamentService.editTournament(id, form.toTournamentEditCereal());
         } catch (UnauthorizedException | ForbiddenException | NotFoundException | UnexpectedApiErrorException e) {
             var errors = e.getMessages().stream().map(MvcError::new).toList();
-            return MvcResponse.errorsWithData(e.getStatus(), TOURNAMENT_EDIT_VIEW, new TournamentEditFormViewData(id, form, activeGames), errors).toModelAndView();
+            return MvcResponse.errorsWithData(
+                    e.getStatus(),
+                    TOURNAMENT_EDIT_VIEW,
+                    new TournamentEditFormViewData(
+                            id,
+                            form,
+                            activeGames
+                    ),
+                    errors
+            ).toModelAndView();
         }
 
         return MvcResponse.redirect("/" + TOURNAMENT_VIEW + "/" + id);
@@ -230,8 +255,15 @@ public class TournamentMvcController {
         var member = findMember(tournamentId, memberId);
         var form = new TournamentMemberEditPostViewModel(TournamentMemberRoleEditViewEnum.fromDecereal(member.role()));
 
-        return MvcResponse.success(HttpStatus.OK, TOURNAMENT_MEMBER_EDIT_VIEW,
-                new TournamentMemberEditFormViewData(tournamentId, memberId, member.user().username(), form)).toModelAndView();
+        return MvcResponse.success(
+                HttpStatus.OK,
+                TOURNAMENT_MEMBER_EDIT_VIEW,
+                new TournamentMemberEditFormViewData(
+                        tournamentId,
+                        memberId,
+                        member.user().username(),
+                        form)
+        ).toModelAndView();
     }
 
     @PostMapping("/tournament/{tournamentId}/member/{memberId}/edit")
@@ -250,23 +282,47 @@ public class TournamentMvcController {
         try {
             username = findMember(tournamentId, memberId).user().username();
         } catch (NotFoundException | UnexpectedApiErrorException e) {
-            return MvcResponse.errors(e.getStatus(), TOURNAMENT_MEMBER_EDIT_VIEW,
-                    e.getMessages().stream().map(MvcError::new).toList()).toModelAndView();
+            return MvcResponse.errors(
+                    e.getStatus(),
+                    TOURNAMENT_MEMBER_EDIT_VIEW,
+                    e.getMessages()
+                            .stream()
+                            .map(MvcError::new)
+                            .toList()
+            ).toModelAndView();
         }
 
         if (bindingResult.hasErrors()) {
             var errors = bindingResult.getAllErrors().stream().map(err -> new MvcError(err.getDefaultMessage())).toList();
-            return MvcResponse.errorsWithData(HttpStatus.BAD_REQUEST, TOURNAMENT_MEMBER_EDIT_VIEW,
-                    new TournamentMemberEditFormViewData(tournamentId, memberId, username, form), errors).toModelAndView();
+            return MvcResponse.errorsWithData(
+                    HttpStatus.BAD_REQUEST,
+                    TOURNAMENT_MEMBER_EDIT_VIEW,
+                    new TournamentMemberEditFormViewData(
+                            tournamentId,
+                            memberId,
+                            username,
+                            form)
+                    , errors
+            ).toModelAndView();
         }
 
         try {
             tournamentService.editTournamentMember(memberId, form.toTournamentMemberEditCereal());
             return MvcResponse.redirect("/" + TOURNAMENT_VIEW + "/" + tournamentId);
         } catch (UnauthorizedException | ForbiddenException | NotFoundException | ConflictException | BadRequestedExceptions | UnexpectedApiErrorException e) {
-            var errors = e.getMessages().stream().map(MvcError::new).toList();
-            return MvcResponse.errorsWithData(e.getStatus(), TOURNAMENT_MEMBER_EDIT_VIEW,
-                    new TournamentMemberEditFormViewData(tournamentId, memberId, username, form), errors).toModelAndView();
+            var errors = e.getMessages()
+                    .stream()
+                    .map(MvcError::new)
+                    .toList();
+            return MvcResponse.errorsWithData(
+                    e.getStatus(),
+                    TOURNAMENT_MEMBER_EDIT_VIEW,
+                    new TournamentMemberEditFormViewData(
+                            tournamentId,
+                            memberId, username,
+                            form)
+                    , errors
+            ).toModelAndView();
         }
     }
 
@@ -287,7 +343,14 @@ public class TournamentMvcController {
         var members = tournamentService.getTournamentMembers(id).stream().map(TournamentMemberViewData::from).toList();
         var form = new MatchCreatePostViewModel(null, null, null);
 
-        return MvcResponse.success(HttpStatus.OK, TOURNAMENT_MATCH_ADD_VIEW, new MatchCreateFormViewData(id, form, members)).toModelAndView();
+        return MvcResponse.success(
+                HttpStatus.OK,
+                TOURNAMENT_MATCH_ADD_VIEW,
+                new MatchCreateFormViewData(
+                        id,
+                        form,
+                        members)
+        ).toModelAndView();
     }
 
     @PostMapping("/tournament/{id}/match/add")
@@ -301,7 +364,10 @@ public class TournamentMvcController {
             throw new ForbiddenException(List.of("Only an admin or this tournament's organizer can add matches"));
         }
 
-        var members = tournamentService.getTournamentMembers(id).stream().map(TournamentMemberViewData::from).toList();
+        var members = tournamentService.getTournamentMembers(id)
+                .stream()
+                .map(TournamentMemberViewData::from)
+                .toList();
 
         if (form.playerOneId() != null && form.playerOneId().equals(form.playerTwoId())) {
             bindingResult.reject("samePlayer", "Player one and player two must be different");
