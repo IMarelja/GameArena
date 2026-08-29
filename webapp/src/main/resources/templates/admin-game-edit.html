@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Edit Game')}">
+    <title>GameArena - Edit Game</title>
+</head>
+<body>
+<!--/*@thymesVar id="data" type="hr.algebra.gamearena.webapp.models.mvc.data.admin.games.GameEditFormViewData"*/-->
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<main class="container py-4" style="max-width: 480px;">
+    <h1 class="mb-4">Edit Game</h1>
+
+    <div th:replace="~{fragments/errors :: errors(${errors})}"></div>
+
+    <form method="post" th:if="${data != null}" th:action="@{/admin/game/{id}/edit(id=${data.gameId()})}">
+        <div class="mb-3">
+            <label class="form-label">
+                Name
+                <input type="text" class="form-control" name="name" th:value="${data.form().name()}">
+            </label>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Description
+                <textarea class="form-control" name="description" th:text="${data.form().description()}"></textarea>
+            </label>
+        </div>
+        <div class="mb-3 form-check">
+            <input type="hidden" name="_isActive" value="on">
+            <input type="checkbox" class="form-check-input" id="isActive" name="isActive" value="true" th:checked="${data.form().isActive() == true}">
+            <label class="form-check-label" for="isActive">Active</label>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Save Changes</button>
+    </form>
+</main>
+</body>
+</html>

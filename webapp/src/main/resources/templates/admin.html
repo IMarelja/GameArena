@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Admin')}">
+    <title>GameArena - Admin</title>
+</head>
+<body>
+<!--/*@thymesVar id="data" type="hr.algebra.gamearena.webapp.models.mvc.data.admin.AdminQueryViewData"*/-->
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<main class="container py-4">
+    <h1 class="mb-4">Admin</h1>
+
+    <div th:replace="~{fragments/errors :: errors(${errors})}"></div>
+
+    <form method="get"
+          th:if="${data != null}"
+          th:action="@{/admin/query}"
+          th:with="gamesFailed=${data.gamesAll().isEmpty()},
+                   games=${data.gamesAll().orElse(null)},
+                   matchesFailed=${data.matches().isEmpty()},
+                   matches=${data.matches().orElse(null)},
+                   tournamentsFailed=${data.tournaments().isEmpty()},
+                   tournaments=${data.tournaments().orElse(null)}">
+
+        <div class="text-center mb-4">
+            <button type="submit" class="btn btn-primary px-5">Search</button>
+        </div>
+
+        <div class="alert alert-warning" th:if="${gamesFailed}">
+            Failed to load the games list.</div>
+
+        <div class="table-responsive">
+            <table class="table align-top">
+                <tbody>
+                <tr>
+                    <td style="width: 34%;">
+                        <h2 class="h6">Match</h2>
+                        <label class="form-label w-100">
+                            Game
+                            <select class="form-select mb-2" name="matchGameId" th:disabled="${gamesFailed}">
+                                <option value="">- All Games -</option>
+                                <option th:each="game : ${games}"
+                                        th:value="${game.id()}"
+                                        th:selected="${data.form().matchGameId() != null and game.id() == data.form().matchGameId()}"
+                                        th:text="${game.name()} + (${game.isActive()} ? ' (Active)' : ' (Inactive)')"></option>
+                            </select>
+                        </label>
+                        <label class="form-label w-100">
+                            Creation Order
+                            <select class="form-select" name="ascendingMatch">
+                                <option value="true" th:selected="${data.form().ascendingMatch() == true}">Ascending</option>
+                                <option value="false" th:selected="${data.form().ascendingMatch() == false}">Descending</option>
+                            </select>
+                        </label>
+                    </td>
+                    <td style="width: 33%;">
+                        <h2 class="h6">Tournament</h2>
+                        <label class="form-label w-100">
+                            Game
+                            <select class="form-select mb-2" name="tournamentGameId" th:disabled="${gamesFailed}">
+                                <option value="">- All Games -</option>
+                                <option th:each="game : ${games}"
+                                        th:value="${game.id()}"
+                                        th:selected="${data.form().tournamentGameId() != null and game.id() == data.form().tournamentGameId()}"
+                                        th:text="${game.name()} + (${game.isActive()} ? ' (Active)' : ' (Inactive)')"></option>
+                            </select>
+                        </label>
+                        <label class="form-label w-100">
+                            Creation Order
+                            <select class="form-select" name="ascendingTournament">
+                                <option value="true" th:selected="${data.form().ascendingTournament() == true}">Ascending</option>
+                                <option value="false" th:selected="${data.form().ascendingTournament() == false}">Descending</option>
+                            </select>
+                        </label>
+                    </td>
+                    <td style="width: 33%;">
+                        <h2 class="h6">Games</h2>
+                        <a class="btn btn-success" th:href="@{/admin/game/add}">Add Game</a>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="align-top">
+                        <div class="list-group" style="max-height: 420px; overflow-y: auto;">
+                            <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
+                               th:each="match : ${matches}"
+                               th:href="@{/match/{id}(id=${match.id()})}">
+                                <div>
+                                    <div class="fw-semibold" th:text="${match.player1().username()} + ' vs ' + ${match.player2().username()}"></div>
+                                    <div class="text-muted small" th:text="${match.game()?.name()}"></div>
+                                </div>
+                                <span class="badge rounded-pill" th:classappend="${match.status()?.badgeClass()}" th:text="${match.status()}"></span>
+                            </a>
+                        </div>
+                        <div class="alert alert-warning mt-2" th:if="${matchesFailed}">Failed to load matches.</div>
+                        <p class="text-muted fst-italic" th:if="${not matchesFailed and #lists.isEmpty(matches)}">No matches found.</p>
+                    </td>
+                    <td class="align-top">
+                        <div class="list-group" style="max-height: 420px; overflow-y: auto;">
+                            <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
+                               th:each="tournament : ${tournaments}"
+                               th:href="@{/tournament/{id}(id=${tournament.id()})}">
+                                <div>
+                                    <div class="fw-semibold" th:text="${tournament.name()}"></div>
+                                    <div class="text-muted small" th:text="${tournament.games()?.name()}"></div>
+                                </div>
+                                <span class="badge rounded-pill" th:classappend="${tournament.status()?.badgeClass()}" th:text="${tournament.status()}"></span>
+                            </a>
+                        </div>
+                        <div class="alert alert-warning mt-2" th:if="${tournamentsFailed}">Failed to load tournaments.</div>
+                        <p class="text-muted fst-italic" th:if="${not tournamentsFailed and #lists.isEmpty(tournaments)}">No tournaments found.</p>
+                    </td>
+                    <td class="align-top">
+                        <div class="list-group" style="max-height: 420px; overflow-y: auto;">
+                            <div class="list-group-item d-flex justify-content-between align-items-center"
+                                 th:each="game : ${games}">
+                                <span th:text="${game.name()}"></span>
+                                <span class="d-flex align-items-center gap-2">
+                                    <span class="badge rounded-pill" th:classappend="${game.isActive()} ? 'text-bg-success' : 'text-bg-secondary'"
+                                          th:text="${game.isActive()} ? 'Active' : 'Inactive'"></span>
+                                    <a class="btn btn-sm btn-outline-primary" th:href="@{/admin/game/{id}/edit(id=${game.id()})}">Edit</a>
+                                </span>
+                            </div>
+                        </div>
+                        <p class="text-muted fst-italic" th:if="${not gamesFailed and #lists.isEmpty(games)}">No games found.</p>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </form>
+</main>
+</body>
+</html>

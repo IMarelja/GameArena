@@ -9,6 +9,7 @@
             <a class="nav-link" th:href="@{/users}">Users</a>
         </div>
         <div class="navbar-nav bg-info rounded px-2 me-2" th:if="${isAdmin}">
+            <a class="nav-link" th:href="@{/admin}">Admin</a>
             <a class="nav-link" th:href="@{/logs}">Logs</a>
         </div>
         <div class="navbar-nav"
