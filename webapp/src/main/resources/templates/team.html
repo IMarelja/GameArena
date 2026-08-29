@@ -12,12 +12,11 @@
 
     <div th:if="${data != null}"
          th:with="meMember=${data.meMember().orElse(null)},
-                  canEdit=${meMember != null and meMember.role().name() == 'CAPTAIN'},
                   membersFailed=${data.members().isEmpty()},
                   members=${data.members().orElse(null)}">
         <div class="d-flex justify-content-between align-items-start mb-3">
             <h1 class="mb-0" th:text="${data.team().name()}"></h1>
-            <a class="btn btn-outline-secondary btn-sm" th:if="${canEdit}" th:href="@{/team/{id}/edit(id=${data.team().id()})}">Edit Team</a>
+            <a class="btn btn-outline-secondary btn-sm" th:if="${isTeamCaptain}" th:href="@{/team/{teamId}/edit(teamId=${data.team().id()})}">Edit Team</a>
         </div>
 
         <table class="table table-borderless w-auto mb-4">
@@ -40,12 +39,12 @@
                       th:text="${member.role()}">
                 </span>
                 <a class="btn btn-outline-secondary btn-sm me-1"
-                   th:if="${canEdit}"
+                   th:if="${isTeamCaptain}"
                    th:href="@{/team/{teamId}/member/{memberId}/edit(teamId=${data.team().id()},memberId=${member.memberId()})}">
                     Edit
                 </a>
                 <a class="btn btn-outline-danger btn-sm"
-                   th:if="${canEdit}"
+                   th:if="${isTeamCaptain}"
                    th:href="@{/team/{teamId}/member/{memberId}/remove(teamId=${data.team().id()},memberId=${member.memberId()})}">
                     Remove
                 </a>

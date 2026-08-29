@@ -1,17 +1,23 @@
 package hr.algebra.gamearena.webapp.controller;
 
 import hr.algebra.gamearena.webapp.exceptions.GameArenaApiServiceException;
+import hr.algebra.gamearena.webapp.exceptions.extenders.NotFoundException;
 import hr.algebra.gamearena.webapp.exceptions.extenders.UnauthorizedException;
+import hr.algebra.gamearena.webapp.exceptions.extenders.UnexpectedApiErrorException;
 import hr.algebra.gamearena.webapp.models.mvc.MvcError;
 import hr.algebra.gamearena.webapp.models.mvc.MvcResponse;
-import hr.algebra.gamearena.webapp.security.AuthenticatedUser;
+import hr.algebra.gamearena.webapp.service.authentication.user.IAuthenticatedUserService;
 import hr.algebra.gamearena.webapp.service.jwt.IJwtService;
+import hr.algebra.gamearena.webapp.service.match.IMatchService;
+import hr.algebra.gamearena.webapp.service.team.ITeamService;
+import hr.algebra.gamearena.webapp.service.tournament.ITournamentService;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.servlet.ModelAndView;
@@ -24,21 +30,65 @@ public class MvcGlobalExceptionHandler {
     private static final String ERROR_VIEW = "error";
 
     private final IJwtService jwtService;
+    private final IAuthenticatedUserService authenticatedUserService;
+    private final ITeamService teamService;
+    private final ITournamentService tournamentService;
+    private final IMatchService matchService;
 
-    public MvcGlobalExceptionHandler(IJwtService jwtService) {
+    public MvcGlobalExceptionHandler(
+            IJwtService jwtService,
+            IAuthenticatedUserService authenticatedUserService,
+            ITeamService teamService,
+            ITournamentService tournamentService,
+            IMatchService matchService)
+    {
         this.jwtService = jwtService;
+        this.authenticatedUserService = authenticatedUserService;
+        this.teamService = teamService;
+        this.tournamentService = tournamentService;
+        this.matchService = matchService;
     }
 
     // Shared across every page
 
     @ModelAttribute("authenticated")
     public boolean authenticated() {
-        return AuthenticatedUser.isAuthenticated();
+        return authenticatedUserService.isAuthenticated();
     }
 
     @ModelAttribute("isAdmin")
     public boolean isAdmin() {
-        return AuthenticatedUser.isAdmin();
+        return authenticatedUserService.isAdmin();
+    }
+
+    @ModelAttribute("isTeamCaptain")
+    public boolean isTeamCaptain(@PathVariable(name = "teamId", required = false) Long teamId) {
+        return teamId != null && teamService.isTeamCaptain(teamId);
+    }
+
+    @ModelAttribute("isTeamMember")
+    public boolean isTeamMember(@PathVariable(name = "teamId", required = false) Long teamId) {
+        return teamId != null && teamService.isTeamMember(teamId);
+    }
+
+    @ModelAttribute("isTournamentOrganizerOrAdmin")
+    public boolean isTournamentOrganizerOrAdmin(
+            @PathVariable(name = "tournamentId", required = false) Long tournamentId,
+            @PathVariable(name = "matchId", required = false) Long matchId
+    ) {
+        if (tournamentId != null) {
+            return tournamentService.isTournamentOrganizerOrAdmin(tournamentId);
+        }
+
+        if (matchId != null) {
+            try {
+                return tournamentService.isTournamentOrganizerOrAdmin(matchService.getMatchById(matchId).tournamentId());
+            } catch (NotFoundException | UnexpectedApiErrorException e) {
+                return false;
+            }
+        }
+
+        return false;
     }
 
 

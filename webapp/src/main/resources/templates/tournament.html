@@ -12,7 +12,6 @@
 
     <div th:if="${data != null}"
          th:with="meMember=${data.meMember().orElse(null)},
-                  canEdit=${isAdmin or (meMember != null and meMember.role().name() == 'ORGANIZER')},
                   membersFailed=${data.members().isEmpty()},
                   members=${data.members().orElse(null)},
                   matchesFailed=${data.matches().isEmpty()},
@@ -21,7 +20,7 @@
             <h1 class="mb-0" th:text="${data.tournament().name()}"></h1>
             <div>
                 <span class="badge fs-6 rounded-pill" th:classappend="${data.tournament().status()?.badgeClass()}" th:text="${data.tournament().status()}"></span>
-                <a class="btn btn-outline-secondary btn-sm" th:if="${canEdit}" th:href="@{/tournament/{id}/edit(id=${data.tournament().id()})}">Edit Tournament</a>
+                <a class="btn btn-outline-secondary btn-sm" th:if="${isTournamentOrganizerOrAdmin}" th:href="@{/tournament/{tournamentId}/edit(tournamentId=${data.tournament().id()})}">Edit Tournament</a>
             </div>
         </div>
 
@@ -42,7 +41,7 @@
             <div class="list-group-item d-flex justify-content-between align-items-center" th:each="member : ${members}">
                 <a class="text-decoration-none flex-grow-1" th:href="@{/user/{id}(id=${member.user().id()})}" th:text="${member.user().username()}"></a>
                 <span class="badge rounded-pill me-2" th:classappend="${member.role()?.badgeClass()}" th:text="${member.role()}"></span>
-                <a class="btn btn-outline-secondary btn-sm" th:if="${canEdit}"
+                <a class="btn btn-outline-secondary btn-sm" th:if="${isTournamentOrganizerOrAdmin}"
                    th:href="@{/tournament/{tournamentId}/member/{memberId}/edit(tournamentId=${data.tournament().id()},memberId=${member.id()})}">Edit</a>
             </div>
         </div>
@@ -50,18 +49,18 @@
 
         <div class="d-flex justify-content-between align-items-center mb-3 mt-4">
             <h2 class="h4 mb-0">Matches</h2>
-            <a class="btn btn-primary btn-sm" th:if="${canEdit}" th:href="@{/tournament/{id}/match/add(id=${data.tournament().id()})}">Add Match</a>
+            <a class="btn btn-primary btn-sm" th:if="${isTournamentOrganizerOrAdmin}" th:href="@{/tournament/{tournamentId}/match/add(tournamentId=${data.tournament().id()})}">Add Match</a>
         </div>
         <div class="alert alert-danger" th:if="${matchesFailed}">Failed to load matches of this tournament.</div>
         <div class="list-group" th:if="${not matchesFailed and not #lists.isEmpty(matches)}">
             <div class="list-group-item d-flex justify-content-between align-items-center" th:each="match : ${matches}">
-                <a class="text-decoration-none flex-grow-1" th:href="@{/match/{id}(id=${match.id()})}">
+                <a class="text-decoration-none flex-grow-1" th:href="@{/match/{matchId}(matchId=${match.id()})}">
                     <span th:text="${match.player1().username()} + ' VS ' + ${match.player2().username()}"></span>
                     <small class="text-muted" th:text="'(' + ${match.game().name()} + ')'"></small>
                 </a>
                 <span class="badge rounded-pill me-2" th:classappend="${match.status()?.badgeClass()}" th:text="${match.status()}"></span>
-                <a class="btn btn-outline-secondary btn-sm" th:if="${canEdit}"
-                   th:href="@{/match/{id}/edit(id=${match.id()})}">Edit</a>
+                <a class="btn btn-outline-secondary btn-sm" th:if="${isTournamentOrganizerOrAdmin}"
+                   th:href="@{/match/{matchId}/edit(matchId=${match.id()})}">Edit</a>
             </div>
         </div>
         <p class="text-muted fst-italic" th:if="${not matchesFailed and #lists.isEmpty(matches)}">No matches in this tournament.</p>

@@ -12,7 +12,7 @@ import hr.algebra.gamearena.webapp.models.mvc.data.tournament.member.TournamentM
 import hr.algebra.gamearena.webapp.models.mvc.data.user.UserFullViewData;
 import hr.algebra.gamearena.webapp.models.mvc.data.user.UserProfileViewData;
 import hr.algebra.gamearena.webapp.models.mvc.data.user.UserViewData;
-import hr.algebra.gamearena.webapp.security.AuthenticatedUser;
+import hr.algebra.gamearena.webapp.service.authentication.user.IAuthenticatedUserService;
 import hr.algebra.gamearena.webapp.service.jwt.IJwtService;
 import hr.algebra.gamearena.webapp.service.leaderboard.ILeaderboardService;
 import hr.algebra.gamearena.webapp.service.match.IMatchService;
@@ -40,6 +40,7 @@ public class UserMvcController {
     private final ITournamentService tournamentService;
     private final ILeaderboardService leaderboardService;
     private final IJwtService jwtService;
+    private final IAuthenticatedUserService authenticatedUserService;
 
     private static final String ME_VIEW = "me";
 
@@ -54,13 +55,15 @@ public class UserMvcController {
             IMatchService matchService,
             ITournamentService tournamentService,
             ILeaderboardService leaderboardService,
-            IJwtService jwtService)
+            IJwtService jwtService,
+            IAuthenticatedUserService authenticatedUserService)
     {
         this.userService = userService;
         this.matchService = matchService;
         this.tournamentService = tournamentService;
         this.leaderboardService = leaderboardService;
         this.jwtService = jwtService;
+        this.authenticatedUserService = authenticatedUserService;
     }
 
     @GetMapping("/users")
@@ -124,7 +127,11 @@ public class UserMvcController {
     @PreAuthorize("hasRole('ADMIN')")
     public ModelAndView suspendConfirm(@PathVariable Long id) throws UnauthorizedException, ForbiddenException, NotFoundException, UnexpectedApiErrorException {
         var user = UserFullViewData.from(userService.getUserFullById(id));
-        return MvcResponse.success(HttpStatus.OK, USER_SUSPEND_VIEW, user).toModelAndView();
+        return MvcResponse.success(
+                HttpStatus.OK,
+                USER_SUSPEND_VIEW,
+                user
+        ).toModelAndView();
     }
 
     @PostMapping("/user/{id}/suspend")
@@ -177,14 +184,31 @@ public class UserMvcController {
         try {
             username = userService.getUserById(id).username();
         } catch (NotFoundException | UnexpectedApiErrorException e) {
-            return MvcResponse.errors(e.getStatus(), USER_TOURNAMENT_ADD_VIEW, e.getMessages().stream().map(MvcError::new).toList()).toModelAndView();
+            return MvcResponse.errors(
+                    e.getStatus(),
+                    USER_TOURNAMENT_ADD_VIEW,
+                    e.getMessages()
+                            .stream()
+                            .map(MvcError::new)
+                            .toList()
+            ).toModelAndView();
         }
         var tournaments = tournamentsAddableByCaller();
 
         if (bindingResult.hasErrors()) {
-            var errors = bindingResult.getAllErrors().stream().map(err -> new MvcError(err.getDefaultMessage())).toList();
-            return MvcResponse.errorsWithData(HttpStatus.BAD_REQUEST, USER_TOURNAMENT_ADD_VIEW,
-                    new TournamentMemberAddFormViewData(id, username, form, tournaments), errors).toModelAndView();
+            var errors = bindingResult.getAllErrors()
+                    .stream()
+                    .map(err -> new MvcError(err.getDefaultMessage())).toList();
+            return MvcResponse.errorsWithData(
+                    HttpStatus.BAD_REQUEST,
+                    USER_TOURNAMENT_ADD_VIEW,
+                    new TournamentMemberAddFormViewData(
+                            id,
+                            username,
+                            form,
+                            tournaments),
+                    errors
+            ).toModelAndView();
         }
 
         try {
@@ -192,7 +216,10 @@ public class UserMvcController {
 
             return MvcResponse.redirect("/" + USER_VIEW + "/" + id);
         } catch (NotFoundException | BadRequestedExceptions | ConflictException | UnexpectedApiErrorException e) {
-            var errors = e.getMessages().stream().map(MvcError::new).toList();
+            var errors = e.getMessages()
+                    .stream()
+                    .map(MvcError::new)
+                    .toList();
             return MvcResponse.errorsWithData(
                     e.getStatus(),
                     USER_TOURNAMENT_ADD_VIEW,
@@ -207,25 +234,31 @@ public class UserMvcController {
     }
 
     private boolean canAddToTournament() {
-        if (!AuthenticatedUser.isAuthenticated()) {
+        if (!authenticatedUserService.isAuthenticated()) {
             return false;
         }
-        if (AuthenticatedUser.isAdmin()) {
+        if (authenticatedUserService.isAdmin()) {
             return true;
         }
         return !tournamentService.getOrganizersTournaments(currentUserId()).isEmpty();
     }
 
     private List<TournamentViewData> tournamentsAddableByCaller() {
-        if (AuthenticatedUser.isAdmin()) {
+        if (authenticatedUserService.isAdmin()) {
             try {
-                return tournamentService.getAllTournaments().stream().map(TournamentViewData::fromTournamentFullViewDecereal).toList();
+                return tournamentService.getAllTournaments()
+                        .stream()
+                        .map(TournamentViewData::fromTournamentFullViewDecereal)
+                        .toList();
             } catch (NotFoundException | UnexpectedApiErrorException e) {
                 return List.of();
             }
         }
 
-        return tournamentService.getOrganizersTournaments(currentUserId()).stream().map(TournamentViewData::fromTournamentFullViewDecereal).toList();
+        return tournamentService.getOrganizersTournaments(currentUserId())
+                .stream()
+                .map(TournamentViewData::fromTournamentFullViewDecereal)
+                .toList();
     }
 
     private Long currentUserId() {

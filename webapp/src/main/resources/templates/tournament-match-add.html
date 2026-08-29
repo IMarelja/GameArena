@@ -12,7 +12,7 @@
 
     <div th:replace="~{fragments/errors :: errors(${errors})}"></div>
 
-    <form method="post" th:if="${data != null}" th:action="@{/tournament/{id}/match/add(id=${data.tournamentId()})}">
+    <form method="post" th:if="${data != null}" th:action="@{/tournament/{tournamentId}/match/add(tournamentId=${data.tournamentId()})}">
         <div class="mb-3">
             <label class="form-label">Player One
                 <select class="form-select" name="playerOneId">

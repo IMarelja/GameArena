@@ -4,14 +4,12 @@ import hr.algebra.gamearena.webapp.exceptions.extenders.ForbiddenException;
 import hr.algebra.gamearena.webapp.exceptions.extenders.NotFoundException;
 import hr.algebra.gamearena.webapp.exceptions.extenders.UnauthorizedException;
 import hr.algebra.gamearena.webapp.exceptions.extenders.UnexpectedApiErrorException;
-import hr.algebra.gamearena.webapp.models.cereal.tournament.member.TournamentMemberRoleDecereal;
 import hr.algebra.gamearena.webapp.models.mvc.MvcError;
 import hr.algebra.gamearena.webapp.models.mvc.MvcResponse;
 import hr.algebra.gamearena.webapp.models.mvc.data.match.MatchDetailViewData;
 import hr.algebra.gamearena.webapp.models.mvc.data.match.MatchEditFormViewData;
 import hr.algebra.gamearena.webapp.models.mvc.data.match.MatchEditPostViewModel;
 import hr.algebra.gamearena.webapp.models.mvc.data.tournament.member.TournamentMemberViewData;
-import hr.algebra.gamearena.webapp.security.AuthenticatedUser;
 import hr.algebra.gamearena.webapp.service.match.IMatchService;
 import hr.algebra.gamearena.webapp.service.tournament.ITournamentService;
 import jakarta.validation.Valid;
@@ -43,27 +41,26 @@ public class MatchMvcController {
         this.tournamentService = tournamentService;
     }
 
-    @GetMapping("/match/{id}")
+    @GetMapping("/match/{matchId}")
     @PreAuthorize("permitAll()")
-    public ModelAndView viewMatch(@PathVariable Long id) throws NotFoundException, UnexpectedApiErrorException {
-        var match = matchService.getMatchById(id);
-        var canEdit = canEditTournament(match.tournamentId());
+    public ModelAndView viewMatch(@PathVariable Long matchId) throws NotFoundException, UnexpectedApiErrorException {
+        var match = matchService.getMatchById(matchId);
 
         return MvcResponse.success(
                 HttpStatus.OK,
                 MATCH_VIEW,
-                MatchDetailViewData.from(match, canEdit)
+                MatchDetailViewData.from(match)
         ).toModelAndView();
     }
 
-    @GetMapping("/match/{id}/edit")
+    @GetMapping("/match/{matchId}/edit")
     @PreAuthorize("isAuthenticated()")
     public ModelAndView editMatchForm(
-            @PathVariable Long id
+            @PathVariable Long matchId
     ) throws ForbiddenException, NotFoundException, UnexpectedApiErrorException {
-        var match = matchService.getMatchById(id);
+        var match = matchService.getMatchById(matchId);
 
-        if (!canEditTournament(match.tournamentId())) {
+        if (!tournamentService.isTournamentOrganizerOrAdmin(match.tournamentId())) {
             throw new ForbiddenException(Collections.singletonList("Only an admin or this tournament's organizer can edit matches on this tournament"));
         }
 
@@ -77,24 +74,24 @@ public class MatchMvcController {
                 MATCH_EDIT_VIEW,
                 new MatchEditFormViewData(
                         match.tournamentId(),
-                        id,
+                        matchId,
                         form,
                         members
                 )
         ).toModelAndView();
     }
 
-    @PostMapping("/match/{id}/edit")
+    @PostMapping("/match/{matchId}/edit")
     @PreAuthorize("isAuthenticated()")
     public ModelAndView editMatch(
-            @PathVariable Long id,
+            @PathVariable Long matchId,
             @Valid @ModelAttribute("form") MatchEditPostViewModel form,
             BindingResult bindingResult
     ) throws ForbiddenException, NotFoundException, UnexpectedApiErrorException {
-        var match = matchService.getMatchById(id);
+        var match = matchService.getMatchById(matchId);
         Long tournamentId = match.tournamentId();
 
-        if (!canEditTournament(tournamentId)) {
+        if (!tournamentService.isTournamentOrganizerOrAdmin(tournamentId)) {
             throw new ForbiddenException(Collections.singletonList("Only an admin or this tournament's organizer can edit matches on this tournament"));
         }
 
@@ -104,7 +101,12 @@ public class MatchMvcController {
             return MvcResponse.errorsWithData(
                     HttpStatus.BAD_REQUEST,
                     MATCH_EDIT_VIEW,
-                    new MatchEditFormViewData(tournamentId, id, form, members),
+                    new MatchEditFormViewData(
+                            tournamentId,
+                            matchId,
+                            form,
+                            members
+                    ),
                     MvcError.toListMvcErrorFromMvcError(new MvcError("Player One and player Two can't be the same player"))
             ).toModelAndView();
         }
@@ -119,7 +121,7 @@ public class MatchMvcController {
                     MATCH_EDIT_VIEW,
                     new MatchEditFormViewData(
                             tournamentId,
-                            id,
+                            matchId,
                             form,
                             members
                     ),
@@ -128,14 +130,21 @@ public class MatchMvcController {
         }
 
         try {
-            matchService.editMatch(id, form.toMatchEditCereal());
-            return MvcResponse.redirect("/" + MATCH_VIEW + "/" + id);
+            matchService.editMatch(matchId, form.toMatchEditCereal());
+            return MvcResponse.redirect("/" + MATCH_VIEW + "/" + matchId);
         } catch (UnauthorizedException | ForbiddenException | NotFoundException | UnexpectedApiErrorException e) {
             return MvcResponse.errorsWithData(
                     e.getStatus(),
                     MATCH_EDIT_VIEW,
-                    new MatchEditFormViewData(tournamentId, id, form, members),
-                    e.getMessages().stream().map(MvcError::new).toList()
+                    new MatchEditFormViewData(
+                            tournamentId,
+                            matchId,
+                            form,
+                            members),
+                    e.getMessages()
+                            .stream()
+                            .map(MvcError::new)
+                            .toList()
             ).toModelAndView();
         }
     }
@@ -150,15 +159,5 @@ public class MatchMvcController {
         } catch (NotFoundException | UnexpectedApiErrorException e) {
             return Optional.empty();
         }
-    }
-
-    private boolean canEditTournament(Long tournamentId) {
-        if (AuthenticatedUser.isAdmin()) {
-            return true;
-        }
-
-        return tournamentService.getMyTournamentMembershipOrEmpty(tournamentId)
-                .map(member -> member.role() == TournamentMemberRoleDecereal.ORGANIZER)
-                .orElse(false);
     }
 }

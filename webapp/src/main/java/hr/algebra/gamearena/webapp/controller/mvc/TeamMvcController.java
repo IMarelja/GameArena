@@ -6,7 +6,6 @@ import hr.algebra.gamearena.webapp.exceptions.extenders.NotFoundException;
 import hr.algebra.gamearena.webapp.exceptions.extenders.UnauthorizedException;
 import hr.algebra.gamearena.webapp.exceptions.extenders.UnexpectedApiErrorException;
 import hr.algebra.gamearena.webapp.models.cereal.team.member.TeamMemberMinimalViewDecereal;
-import hr.algebra.gamearena.webapp.models.cereal.team.member.TeamMemberRoleDecereal;
 import hr.algebra.gamearena.webapp.models.mvc.MvcError;
 import hr.algebra.gamearena.webapp.models.mvc.MvcResponse;
 import hr.algebra.gamearena.webapp.models.mvc.data.games.GameViewData;
@@ -73,24 +72,28 @@ public class TeamMvcController {
         }
     }
 
-    @GetMapping("/team/{id}")
+    @GetMapping("/team/{teamId}")
     @PreAuthorize("permitAll()")
-    public ModelAndView viewTeam(@PathVariable Long id) throws NotFoundException, UnexpectedApiErrorException {
-        var team = TeamMinimalViewData.from(teamService.getTeamById(id));
+    public ModelAndView viewTeam(@PathVariable Long teamId) throws NotFoundException, UnexpectedApiErrorException {
+        var team = TeamMinimalViewData.from(teamService.getTeamById(teamId));
 
         Optional<List<TeamMemberMinimalViewData>> members;
         try {
-            members = Optional.of(teamService.getTeamMembers(id).stream().map(TeamMemberMinimalViewData::from).toList());
+            members = Optional.of(teamService.getTeamMembers(teamId).stream().map(TeamMemberMinimalViewData::from).toList());
         } catch (NotFoundException | UnexpectedApiErrorException e) {
             members = Optional.empty();
         }
 
-        var meMember = teamService.getMyTeamMembershipOrEmpty(id).map(TeamMemberFullViewData::from);
+        var meMember = teamService.getMyTeamMembershipOrEmpty(teamId).map(TeamMemberFullViewData::from);
 
         return MvcResponse.success(
                 HttpStatus.OK,
                 TEAM_VIEW,
-                new TeamDetailViewData(team, members, meMember)
+                new TeamDetailViewData(
+                        team,
+                        members,
+                        meMember
+                )
         ).toModelAndView();
     }
 
@@ -106,7 +109,9 @@ public class TeamMvcController {
         return MvcResponse.success(
                 HttpStatus.OK,
                 TEAM_ADD_VIEW,
-                new TeamAddFormViewData(form, activeGames)
+                new TeamAddFormViewData(
+                        form,
+                        activeGames)
         ).toModelAndView();
     }
 
@@ -119,7 +124,11 @@ public class TeamMvcController {
         var activeGames = loadActiveGames();
 
         if (bindingResult.hasErrors()) {
-            var errors = bindingResult.getAllErrors().stream().map(error -> new MvcError(error.getDefaultMessage())).toList();
+            var errors = bindingResult
+                    .getAllErrors()
+                    .stream()
+                    .map(error -> new MvcError(error.getDefaultMessage()))
+                    .toList();
             return MvcResponse.errorsWithData(
                     HttpStatus.BAD_REQUEST,
                     TEAM_ADD_VIEW,
@@ -135,7 +144,10 @@ public class TeamMvcController {
             var created = teamService.addTeam(form.toTeamAddCereal());
             return MvcResponse.redirect("/" + TEAM_VIEW + "/" + created.id());
         } catch (NotFoundException | BadRequestedExceptions | UnexpectedApiErrorException e) {
-            var errors = e.getMessages().stream().map(MvcError::new).toList();
+            var errors = e.getMessages()
+                    .stream()
+                    .map(MvcError::new)
+                    .toList();
             return MvcResponse.errorsWithData(
                     e.getStatus(),
                     TEAM_ADD_VIEW,
@@ -148,14 +160,14 @@ public class TeamMvcController {
         }
     }
 
-    @GetMapping("/team/{id}/edit")
+    @GetMapping("/team/{teamId}/edit")
     @PreAuthorize("isAuthenticated()")
-    public ModelAndView editTeamForm(@PathVariable Long id) throws ForbiddenException, NotFoundException, UnexpectedApiErrorException {
-        if (!canEditTeam(id)) {
+    public ModelAndView editTeamForm(@PathVariable Long teamId) throws ForbiddenException, NotFoundException, UnexpectedApiErrorException {
+        if (!teamService.isTeamCaptain(teamId)) {
             throw new ForbiddenException(List.of("Only this team's captain can edit it"));
         }
 
-        var team = teamService.getTeamById(id);
+        var team = teamService.getTeamById(teamId);
         var activeGames = loadActiveGames();
         var form = TeamEditPostViewModel.fromTeamMinimalViewDecereal(team);
 
@@ -163,20 +175,20 @@ public class TeamMvcController {
                 HttpStatus.OK,
                 TEAM_EDIT_VIEW,
                 new TeamEditFormViewData(
-                        id,
+                        teamId,
                         form,
                         activeGames)
         ).toModelAndView();
     }
 
-    @PostMapping("/team/{id}/edit")
+    @PostMapping("/team/{teamId}/edit")
     @PreAuthorize("isAuthenticated()")
     public ModelAndView editTeam(
-            @PathVariable Long id,
+            @PathVariable Long teamId,
             @Valid @ModelAttribute("form") TeamEditPostViewModel form,
             BindingResult bindingResult
     ) throws ForbiddenException {
-        if (!canEditTeam(id)) {
+        if (!teamService.isTeamCaptain(teamId)) {
             throw new ForbiddenException(List.of("Only this team's captain can edit it"));
         }
 
@@ -188,7 +200,7 @@ public class TeamMvcController {
                     HttpStatus.BAD_REQUEST,
                     TEAM_EDIT_VIEW,
                     new TeamEditFormViewData(
-                            id,
+                            teamId,
                             form,
                             activeGames
                     ),
@@ -197,11 +209,22 @@ public class TeamMvcController {
         }
 
         try {
-            teamService.editTeam(id, form.toTeamEditCereal());
-            return MvcResponse.redirect("/" + TEAM_VIEW + "/" + id);
+            teamService.editTeam(teamId, form.toTeamEditCereal());
+            return MvcResponse.redirect("/" + TEAM_VIEW + "/" + teamId);
         } catch (UnauthorizedException | ForbiddenException | NotFoundException | UnexpectedApiErrorException e) {
-            var errors = e.getMessages().stream().map(MvcError::new).toList();
-            return MvcResponse.errorsWithData(e.getStatus(), TEAM_EDIT_VIEW, new TeamEditFormViewData(id, form, activeGames), errors).toModelAndView();
+            var errors = e.getMessages()
+                    .stream()
+                    .map(MvcError::new)
+                    .toList();
+            return MvcResponse.errorsWithData(
+                    e.getStatus(),
+                    TEAM_EDIT_VIEW,
+                    new TeamEditFormViewData(
+                            teamId,
+                            form,
+                            activeGames),
+                    errors
+            ).toModelAndView();
         }
     }
 
@@ -219,15 +242,22 @@ public class TeamMvcController {
     @GetMapping("/team/{teamId}/member/{memberId}/edit")
     @PreAuthorize("isAuthenticated()")
     public ModelAndView editTeamMemberForm(@PathVariable Long teamId, @PathVariable Long memberId) throws ForbiddenException, NotFoundException, UnexpectedApiErrorException {
-        if (!canEditTeam(teamId)) {
+        if (!teamService.isTeamCaptain(teamId)) {
             throw new ForbiddenException(List.of("Only this team's captain can edit members"));
         }
 
         var member = findMember(teamId, memberId);
         var form = new TeamMemberEditPostViewModel(TeamMemberRoleViewEnum.fromDecereal(member.role()));
 
-        return MvcResponse.success(HttpStatus.OK, TEAM_MEMBER_EDIT_VIEW,
-                new TeamMemberEditFormViewData(teamId, memberId, member.username(), form)).toModelAndView();
+        return MvcResponse.success(
+                HttpStatus.OK,
+                TEAM_MEMBER_EDIT_VIEW,
+                new TeamMemberEditFormViewData(
+                        teamId,
+                        memberId,
+                        member.username(),
+                        form)
+        ).toModelAndView();
     }
 
     @PostMapping("/team/{teamId}/member/{memberId}/edit")
@@ -238,7 +268,7 @@ public class TeamMvcController {
             @Valid @ModelAttribute("form") TeamMemberEditPostViewModel form,
             BindingResult bindingResult
     ) throws ForbiddenException {
-        if (!canEditTeam(teamId)) {
+        if (!teamService.isTeamCaptain(teamId)) {
             throw new ForbiddenException(List.of("Only this team's captain can edit members"));
         }
 
@@ -302,7 +332,7 @@ public class TeamMvcController {
     @GetMapping("/team/{teamId}/member/{memberId}/remove")
     @PreAuthorize("isAuthenticated()")
     public ModelAndView removeTeamMemberForm(@PathVariable Long teamId, @PathVariable Long memberId) throws ForbiddenException, NotFoundException, UnexpectedApiErrorException {
-        if (!canEditTeam(teamId)) {
+        if (!teamService.isTeamCaptain(teamId)) {
             throw new ForbiddenException(List.of("Only this team's captain can remove members"));
         }
 
@@ -320,7 +350,7 @@ public class TeamMvcController {
     @PostMapping("/team/{teamId}/member/{memberId}/remove")
     @PreAuthorize("isAuthenticated()")
     public ModelAndView removeTeamMember(@PathVariable Long teamId, @PathVariable Long memberId) throws ForbiddenException {
-        if (!canEditTeam(teamId)) {
+        if (!teamService.isTeamCaptain(teamId)) {
             throw new ForbiddenException(List.of("Only this team's captain can remove members"));
         }
 
@@ -345,11 +375,5 @@ public class TeamMvcController {
                 .filter(member -> member.memberId().equals(memberId))
                 .findFirst()
                 .orElseThrow(() -> new NotFoundException(List.of("Team member (" + memberId + ") not found")));
-    }
-
-    private boolean canEditTeam(Long teamId) {
-        return teamService.getMyTeamMembershipOrEmpty(teamId)
-                .map(member -> member.role() == TeamMemberRoleDecereal.CAPTAIN)
-                .orElse(false);
     }
 }

@@ -15,9 +15,10 @@ import hr.algebra.gamearena.webapp.models.cereal.team.TeamEditCereal;
 import hr.algebra.gamearena.webapp.models.cereal.team.member.TeamMemberEditCereal;
 import hr.algebra.gamearena.webapp.models.cereal.team.member.TeamMemberFullViewDecereal;
 import hr.algebra.gamearena.webapp.models.cereal.team.member.TeamMemberMinimalViewDecereal;
+import hr.algebra.gamearena.webapp.models.cereal.team.member.TeamMemberRoleDecereal;
 import hr.algebra.gamearena.webapp.models.cereal.team.TeamMinimalViewDecereal;
 import hr.algebra.gamearena.webapp.service.ApiExceptionMapper;
-import hr.algebra.gamearena.webapp.security.AuthenticatedUser;
+import hr.algebra.gamearena.webapp.service.authentication.user.IAuthenticatedUserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientResponseException;
@@ -32,10 +33,16 @@ public class TeamRestApiService implements ITeamService {
 
     private final TeamControllerApi teamControllerApi;
     private final AuthenticatedApiClient<TeamControllerApi> authenticatedTeamClient;
+    private final IAuthenticatedUserService authenticatedUserService;
 
-    public TeamRestApiService(TeamControllerApi teamControllerApi, AuthenticatedApiClient<TeamControllerApi> authenticatedTeamClient) {
+    public TeamRestApiService(
+            TeamControllerApi teamControllerApi,
+            AuthenticatedApiClient<TeamControllerApi> authenticatedTeamClient,
+            IAuthenticatedUserService authenticatedUserService)
+    {
         this.teamControllerApi = teamControllerApi;
         this.authenticatedTeamClient = authenticatedTeamClient;
+        this.authenticatedUserService = authenticatedUserService;
     }
 
     @Override
@@ -180,7 +187,7 @@ public class TeamRestApiService implements ITeamService {
 
     @Override
     public Optional<TeamMemberFullViewDecereal> getMyTeamMembershipOrEmpty(Long teamId) {
-        if (!AuthenticatedUser.isAuthenticated()) {
+        if (!authenticatedUserService.isAuthenticated()) {
             return Optional.empty();
         }
 
@@ -232,5 +239,17 @@ public class TeamRestApiService implements ITeamService {
         } catch (RestClientResponseException ex) {
             ApiExceptionMapper.unauthorizedForbiddenOrNotFound(ex);
         }
+    }
+
+    @Override
+    public boolean isTeamCaptain(Long teamId) {
+        return getMyTeamMembershipOrEmpty(teamId)
+                .map(member -> member.role() == TeamMemberRoleDecereal.CAPTAIN)
+                .orElse(false);
+    }
+
+    @Override
+    public boolean isTeamMember(Long teamId) {
+        return getMyTeamMembershipOrEmpty(teamId).isPresent();
     }
 }

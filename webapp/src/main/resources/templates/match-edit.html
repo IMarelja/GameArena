@@ -12,7 +12,7 @@
 
     <div th:replace="~{fragments/errors :: errors(${errors})}"></div>
 
-    <form method="post" th:if="${data != null}" th:action="@{/match/{id}/edit(id=${data.matchId()})}"
+    <form method="post" th:if="${data != null}" th:action="@{/match/{matchId}/edit(matchId=${data.matchId()})}"
           th:with="membersFailed=${data.members().isEmpty()},
                    members=${data.members().orElse(null)}">
         <div class="alert alert-danger" th:if="${membersFailed}">Failed to load this tournament's members.</div>

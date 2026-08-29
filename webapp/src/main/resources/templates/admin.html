@@ -83,7 +83,7 @@
                         <div class="list-group" style="max-height: 420px; overflow-y: auto;">
                             <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
                                th:each="match : ${matches}"
-                               th:href="@{/match/{id}(id=${match.id()})}">
+                               th:href="@{/match/{matchId}(matchId=${match.id()})}">
                                 <div>
                                     <div class="fw-semibold" th:text="${match.player1().username()} + ' vs ' + ${match.player2().username()}"></div>
                                     <div class="text-muted small" th:text="${match.game()?.name()}"></div>
@@ -98,7 +98,7 @@
                         <div class="list-group" style="max-height: 420px; overflow-y: auto;">
                             <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
                                th:each="tournament : ${tournaments}"
-                               th:href="@{/tournament/{id}(id=${tournament.id()})}">
+                               th:href="@{/tournament/{tournamentId}(tournamentId=${tournament.id()})}">
                                 <div>
                                     <div class="fw-semibold" th:text="${tournament.name()}"></div>
                                     <div class="text-muted small" th:text="${tournament.games()?.name()}"></div>

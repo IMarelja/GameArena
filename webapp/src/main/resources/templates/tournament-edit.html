@@ -13,7 +13,7 @@
     <div th:replace="~{fragments/errors :: errors(${errors})}"></div>
 
     <form method="post" th:if="${data != null}"
-          th:action="@{/tournament/{id}/edit(id=${data.tournamentId()})}"
+          th:action="@{/tournament/{tournamentId}/edit(tournamentId=${data.tournamentId()})}"
           th:with="gamesFailed=${data.activeGames().isEmpty()},
                    activeGames=${data.activeGames().orElse(null)}">
         <div class="mb-3">
@@ -29,14 +29,16 @@
             </label>
         </div>
         <div class="mb-3">
-            <label class="form-label">Game</label>
             <div class="alert alert-danger" th:if="${gamesFailed}">Failed to load available games. Please try again later.</div>
-            <select class="form-select" name="gameId" th:if="${not gamesFailed}">
-                <option th:each="game : ${activeGames}"
-                        th:value="${game.id()}"
-                        th:selected="${data.form().gameId() != null and game.id() == data.form().gameId()}"
-                        th:text="${game.name()}"></option>
-            </select>
+            <label class="form-label">
+                Game
+                <select class="form-select" name="gameId" th:if="${not gamesFailed}">
+                    <option th:each="game : ${activeGames}"
+                            th:value="${game.id()}"
+                            th:selected="${data.form().gameId() != null and game.id() == data.form().gameId()}"
+                            th:text="${game.name()}"></option>
+                </select>
+            </label>
         </div>
         <div class="mb-3">
             <label class="form-label">

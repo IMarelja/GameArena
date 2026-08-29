@@ -61,8 +61,30 @@
             }).fail(() => this.showError());
         }
 
+        buildTypeCell(notification) {
+            const hasId = notification.referenceId !== null && notification.referenceId !== undefined;
+            const hasType = notification.referenceType !== null && notification.referenceType !== undefined;
+
+            if (!hasId && !hasType) {
+                return $('<td>').text(notification.type);
+            }
+
+            if (hasId !== hasType) {
+                return $('<td>').append($('<s>').text(notification.type));
+            }
+
+            switch (notification.referenceType) {
+                case 'MATCH':
+                    return $('<td>').append($('<a>').attr('href', `/match/${notification.referenceId}`).text(notification.type));
+                case 'TEAM_INVITATION':
+                    return $('<td>').append($('<a>').attr('href', `/team-invite/${notification.referenceId}`).text(notification.type));
+                default:
+                    return $('<td>').append($('<s>').text(notification.type));
+            }
+        }
+
         buildRow(notification) {
-            const $type = $('<td>').text(notification.type);
+            const $type = this.buildTypeCell(notification);
             const $createdAt = $('<td>').text(notification.createdAt);
 
             const $badge = $('<span class="badge">')

@@ -6,7 +6,7 @@ import hr.algebra.gamearena.webapp.models.mvc.MvcError;
 import hr.algebra.gamearena.webapp.models.mvc.MvcResponse;
 import hr.algebra.gamearena.webapp.models.mvc.data.authentication.LoginPostViewModel;
 import hr.algebra.gamearena.webapp.models.mvc.data.authentication.RegisterPostViewModel;
-import hr.algebra.gamearena.webapp.security.AuthenticatedUser;
+import hr.algebra.gamearena.webapp.service.authentication.user.IAuthenticatedUserService;
 import hr.algebra.gamearena.webapp.service.authentication.IAuthenticationService;
 import hr.algebra.gamearena.webapp.service.jwt.IJwtService;
 import jakarta.validation.Valid;
@@ -30,15 +30,21 @@ public class AuthenticationMvcController {
 
     private final IAuthenticationService authenticationService;
     private final IJwtService jwtService;
+    private final IAuthenticatedUserService authenticatedUserService;
 
-    public AuthenticationMvcController(IAuthenticationService authenticationService, IJwtService jwtService) {
+    public AuthenticationMvcController(
+            IAuthenticationService authenticationService,
+            IJwtService jwtService,
+            IAuthenticatedUserService authenticatedUserService)
+    {
         this.authenticationService = authenticationService;
         this.jwtService = jwtService;
+        this.authenticatedUserService = authenticatedUserService;
     }
 
     @GetMapping("/login")
     public ModelAndView loginForm() {
-        if (AuthenticatedUser.isAuthenticated()) {
+        if (authenticatedUserService.isAuthenticated()) {
             return MvcResponse.redirect("/");
         }
         return MvcResponse.success(
@@ -87,7 +93,7 @@ public class AuthenticationMvcController {
 
     @GetMapping("/register")
     public ModelAndView registerForm() {
-        if (AuthenticatedUser.isAuthenticated()) {
+        if (authenticatedUserService.isAuthenticated()) {
             return MvcResponse.redirect("/");
         }
         return MvcResponse.success(

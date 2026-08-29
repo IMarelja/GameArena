@@ -12,7 +12,7 @@
 
     <div th:replace="~{fragments/errors :: errors(${errors})}"></div>
 
-    <form method="post" th:if="${data != null}" th:action="@{/team/{id}/edit(id=${data.teamId()})}"
+    <form method="post" th:if="${data != null}" th:action="@{/team/{teamId}/edit(teamId=${data.teamId()})}"
           th:with="activeGames=${data.activeGames().orElse(null)}">
         <div class="mb-3">
             <label class="form-label">Name

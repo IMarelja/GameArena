@@ -20,6 +20,7 @@ public interface ITournamentService {
     TournamentFullViewDecereal getTournamentById(Long id) throws NotFoundException, UnexpectedApiErrorException;
     TournamentFullViewDecereal createTournament(TournamentCreateCereal cereal) throws UnauthorizedException, ForbiddenException, NotFoundException, UnexpectedApiErrorException;
     TournamentFullViewDecereal editTournament(Long tournamentId, TournamentEditCereal cereal) throws UnauthorizedException, ForbiddenException, NotFoundException, UnexpectedApiErrorException;
+    boolean isTournamentOrganizerOrAdmin(Long tournamentId);
 
     /** Tournament - Tournament members*/
     List<TournamentFullViewDecereal> getOrganizersTournaments(Long callerId);

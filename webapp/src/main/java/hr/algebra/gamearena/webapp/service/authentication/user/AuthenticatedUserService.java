@@ -1,29 +1,31 @@
-package hr.algebra.gamearena.webapp.security;
+package hr.algebra.gamearena.webapp.service.authentication.user;
 
 import hr.algebra.gamearena.webapp.models.cereal.authentication.JwtClaimDecereal;
 import hr.algebra.gamearena.webapp.models.cereal.authentication.UserRoleDecereal;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
-public final class AuthenticatedUser {
+@Service
+public class AuthenticatedUserService implements IAuthenticatedUserService {
 
-    private AuthenticatedUser() {
-    }
-
-    public static Optional<JwtClaimDecereal> current() {
+    @Override
+    public Optional<JwtClaimDecereal> current() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         return authentication != null && authentication.getPrincipal() instanceof JwtClaimDecereal claim
                 ? Optional.of(claim)
                 : Optional.empty();
     }
 
-    public static boolean isAuthenticated() {
+    @Override
+    public boolean isAuthenticated() {
         return current().isPresent();
     }
 
-    public static boolean isAdmin() {
+    @Override
+    public boolean isAdmin() {
         return current().map(claim -> claim.role() == UserRoleDecereal.ADMIN).orElse(false);
     }
 }

@@ -21,7 +21,7 @@ import hr.algebra.gamearena.webapp.service.ApiExceptionMapper;
 import hr.algebra.gamearena.webapp.models.cereal.tournament.TournamentFullViewDecereal;
 import hr.algebra.gamearena.webapp.models.cereal.tournament.member.TournamentMemberRoleDecereal;
 import hr.algebra.gamearena.webapp.models.cereal.tournament.member.TournamentMemberViewDecereal;
-import hr.algebra.gamearena.webapp.security.AuthenticatedUser;
+import hr.algebra.gamearena.webapp.service.authentication.user.IAuthenticatedUserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientResponseException;
@@ -36,13 +36,16 @@ public class TournamentRestApiService implements ITournamentService {
 
     private final TournamentControllerApi tournamentControllerApi;
     private final AuthenticatedApiClient<TournamentControllerApi> authenticatedTournamentClient;
+    private final IAuthenticatedUserService authenticatedUserService;
 
     public TournamentRestApiService(
             TournamentControllerApi tournamentControllerApi,
-            AuthenticatedApiClient<TournamentControllerApi> authenticatedTournamentClient)
+            AuthenticatedApiClient<TournamentControllerApi> authenticatedTournamentClient,
+            IAuthenticatedUserService authenticatedUserService)
     {
         this.tournamentControllerApi = tournamentControllerApi;
         this.authenticatedTournamentClient = authenticatedTournamentClient;
+        this.authenticatedUserService = authenticatedUserService;
     }
 
     /** TOURNAMENT */
@@ -335,7 +338,7 @@ public class TournamentRestApiService implements ITournamentService {
 
     @Override
     public Optional<TournamentMemberViewDecereal> getMyTournamentMembershipOrEmpty(Long tournamentId) {
-        if (!AuthenticatedUser.isAuthenticated()) {
+        if (!authenticatedUserService.isAuthenticated()) {
             return Optional.empty();
         }
 
@@ -346,4 +349,15 @@ public class TournamentRestApiService implements ITournamentService {
         }
     }
     // END
+
+    @Override
+    public boolean isTournamentOrganizerOrAdmin(Long tournamentId) {
+        if (authenticatedUserService.isAdmin()) {
+            return true;
+        }
+
+        return getMyTournamentMembershipOrEmpty(tournamentId)
+                .map(member -> member.role() == TournamentMemberRoleDecereal.ORGANIZER)
+                .orElse(false);
+    }
 }

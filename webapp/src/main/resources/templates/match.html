@@ -15,7 +15,7 @@
             <h1 class="mb-0" th:text="${match.player1().username()} + ' VS ' + ${match.player2().username()}"></h1>
             <div>
                 <span class="badge fs-6 rounded-pill" th:classappend="${match.status()?.badgeClass()}" th:text="${match.status()}"></span>
-                <a class="btn btn-outline-secondary btn-sm" th:if="${data.canEdit()}" th:href="@{/match/{id}/edit(id=${match.id()})}">Edit Match</a>
+                <a class="btn btn-outline-secondary btn-sm" th:if="${isTournamentOrganizerOrAdmin}" th:href="@{/match/{matchId}/edit(matchId=${match.id()})}">Edit Match</a>
             </div>
         </div>
 
@@ -23,7 +23,7 @@
             <tbody>
             <tr>
                 <th>Tournament</th>
-                <td><a th:href="@{/tournament/{id}(id=${match.tournamentId()})}" th:text="${match.tournamentId()}"></a></td>
+                <td><a th:href="@{/tournament/{tournamentId}(tournamentId=${match.tournamentId()})}" th:text="${match.tournamentId()}"></a></td>
             </tr>
             <tr><th>Game</th><td th:text="${match.game().name()}"></td></tr>
             <tr>

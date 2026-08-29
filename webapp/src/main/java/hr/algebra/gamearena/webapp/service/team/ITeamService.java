@@ -21,4 +21,6 @@ public interface ITeamService {
     Optional<TeamMemberFullViewDecereal> getMyTeamMembershipOrEmpty(Long teamId);
     TeamMemberFullViewDecereal editTeamMemberRole(Long teamId, Long memberId, TeamMemberEditCereal cereal) throws UnauthorizedException, ForbiddenException, NotFoundException, UnexpectedApiErrorException;
     void removeTeamMember(Long teamId, Long memberId) throws UnauthorizedException, ForbiddenException, NotFoundException, UnexpectedApiErrorException;
+    boolean isTeamCaptain(Long teamId);
+    boolean isTeamMember(Long teamId);
 }
