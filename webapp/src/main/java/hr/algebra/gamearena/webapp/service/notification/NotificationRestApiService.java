@@ -1,7 +1,7 @@
 package hr.algebra.gamearena.webapp.service.notification;
 
 import com.gamearena.client.api.NotificationControllerApi;
-import com.gamearena.client.model.NotificationEditRequest;
+import com.gamearena.client.model.ApiResponseNotificationMinimalView;
 import com.gamearena.streamclient.model.NotificationMinimalView;
 import com.gamearena.streamclient.model.NotificationUnreadCountView;
 import hr.algebra.gamearena.webapp.client.reactive.NotificationReactiveControllerApi;
@@ -14,10 +14,12 @@ import hr.algebra.gamearena.webapp.exceptions.extenders.UnauthorizedException;
 import hr.algebra.gamearena.webapp.exceptions.extenders.UnexpectedApiErrorException;
 import hr.algebra.gamearena.webapp.models.cereal.notification.NotificationDecereal;
 import hr.algebra.gamearena.webapp.models.cereal.notification.NotificationUnreadCountDecereal;
+import hr.algebra.gamearena.webapp.models.cereal.notification.NotificationUpdateCereal;
 import hr.algebra.gamearena.webapp.models.rest.TypedSseEmitter;
 import hr.algebra.gamearena.webapp.service.ApiExceptionMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.ResponseEntity;
 import org.springframework.http.codec.ServerSentEvent;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientResponseException;
@@ -50,8 +52,10 @@ public class NotificationRestApiService implements INotificationService {
         this.authenticatedReactiveNotificationClient = authenticatedReactiveNotificationClient;
     }
 
+    /*Thank god this was easier*/
+
     @Override
-    public void setReadStatus(Long id, boolean read) throws UnauthorizedException, ForbiddenException, NotFoundException, UnexpectedApiErrorException {
+    public NotificationDecereal updateNotification(Long id, NotificationUpdateCereal cereal) throws UnauthorizedException, ForbiddenException, NotFoundException, UnexpectedApiErrorException {
         NotificationControllerApi client;
         try {
             client = authenticatedNotificationClient.get();
@@ -60,13 +64,21 @@ public class NotificationRestApiService implements INotificationService {
         }
 
         try {
-            client.updateNotificationWithHttpInfo(id, new NotificationEditRequest().read(read));
+            ResponseEntity<ApiResponseNotificationMinimalView> response = client.updateNotificationWithHttpInfo(id, cereal.toNotificationEditRequest());
+            var body = response.getBody();
+            if (body == null) {
+                throw new NotFoundException(List.of("No response from the API"));
+            }
+
+            if (body.getData() == null) {
+                throw new NotFoundException(List.of("Failed to fetch the updated notification"));
+            }
+
+            return NotificationDecereal.fromNotificationMinimalViewClient(body.getData());
         } catch (RestClientResponseException ex) {
-            ApiExceptionMapper.unauthorizedForbiddenOrNotFound(ex);
+            return ApiExceptionMapper.unauthorizedForbiddenOrNotFound(ex);
         }
     }
-
-    /*Thank god this was easier*/
 
     @Override
     public void deleteNotification(Long id) throws UnauthorizedException, ForbiddenException, NotFoundException, UnexpectedApiErrorException {
@@ -97,7 +109,7 @@ public class NotificationRestApiService implements INotificationService {
         return relay(
                 client -> client.notificationAllStreamWithResponseSpec()
                         .bodyToFlux(new ParameterizedTypeReference<ServerSentEvent<List<NotificationMinimalView>>>() {}),
-                views -> views.stream().map(NotificationDecereal::fromNotificationMinimalViewClient).toList());
+                views -> views.stream().map(NotificationDecereal::fromNotificationMinimalViewStreamClient).toList());
     }
 
     private <T, R> TypedSseEmitter<R> relay(

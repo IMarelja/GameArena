@@ -43,7 +43,7 @@
 
         setReadStatus(id, read) {
             $.ajax({
-                url: `${this.statusBaseUrl}/${id}/read-status`,
+                url: `${this.statusBaseUrl}/${id}/update`,
                 type: 'PATCH',
                 contentType: 'application/json',
                 data: JSON.stringify({ read })

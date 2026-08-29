@@ -31,7 +31,7 @@ public record MatchDetailFullViewDecereal(
                 match.getPlayerOneScore(),
                 match.getPlayerTwoScore(),
                 Optional.ofNullable(match.getWinner()).map(UserJustUsernameDecereal::fromUserJustUsernameClient),
-                match.getStatus() != null ? MatchStatusDecereal.fromMatchStatusClient(match.getStatus()) : null,
+                MatchStatusDecereal.fromMatchStatusClient(match.getStatus()),
                 match.getScheduledAt(),
                 match.getPlayedAt(),
                 match.getCreatedAt()

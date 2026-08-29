@@ -8,7 +8,8 @@ import hr.algebra.gamearena.webapp.models.cereal.notification.NotificationDecere
 import hr.algebra.gamearena.webapp.models.cereal.notification.NotificationUnreadCountDecereal;
 import hr.algebra.gamearena.webapp.models.rest.RestResponse;
 import hr.algebra.gamearena.webapp.models.rest.TypedSseEmitter;
-import hr.algebra.gamearena.webapp.models.rest.notification.NotificationReadStatusRequest;
+import hr.algebra.gamearena.webapp.models.rest.notification.NotificationDto;
+import hr.algebra.gamearena.webapp.models.rest.notification.NotificationEditDtoRequest;
 import hr.algebra.gamearena.webapp.service.notification.INotificationService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -48,15 +49,15 @@ public class NotificationRestController {
 
     /** This should be illegal */
 
-    @PatchMapping("/{id}/read-status")
+    @PatchMapping("/{id}/update")
     @PreAuthorize("isAuthenticated()")
-    public ResponseEntity<RestResponse<Void>> setReadStatus(
+    public ResponseEntity<RestResponse<NotificationDto>> updateNotification(
             @PathVariable Long id,
-            @RequestBody NotificationReadStatusRequest request
+            @RequestBody NotificationEditDtoRequest request
     ) throws UnauthorizedException, ForbiddenException, NotFoundException, UnexpectedApiErrorException {
-        notificationService.setReadStatus(id, Boolean.TRUE.equals(request.read()));
+        NotificationDecereal updated = notificationService.updateNotification(id, request.toUpdateCereal());
 
-        return RestResponse.<Void>success(HttpStatus.NO_CONTENT, null).toResponseEntity();
+        return RestResponse.success(HttpStatus.OK, NotificationDto.fromNotificationDecereal(updated)).toResponseEntity();
     }
 
     @DeleteMapping("/{id}")

@@ -7,7 +7,8 @@ public enum MatchStatusViewEnum {
     SCHEDULED,
     IN_PROGRESS,
     COMPLETED,
-    CANCELED;
+    CANCELED,
+    ERROR;
 
     public static MatchStatusViewEnum fromDecereal(MatchStatusDecereal status) {
         return switch (status) {
@@ -15,6 +16,7 @@ public enum MatchStatusViewEnum {
             case IN_PROGRESS -> IN_PROGRESS;
             case COMPLETED -> COMPLETED;
             case CANCELED -> CANCELED;
+            case ERROR -> ERROR;
         };
     }
 
@@ -24,6 +26,7 @@ public enum MatchStatusViewEnum {
             case IN_PROGRESS -> MatchEditRequest.StatusEnum.IN_PROGRESS;
             case COMPLETED -> MatchEditRequest.StatusEnum.COMPLETED;
             case CANCELED -> MatchEditRequest.StatusEnum.CANCELED;
+            case ERROR -> throw new IllegalStateException("ERROR is not a valid match status to send to the API");
         };
     }
 
@@ -33,6 +36,7 @@ public enum MatchStatusViewEnum {
             case IN_PROGRESS -> "text-bg-success";
             case COMPLETED -> "text-bg-primary";
             case CANCELED -> "text-bg-danger";
+            case ERROR -> "text-bg-warning";
         };
     }
 }

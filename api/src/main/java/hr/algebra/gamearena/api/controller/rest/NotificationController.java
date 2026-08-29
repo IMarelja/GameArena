@@ -65,7 +65,7 @@ public class NotificationController {
     }
 
     /*
-     * I Hate you Java. Fuck you, why the fuck do i need to configure so much shit for basic shit and it doesn't even make any sense. No wonder people Vibe code you
+     * why the fuck do I need to configure so much shit for basic shit, and it doesn't even make any sense. No wonder people Vibe code you
      * */
 
     @PostMapping("/test/to/user/{id}")

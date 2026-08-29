@@ -64,6 +64,7 @@
             <label class="form-label">Status
                 <select class="form-select" name="status">
                     <option th:each="status : ${T(hr.algebra.gamearena.webapp.models.mvc.data.match.MatchStatusViewEnum).values()}"
+                            th:if="${status.name() != 'ERROR'}"
                             th:value="${status}"
                             th:selected="${status == data.form().status()}"
                             th:text="${status}"></option>
