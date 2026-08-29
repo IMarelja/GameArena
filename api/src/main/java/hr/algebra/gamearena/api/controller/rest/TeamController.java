@@ -75,16 +75,6 @@ public class TeamController {
     ){
         return ResponseEntity.ok(ApiResponse.success(teamService.editTeam(caller.userId(), id, request)));
     }
-
-    @PreAuthorize("isAuthenticated()")
-    @PostMapping("/{teamId}/invite/user/{userId}")
-    public ResponseEntity<ApiResponse<TeamInvitationView>> inviteUser(
-            @AuthenticationPrincipal JwtTokenClaim caller,
-            @PathVariable Long teamId,
-            @PathVariable Long userId
-    ){
-        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(teamService.createInvitationAndPushNotification(caller.userId(), teamId, userId)));
-    }
     // END
 
     /** Team Member */
@@ -159,6 +149,15 @@ public class TeamController {
 
     // BEGIN
     @PreAuthorize("isAuthenticated()")
+    @GetMapping("/invitation/me")
+    public ResponseEntity<ApiResponse<List<TeamInvitationView>>> getMyInvitations(
+            @AuthenticationPrincipal JwtTokenClaim caller
+    ){
+        return ResponseEntity.ok(ApiResponse.success(teamService.getInvitationsForUser(caller.userId())));
+    }
+
+
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/invitation/{id}")
     public ResponseEntity<ApiResponse<TeamInvitationView>> getInvitationById(
             @AuthenticationPrincipal JwtTokenClaim caller,
@@ -168,6 +167,16 @@ public class TeamController {
 
         return invitation.map(view -> ResponseEntity.ok(ApiResponse.success(view)))
                 .orElseThrow(() -> new NotFoundException("Team invitation not found with id: " + id));
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    @PostMapping("/{teamId}/invite/user/{userId}")
+    public ResponseEntity<ApiResponse<TeamInvitationView>> inviteUser(
+            @AuthenticationPrincipal JwtTokenClaim caller,
+            @PathVariable Long teamId,
+            @PathVariable Long userId
+    ){
+        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(teamService.createInvitationAndPushNotification(caller.userId(), teamId, userId)));
     }
 
     @PreAuthorize("isAuthenticated()")

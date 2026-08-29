@@ -4,8 +4,11 @@ import hr.algebra.gamearena.api.model.team.InviteStatus;
 import hr.algebra.gamearena.api.orm.postgres.team.TeamInvitationPostgres;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.List;
+
 public interface ITeamInvitationPostgreSQLRepo extends JpaRepository<TeamInvitationPostgres, Long> {
     boolean existsByTeamIdAndInviteeIdAndStatus(Long teamId, Long inviteeId, InviteStatus status);
     boolean existsByInvitationIdAndInviteeId(Long invitationId, Long inviteeId);
     boolean existsByInvitationIdAndInviterId(Long invitationId, Long inviterId);
+    List<TeamInvitationPostgres> findByInviteeId(Long inviteeId);
 }

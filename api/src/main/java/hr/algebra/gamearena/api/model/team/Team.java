@@ -18,4 +18,8 @@ public record Team(
                 teamPostgres.getCreatedAt().toLocalDateTime()
         );
     }
+
+    public static Team deletedTeam() {
+        return new Team(-1L, "DELETED_TEAM", null, null);
+    }
 }

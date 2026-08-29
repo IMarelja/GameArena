@@ -9,13 +9,11 @@ import hr.algebra.gamearena.api.dto.team.invitation.TeamInvitationView;
 import hr.algebra.gamearena.api.dto.team.member.TeamMemberEditRequest;
 import hr.algebra.gamearena.api.dto.team.member.TeamMemberFullView;
 import hr.algebra.gamearena.api.dto.team.member.TeamMemberMinimalView;
-import hr.algebra.gamearena.api.exceptions.extenders.ConflictException;
-import hr.algebra.gamearena.api.exceptions.extenders.ForbiddenAccessException;
-import hr.algebra.gamearena.api.exceptions.extenders.InvalidVariableException;
-import hr.algebra.gamearena.api.exceptions.extenders.NotFoundException;
+import hr.algebra.gamearena.api.exceptions.extenders.*;
 import hr.algebra.gamearena.api.event.notification.TeamInvitationEvent;
 import hr.algebra.gamearena.api.model.notification.NotificationType;
 import hr.algebra.gamearena.api.model.team.*;
+import hr.algebra.gamearena.api.model.user.User;
 import hr.algebra.gamearena.api.repository.games.IGamesRepo;
 import hr.algebra.gamearena.api.repository.team.ITeamRepo;
 import hr.algebra.gamearena.api.repository.user.IUserRepo;
@@ -94,7 +92,7 @@ public class TeamService implements ITeamService {
         teamSave.setName(team.getName());
         teamSave.setGameId(team.getGameId());
 
-        var savedTeam = teamRepo.saveTeam(teamSave);
+        var savedTeam = teamRepo.saveTeamInvite(teamSave);
 
         var captainSave = new TeamMemberSave();
         captainSave.setTeamId(savedTeam.id());
@@ -145,21 +143,36 @@ public class TeamService implements ITeamService {
             throw new ForbiddenAccessException("You are not part of this invitation");
         }
 
-        return Optional.of(TeamInvitationView.fromTeamInvitation(invitation));
+        return Optional.of(toInvitationViewAndGarbage(invitation));
+    }
+
+    @Override
+    public List<TeamInvitationView> getInvitationsForUser(Long callerUserId) {
+        return teamRepo.getInvitationsForUserId(callerUserId)
+                .stream()
+                .map(this::toInvitationViewAndGarbage)
+                .toList();
+    }
+
+    private TeamInvitationView toInvitationViewAndGarbage(TeamInvitation invitation) {
+        var team = teamRepo.getTeamById(invitation.teamId()).orElseGet(Team::deletedTeam);
+        var inviter = userRepo.findById(invitation.inviterId()).orElseGet(User::deletedUser);
+        var invitee = userRepo.findById(invitation.inviteeId()).orElseGet(User::deletedUser);
+
+        return TeamInvitationView.fromTeamInvitationTeamUserInviteeAndUserInviter(invitation, team, inviter, invitee);
     }
 
     @Override
     public TeamInvitationView createInvitationAndPushNotification(Long inviterId, Long teamId, Long userId) {
-        if (!teamRepo.doesTeamExist(teamId)) {
-            throw new NotFoundException(teamNotFoundByIdOutput(teamId));
-        }
+        var team = teamRepo.getTeamById(teamId)
+                .orElseThrow(() -> new NotFoundException(teamNotFoundByIdOutput(teamId)));
 
         if (!teamRepo.isUserIdPartOfTeam(inviterId, teamId)) {
             throw new ForbiddenAccessException("You need to be part of the team to send invitations for it");
         }
 
         if (inviterId.equals(userId)) {
-            throw new InvalidVariableException("You can't invite yourself to a team");
+            throw new BadRequestedException("You can't invite yourself to a team");
         }
 
         if (teamRepo.isUserIdPartOfTeam(userId, teamId)) {
@@ -170,17 +183,23 @@ public class TeamService implements ITeamService {
             throw new ConflictException("User has already received an invitation for this team");
         }
 
+        var inviter = userRepo.findById(inviterId)
+                .orElseThrow(() -> new NotFoundException("We can't find YOU???"));
+
+        var invitee = userRepo.findById(userId)
+                .orElseThrow(() -> new NotFoundException(USER_NOT_FOUND));
+
         var invitationSave = new TeamInvitationSave();
         invitationSave.setTeamId(teamId);
         invitationSave.setInviterId(inviterId);
         invitationSave.setInviteeId(userId);
         invitationSave.setStatus(InviteStatus.PENDING);
 
-        var invitation = teamRepo.saveTeam(invitationSave);
+        var invitation = teamRepo.saveTeamInvite(invitationSave);
 
         pushInvitationNotification(NotificationType.TEAM_INVITATION, invitation.inviteeId(), invitation.id());
 
-        return TeamInvitationView.fromTeamInvitation(invitation);
+        return TeamInvitationView.fromTeamInvitationTeamUserInviteeAndUserInviter(invitation, team, inviter, invitee);
     }
 
     @Override
@@ -197,10 +216,12 @@ public class TeamService implements ITeamService {
             throw new ConflictException("This invitation has already been resolved");
         }
 
+        var parties = validateInvitationPartiesOrCancel(invitation);
+
         var update = new TeamInvitationUpdate();
         update.setStatus(InviteStatus.PENDING.fromInviteResponseStatus(request.getStatus()));
 
-        var updated = teamRepo.update(invitationId, update)
+        var updated = teamRepo.updateTeamInvite(invitationId, update)
                 .orElseThrow(() -> new NotFoundException(invitationNotFoundByIdOutput(invitationId)));
 
         if (updated.status() == InviteStatus.ACCEPTED) {
@@ -214,7 +235,7 @@ public class TeamService implements ITeamService {
 
         pushInvitationNotification(NotificationType.TEAM_INVITATION_RESPONSE, updated.inviterId(), updated.id());
 
-        return TeamInvitationView.fromTeamInvitation(updated);
+        return TeamInvitationView.fromTeamInvitationTeamUserInviteeAndUserInviter(updated, parties.team(), parties.inviter(), parties.invitee());
     }
 
     @Override
@@ -224,22 +245,54 @@ public class TeamService implements ITeamService {
                 .orElseThrow(() -> new NotFoundException(invitationNotFoundByIdOutput(invitationId)));
 
         if (!teamRepo.isUserAnInviterOfInvitation(invitationId, callerId)) {
-            throw new ForbiddenAccessException("Only the inviter can update this invitation");
+            throw new ForbiddenAccessException("Only the inviter can updateTeamInvite this invitation");
         }
 
         if (invitation.status() != InviteStatus.PENDING) {
             throw new ConflictException("This invitation has already been resolved");
         }
 
+        var parties = validateInvitationPartiesOrCancel(invitation);
+
         var update = new TeamInvitationUpdate();
         update.setStatus(InviteStatus.PENDING.fromInvitedInviteStatus(request.getStatus()));
 
-        var updated = teamRepo.update(invitationId, update)
+        var updated = teamRepo.updateTeamInvite(invitationId, update)
                 .orElseThrow(() -> new NotFoundException(invitationNotFoundByIdOutput(invitationId)));
 
         pushInvitationNotification(NotificationType.TEAM_INVITATION_UPDATE, updated.inviteeId(), updated.id());
 
-        return TeamInvitationView.fromTeamInvitation(updated);
+        return TeamInvitationView.fromTeamInvitationTeamUserInviteeAndUserInviter(updated, parties.team(), parties.inviter(), parties.invitee());
+    }
+
+    private record InvitationParties(Team team, User inviter, User invitee) {}
+
+    private InvitationParties validateInvitationPartiesOrCancel(TeamInvitation invitation) {
+        var invitee = userRepo.findById(invitation.inviteeId()).orElse(null);
+        if (invitee == null || !Boolean.TRUE.equals(invitee.isActive()) || Boolean.TRUE.equals(invitee.isDeleted())) {
+            cancelInvitation(invitation.id());
+            throw new ForbiddenAccessException("The invited user is no longer able to respond to this invitation");
+        }
+
+        var inviter = userRepo.findById(invitation.inviterId()).orElse(null);
+        if (inviter == null) {
+            cancelInvitation(invitation.id());
+            throw new NotFoundException("The user who sent this invitation no longer exists");
+        }
+
+        var team = teamRepo.getTeamById(invitation.teamId()).orElse(null);
+        if (team == null) {
+            cancelInvitation(invitation.id());
+            throw new NotFoundException("Team is missing or no longer exists");
+        }
+
+        return new InvitationParties(team, inviter, invitee);
+    }
+
+    private void cancelInvitation(Long invitationId) {
+        var update = new TeamInvitationUpdate();
+        update.setStatus(InviteStatus.CANCELLED);
+        teamRepo.updateTeamInvite(invitationId, update);
     }
 
     // Team Member

@@ -60,7 +60,7 @@ public class TeamPostgresRepo implements ITeamRepo{
     }
 
     @Override
-    public Team saveTeam(TeamSave team) {
+    public Team saveTeamInvite(TeamSave team) {
         var teamPostgres = new TeamPostgres().fromTeamSave(team);
         var savedTeam = teamPostgresSQLRepo.save(teamPostgres);
         return Team.fromPostgresTeam(savedTeam);
@@ -83,7 +83,7 @@ public class TeamPostgresRepo implements ITeamRepo{
     }
 
     @Override
-    public TeamInvitation saveTeam(TeamInvitationSave save) {
+    public TeamInvitation saveTeamInvite(TeamInvitationSave save) {
         var teamInvitationPostgres = new TeamInvitationPostgres().fromTeamInvitationSave(save);
         var savedInvitation = teamInvitationPostgresSQLRepo.save(teamInvitationPostgres);
         return TeamInvitation.fromTeamInvitationPostgres(savedInvitation);
@@ -96,7 +96,15 @@ public class TeamPostgresRepo implements ITeamRepo{
     }
 
     @Override
-    public Optional<TeamInvitation> update(Long id, TeamInvitationUpdate update) {
+    public List<TeamInvitation> getInvitationsForUserId(Long userId) {
+        return teamInvitationPostgresSQLRepo.findByInviteeId(userId)
+                .stream()
+                .map(TeamInvitation::fromTeamInvitationPostgres)
+                .toList();
+    }
+
+    @Override
+    public Optional<TeamInvitation> updateTeamInvite(Long id, TeamInvitationUpdate update) {
         return teamInvitationPostgresSQLRepo.findById(id)
                 .map(invitation -> invitation.fromTeamInvitationUpdate(update))
                 .map(teamInvitationPostgresSQLRepo::save)

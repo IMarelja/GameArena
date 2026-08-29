@@ -17,17 +17,8 @@ A platform for registering for esports tournaments and tracking results and lead
 
 The default should be fine, but if you change anything about an endpoint, delete one or add a new one you are forced to regenerate the schema so webapp can work properly 
 
-- Run the command in /api project
-```bash
-mvn spring-boot:run
-```
-
-- Then on a separate terminal run this in the /api project
+- When you start up your API project go to /api project and run this
 ```bash
 mvn springdoc-openapi:generate
 ```
 
-- When the openapi.json has been generate in /webapp/src/main/resources
-```bash
-mvn generate-sources
-```

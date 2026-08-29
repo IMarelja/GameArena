@@ -23,6 +23,7 @@ public interface ITeamService {
 
     // Team invitation
     Optional<TeamInvitationView> getInvitationById(Long callerUserId, Long id);
+    List<TeamInvitationView> getInvitationsForUser(Long callerUserId);
     TeamInvitationView createInvitationAndPushNotification(Long inviterId, Long teamId, Long userId);
     TeamInvitationView respondInvitationAndPushNotification(Long invitationId, Long callerId, TeamInvitationResponseEditRequest request);
     TeamInvitationView updateInvitationAndPushNotification(Long invitationId, Long callerId, InviterTeamInvitationEditRequest request);

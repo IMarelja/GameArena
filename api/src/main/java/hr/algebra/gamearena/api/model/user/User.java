@@ -29,5 +29,9 @@ public record User(
                 userPostgres.getCreatedAt().toLocalDateTime()
         );
     }
+
+    public static User deletedUser() {
+        return new User(-1L, "[DELETED]", null, null, null, Role.USER, false, true, null);
+    }
 }
 

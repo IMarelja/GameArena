@@ -12,7 +12,7 @@ public interface ITeamRepo {
     List<Team> getAll();
     Optional<Team> getTeamById(Long id);
     List<Team> getTeamsForUserId(Long userId);
-    Team saveTeam(TeamSave team);
+    Team saveTeamInvite(TeamSave team);
     Optional<Team> updateTeam(Long id, TeamUpdate teamUpdate);
     void deleteTeam(Long id);
     boolean doesTeamExist(Long id);
@@ -38,8 +38,9 @@ public interface ITeamRepo {
     /** TEAM INVITATION */
     // BEGIN
     Optional<TeamInvitation> getInvitationById(Long id);
-    TeamInvitation saveTeam(TeamInvitationSave save);
-    Optional<TeamInvitation> update(Long id, TeamInvitationUpdate update);
+    List<TeamInvitation> getInvitationsForUserId(Long userId);
+    TeamInvitation saveTeamInvite(TeamInvitationSave save);
+    Optional<TeamInvitation> updateTeamInvite(Long id, TeamInvitationUpdate update);
     boolean isUserAnInviteeOfInvitation(Long invitationId, Long userId);
     boolean isUserAnInviterOfInvitation(Long invitationId, Long userId);
     boolean doesPendingTeamInvitationExist(Long teamId, Long inviteeId);
