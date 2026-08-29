@@ -9,7 +9,6 @@ import java.util.Optional;
 public record TournamentDetailViewData(
         TournamentViewData tournament,
         Optional<List<TournamentMemberViewData>> members,
-        Optional<List<MatchViewData>> matches,
-        Optional<TournamentMemberViewData> meMember
+        Optional<List<MatchViewData>> matches
 ) {
 }

@@ -95,16 +95,13 @@ public class TournamentMvcController {
             matches = Optional.empty();
         }
 
-        var meMember = tournamentService.getMyTournamentMembershipOrEmpty(tournamentId).map(TournamentMemberViewData::from);
-
         return MvcResponse.success(
                 HttpStatus.OK,
                 TOURNAMENT_VIEW,
                 new TournamentDetailViewData(
                         tournament,
                         members,
-                        matches,
-                        meMember
+                        matches
                 )
         ).toModelAndView();
     }

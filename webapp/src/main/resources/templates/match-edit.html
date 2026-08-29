@@ -10,7 +10,7 @@
 <main class="container py-4" style="max-width: 480px;">
     <h1 class="mb-4">Edit Match</h1>
 
-    <div th:replace="~{fragments/errors :: errors(${errors})}"></div>
+    <div th:replace="~{fragments/errors :: errors}"></div>
 
     <form method="post" th:if="${data != null}" th:action="@{/match/{matchId}/edit(matchId=${data.matchId()})}"
           th:with="membersFailed=${data.members().isEmpty()},

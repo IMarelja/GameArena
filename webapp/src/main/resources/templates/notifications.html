@@ -10,7 +10,7 @@
       th:attr="data-stream-url=@{/notifications/stream/all},data-status-base-url=@{/notifications}">
     <h1 class="mb-4">Notifications</h1>
 
-    <div th:replace="~{fragments/errors :: errors(${errors})}"></div>
+    <div th:replace="~{fragments/errors :: errors}"></div>
 
     <div id="notifications-error" class="alert alert-danger" style="display:none;">
         Could not load notifications right now. Please try again later.

@@ -13,7 +13,7 @@
         <a class="btn btn-outline-danger btn-sm" th:href="@{/me/delete}">Delete Account</a>
     </div>
 
-    <div th:replace="~{fragments/errors :: errors(${errors})}"></div>
+    <div th:replace="~{fragments/errors :: errors}"></div>
 
     <div th:if="${data != null}"
          th:with="leaderboardFailed=${data.leaderboard().isEmpty()},

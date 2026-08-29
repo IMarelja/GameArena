@@ -12,7 +12,6 @@ import hr.algebra.gamearena.webapp.models.mvc.data.games.GameViewData;
 import hr.algebra.gamearena.webapp.models.mvc.data.team.*;
 import hr.algebra.gamearena.webapp.models.mvc.data.team.member.TeamMemberEditFormViewData;
 import hr.algebra.gamearena.webapp.models.mvc.data.team.member.TeamMemberEditPostViewModel;
-import hr.algebra.gamearena.webapp.models.mvc.data.team.member.TeamMemberFullViewData;
 import hr.algebra.gamearena.webapp.models.mvc.data.team.member.TeamMemberMinimalViewData;
 import hr.algebra.gamearena.webapp.models.mvc.data.team.member.TeamMemberRemoveViewData;
 import hr.algebra.gamearena.webapp.models.mvc.data.team.member.TeamMemberRoleViewEnum;
@@ -84,15 +83,12 @@ public class TeamMvcController {
             members = Optional.empty();
         }
 
-        var meMember = teamService.getMyTeamMembershipOrEmpty(teamId).map(TeamMemberFullViewData::from);
-
         return MvcResponse.success(
                 HttpStatus.OK,
                 TEAM_VIEW,
                 new TeamDetailViewData(
                         team,
-                        members,
-                        meMember
+                        members
                 )
         ).toModelAndView();
     }

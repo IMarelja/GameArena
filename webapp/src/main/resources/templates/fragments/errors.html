@@ -1,4 +1,4 @@
 <!--/*@thymesVar id="errors" type="java.util.List<hr.algebra.gamearena.webapp.models.mvc.MvcError>"*/-->
-<div th:fragment="errors(errors)" xmlns:th="http://www.thymeleaf.org" class="alert alert-danger" th:if="${errors != null and not #lists.isEmpty(errors)}">
+<div th:fragment="errors" xmlns:th="http://www.thymeleaf.org" class="alert alert-danger" th:if="${errors != null and not #lists.isEmpty(errors)}">
     <p class="mb-0" th:each="error : ${errors}" th:text="${error.message()}"></p>
 </div>

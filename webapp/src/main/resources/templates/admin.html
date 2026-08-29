@@ -10,7 +10,7 @@
 <main class="container py-4">
     <h1 class="mb-4">Admin</h1>
 
-    <div th:replace="~{fragments/errors :: errors(${errors})}"></div>
+    <div th:replace="~{fragments/errors :: errors}"></div>
 
     <form method="get"
           th:if="${data != null}"
@@ -80,7 +80,7 @@
                 </tr>
                 <tr>
                     <td class="align-top">
-                        <div class="list-group" style="max-height: 420px; overflow-y: auto;">
+                        <div class="list-group">
                             <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
                                th:each="match : ${matches}"
                                th:href="@{/match/{matchId}(matchId=${match.id()})}">
@@ -95,7 +95,7 @@
                         <p class="text-muted fst-italic" th:if="${not matchesFailed and #lists.isEmpty(matches)}">No matches found.</p>
                     </td>
                     <td class="align-top">
-                        <div class="list-group" style="max-height: 420px; overflow-y: auto;">
+                        <div class="list-group">
                             <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
                                th:each="tournament : ${tournaments}"
                                th:href="@{/tournament/{tournamentId}(tournamentId=${tournament.id()})}">
@@ -110,7 +110,7 @@
                         <p class="text-muted fst-italic" th:if="${not tournamentsFailed and #lists.isEmpty(tournaments)}">No tournaments found.</p>
                     </td>
                     <td class="align-top">
-                        <div class="list-group" style="max-height: 420px; overflow-y: auto;">
+                        <div class="list-group">
                             <div class="list-group-item d-flex justify-content-between align-items-center"
                                  th:each="game : ${games}">
                                 <span th:text="${game.name()}"></span>

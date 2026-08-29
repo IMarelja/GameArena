@@ -5,14 +5,14 @@
 </head>
 <body>
 <!--/*@thymesVar id="data" type="hr.algebra.gamearena.webapp.models.mvc.data.tournament.TournamentDetailViewData"*/-->
+<!--/*@thymesVar id="isTournamentOrganizerOrAdmin" type="java.lang.Boolean"*/-->
 <div th:replace="~{fragments/navbar :: navbar}"></div>
 
 <main class="container py-4">
-    <div th:replace="~{fragments/errors :: errors(${errors})}"></div>
+    <div th:replace="~{fragments/errors :: errors}"></div>
 
     <div th:if="${data != null}"
-         th:with="meMember=${data.meMember().orElse(null)},
-                  membersFailed=${data.members().isEmpty()},
+         th:with="membersFailed=${data.members().isEmpty()},
                   members=${data.members().orElse(null)},
                   matchesFailed=${data.matches().isEmpty()},
                   matches=${data.matches().orElse(null)}">

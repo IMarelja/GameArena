@@ -5,10 +5,11 @@
 </head>
 <body>
 <!--/*@thymesVar id="data" type="hr.algebra.gamearena.webapp.models.mvc.data.user.UserProfileViewData"*/-->
+<!--/*@thymesVar id="isAdmin" type="java.lang.Boolean"*/-->
 <div th:replace="~{fragments/navbar :: navbar}"></div>
 
 <main class="container py-4">
-    <div th:replace="~{fragments/errors :: errors(${errors})}"></div>
+    <div th:replace="~{fragments/errors :: errors}"></div>
 
     <div th:if="${data != null}"
          th:with="leaderboardFailed=${data.leaderboard().isEmpty()},

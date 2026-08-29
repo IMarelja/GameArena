@@ -10,7 +10,7 @@
 <main class="container py-4" style="max-width: 480px;">
     <h1 class="mb-4">Edit Member</h1>
 
-    <div th:replace="~{fragments/errors :: errors(${errors})}"></div>
+    <div th:replace="~{fragments/errors :: errors}"></div>
 
     <div th:if="${data != null}">
         <p>Editing <strong th:text="${data.memberUsername()}"></strong>'s role.</p>

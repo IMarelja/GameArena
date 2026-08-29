@@ -6,9 +6,9 @@ import hr.algebra.gamearena.webapp.exceptions.extenders.UnauthorizedException;
 import hr.algebra.gamearena.webapp.exceptions.extenders.UnexpectedApiErrorException;
 import hr.algebra.gamearena.webapp.models.mvc.MvcError;
 import hr.algebra.gamearena.webapp.models.mvc.MvcResponse;
-import hr.algebra.gamearena.webapp.models.mvc.data.match.MatchDetailViewData;
 import hr.algebra.gamearena.webapp.models.mvc.data.match.MatchEditFormViewData;
 import hr.algebra.gamearena.webapp.models.mvc.data.match.MatchEditPostViewModel;
+import hr.algebra.gamearena.webapp.models.mvc.data.match.MatchViewData;
 import hr.algebra.gamearena.webapp.models.mvc.data.tournament.member.TournamentMemberViewData;
 import hr.algebra.gamearena.webapp.service.match.IMatchService;
 import hr.algebra.gamearena.webapp.service.tournament.ITournamentService;
@@ -49,7 +49,7 @@ public class MatchMvcController {
         return MvcResponse.success(
                 HttpStatus.OK,
                 MATCH_VIEW,
-                MatchDetailViewData.from(match)
+                MatchViewData.fromMatchDetailFullViewDecereal(match)
         ).toModelAndView();
     }
 
