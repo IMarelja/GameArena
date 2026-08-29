@@ -119,6 +119,11 @@ public class ApiClientConfig {
         return authenticatedClient(apiClient, jwtService, NotificationControllerApi::new);
     }
 
+    @Bean
+    public AuthenticatedApiClient<GamesControllerApi> authenticatedGamesClient(ApiClient apiClient, IJwtService jwtService) {
+        return authenticatedClient(apiClient, jwtService, GamesControllerApi::new);
+    }
+
     private <T> AuthenticatedApiClient<T> authenticatedClient(ApiClient apiClient, IJwtService jwtService, Function<ApiClient, T> apiFactory) {
         return () -> {
             String token = jwtService.getTokenPlainAndValidate();

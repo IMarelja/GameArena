@@ -47,7 +47,7 @@ public class AdminRestApiService implements IAdminService {
             }
 
             if (body.getData() == null) {
-                throw new NotFoundException(List.of("Failed to fetch active games"));
+                throw new UnexpectedApiErrorException(List.of("Failed to fetch active games"));
             }
 
             return body.getData()
@@ -79,7 +79,7 @@ public class AdminRestApiService implements IAdminService {
             }
 
             if (body.getData() == null) {
-                throw new NotFoundException(List.of("Failed to fetch active games"));
+                throw new UnexpectedApiErrorException(List.of("Failed to fetch active games"));
             }
 
             return body.getData()

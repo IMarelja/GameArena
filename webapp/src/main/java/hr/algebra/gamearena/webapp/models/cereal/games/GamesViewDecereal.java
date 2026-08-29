@@ -1,5 +1,6 @@
 package hr.algebra.gamearena.webapp.models.cereal.games;
 
+import com.gamearena.client.model.GamesFullView;
 import com.gamearena.client.model.GamesView;
 
 public record GamesViewDecereal(
@@ -15,8 +16,22 @@ public record GamesViewDecereal(
             false
     );
 
+    public static GamesViewDecereal fromGamesFullViewClient(GamesFullView games) {
+        return new GamesViewDecereal(
+                games.getId(),
+                games.getName(),
+                games.getDescription(),
+                games.getIsActive()
+        );
+    }
+
     public static GamesViewDecereal fromGamesViewClient(GamesView games) {
-        return new GamesViewDecereal(games.getId(), games.getName(), games.getDescription(), games.getIsActive());
+        return new GamesViewDecereal(
+                games.getId(),
+                games.getName(),
+                games.getDescription(),
+                games.getIsActive()
+        );
     }
 
     public static GamesViewDecereal fromGamesViewClientOrUnavailableGarbage(GamesView games) {
