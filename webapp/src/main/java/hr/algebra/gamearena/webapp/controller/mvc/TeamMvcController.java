@@ -9,7 +9,7 @@ import hr.algebra.gamearena.webapp.models.cereal.team.member.TeamMemberMinimalVi
 import hr.algebra.gamearena.webapp.models.cereal.team.member.TeamMemberRoleDecereal;
 import hr.algebra.gamearena.webapp.models.mvc.MvcError;
 import hr.algebra.gamearena.webapp.models.mvc.MvcResponse;
-import hr.algebra.gamearena.webapp.models.mvc.data.games.GameViewsData;
+import hr.algebra.gamearena.webapp.models.mvc.data.games.GameViewData;
 import hr.algebra.gamearena.webapp.models.mvc.data.team.*;
 import hr.algebra.gamearena.webapp.models.mvc.data.team.member.TeamMemberEditFormViewData;
 import hr.algebra.gamearena.webapp.models.mvc.data.team.member.TeamMemberEditPostViewModel;
@@ -205,11 +205,11 @@ public class TeamMvcController {
         }
     }
 
-    private Optional<List<GameViewsData>> loadActiveGames() {
+    private Optional<List<GameViewData>> loadActiveGames() {
         try {
             return Optional.of(gamesService.getActiveGames()
                     .stream()
-                    .map(GameViewsData::fromGamesViewDecereal)
+                    .map(GameViewData::fromGamesViewDecereal)
                     .toList());
         } catch (NotFoundException | UnexpectedApiErrorException e) {
             return Optional.empty();

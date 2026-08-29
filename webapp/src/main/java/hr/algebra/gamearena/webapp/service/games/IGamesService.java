@@ -8,4 +8,5 @@ import java.util.List;
 
 public interface IGamesService {
     List<GamesViewDecereal> getActiveGames() throws NotFoundException, UnexpectedApiErrorException;
+    List<GamesViewDecereal> getGames() throws NotFoundException, UnexpectedApiErrorException;
 }

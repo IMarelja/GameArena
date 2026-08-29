@@ -1,7 +1,7 @@
 package hr.algebra.gamearena.webapp.models.mvc.data.match;
 
 import hr.algebra.gamearena.webapp.models.cereal.match.MatchDetailFullViewDecereal;
-import hr.algebra.gamearena.webapp.models.mvc.data.games.GameViewsData;
+import hr.algebra.gamearena.webapp.models.mvc.data.games.GameViewData;
 import hr.algebra.gamearena.webapp.models.mvc.data.user.UserJustUsernameViewData;
 
 import java.time.OffsetDateTime;
@@ -10,7 +10,7 @@ import java.util.Optional;
 public record MatchViewData(
         Long id,
         Long tournamentId,
-        GameViewsData game,
+        GameViewData game,
         UserJustUsernameViewData player1,
         UserJustUsernameViewData player2,
         Integer playerOneScore,
@@ -25,7 +25,7 @@ public record MatchViewData(
         return new MatchViewData(
                 match.id(),
                 match.tournamentId(),
-                GameViewsData.fromGamesViewDecereal(match.game()),
+                GameViewData.fromGamesViewDecereal(match.game()),
                 UserJustUsernameViewData.from(match.player1()),
                 UserJustUsernameViewData.from(match.player2()),
                 match.playerOneScore(),

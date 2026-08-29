@@ -41,4 +41,23 @@ public class GamesRestApiService implements IGamesService {
             return ApiExceptionMapper.notFoundOnly(ex);
         }
     }
+
+    @Override
+    public List<GamesViewDecereal> getGames() throws NotFoundException, UnexpectedApiErrorException {
+        try {
+            ResponseEntity<ApiResponseListGamesView> response = gamesControllerApi.getAllGamesWithHttpInfo();
+            ApiResponseListGamesView body = response.getBody();
+            if (body == null) {
+                throw new NotFoundException(List.of(NO_RESPONSE_RECEIVED_API));
+            }
+
+            if (body.getData() == null) {
+                throw new NotFoundException(List.of("Failed to fetch active games"));
+            }
+
+            return body.getData().stream().map(GamesViewDecereal::fromGamesViewClient).toList();
+        } catch (RestClientResponseException ex) {
+            return ApiExceptionMapper.notFoundOnly(ex);
+        }
+    }
 }

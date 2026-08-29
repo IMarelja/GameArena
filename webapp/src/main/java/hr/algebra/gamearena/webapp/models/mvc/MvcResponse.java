@@ -44,6 +44,11 @@ public class MvcResponse<T> {
         return new MvcResponse<>(view, data, errors, status);
     }
 
+    public static <T> MvcResponse<T> dataWithErrors(HttpStatus status, String view, T data, List<MvcError> errors) {
+        return new MvcResponse<>(view, data, errors, status);
+    }
+
+
     public static ModelAndView redirect(String location) {
         return new ModelAndView("redirect:" + location);
     }

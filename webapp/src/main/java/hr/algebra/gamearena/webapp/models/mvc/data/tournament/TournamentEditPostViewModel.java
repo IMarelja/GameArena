@@ -2,6 +2,7 @@ package hr.algebra.gamearena.webapp.models.mvc.data.tournament;
 
 import hr.algebra.gamearena.webapp.models.cereal.tournament.TournamentEditCereal;
 import hr.algebra.gamearena.webapp.models.cereal.tournament.TournamentFullViewDecereal;
+import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -14,6 +15,7 @@ public record TournamentEditPostViewModel(
         @NotBlank(message = "Name is required")
         String name,
 
+        @Nullable
         String description,
 
         @NotNull(message = "A game must be selected")

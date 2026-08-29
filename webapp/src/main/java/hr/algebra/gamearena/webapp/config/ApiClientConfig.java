@@ -110,6 +110,11 @@ public class ApiClientConfig {
     }
 
     @Bean
+    public AuthenticatedApiClient<AdminControllerApi> adminClient(ApiClient apiClient, IJwtService jwtService) {
+        return authenticatedClient(apiClient, jwtService, AdminControllerApi::new);
+    }
+
+    @Bean
     public AuthenticatedApiClient<NotificationControllerApi> authenticatedNotificationClient(ApiClient apiClient, IJwtService jwtService) {
         return authenticatedClient(apiClient, jwtService, NotificationControllerApi::new);
     }

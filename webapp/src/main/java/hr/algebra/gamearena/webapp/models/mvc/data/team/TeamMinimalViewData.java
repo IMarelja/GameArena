@@ -1,14 +1,14 @@
 package hr.algebra.gamearena.webapp.models.mvc.data.team;
 
 import hr.algebra.gamearena.webapp.models.cereal.team.TeamMinimalViewDecereal;
-import hr.algebra.gamearena.webapp.models.mvc.data.games.GameViewsData;
+import hr.algebra.gamearena.webapp.models.mvc.data.games.GameViewData;
 
 import java.time.OffsetDateTime;
 
 public record TeamMinimalViewData(
         Long id,
         String name,
-        GameViewsData game,
+        GameViewData game,
         OffsetDateTime createdAt,
         Long memberCount
 ) {
@@ -16,7 +16,7 @@ public record TeamMinimalViewData(
         return new TeamMinimalViewData(
                 team.id(),
                 team.name(),
-                GameViewsData.fromGamesViewDecereal(team.game()),
+                GameViewData.fromGamesViewDecereal(team.game()),
                 team.createdAt(),
                 team.memberCount()
         );

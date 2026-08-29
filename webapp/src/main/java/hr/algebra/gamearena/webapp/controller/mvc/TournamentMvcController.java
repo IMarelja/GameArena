@@ -5,7 +5,7 @@ import hr.algebra.gamearena.webapp.models.cereal.tournament.member.TournamentMem
 import hr.algebra.gamearena.webapp.models.cereal.tournament.member.TournamentMemberViewDecereal;
 import hr.algebra.gamearena.webapp.models.mvc.MvcError;
 import hr.algebra.gamearena.webapp.models.mvc.MvcResponse;
-import hr.algebra.gamearena.webapp.models.mvc.data.games.GameViewsData;
+import hr.algebra.gamearena.webapp.models.mvc.data.games.GameViewData;
 import hr.algebra.gamearena.webapp.models.mvc.data.tournament.TournamentCreateFormViewData;
 import hr.algebra.gamearena.webapp.models.mvc.data.tournament.TournamentCreatePostViewModel;
 import hr.algebra.gamearena.webapp.models.mvc.data.tournament.TournamentDetailViewData;
@@ -110,10 +110,10 @@ public class TournamentMvcController {
     @GetMapping("/tournaments/add")
     @PreAuthorize("hasRole('ADMIN')")
     public ModelAndView addTournamentForm() {
-        List<GameViewsData> activeGames;
+        List<GameViewData> activeGames;
 
         try {
-            activeGames = gamesService.getActiveGames().stream().map(GameViewsData::fromGamesViewDecereal).toList();
+            activeGames = gamesService.getActiveGames().stream().map(GameViewData::fromGamesViewDecereal).toList();
         } catch (NotFoundException | UnexpectedApiErrorException e) {
             activeGames = List.of();
         }
@@ -145,9 +145,9 @@ public class TournamentMvcController {
             @Valid @ModelAttribute("form") TournamentCreatePostViewModel form,
             BindingResult bindingResult
     ) {
-        List<GameViewsData> activeGames;
+        List<GameViewData> activeGames;
         try {
-            activeGames = gamesService.getActiveGames().stream().map(GameViewsData::fromGamesViewDecereal).toList();
+            activeGames = gamesService.getActiveGames().stream().map(GameViewData::fromGamesViewDecereal).toList();
         } catch (NotFoundException | UnexpectedApiErrorException e) {
             return MvcResponse.errors(HttpStatus.SERVICE_UNAVAILABLE, TOURNAMENT_ADD_VIEW,
                     MvcError.toListMvcErrorFromMvcError(new MvcError(GAMES_LOAD_FAILED))).toModelAndView();
@@ -209,11 +209,11 @@ public class TournamentMvcController {
         return MvcResponse.redirect("/" + TOURNAMENT_VIEW + "/" + id);
     }
 
-    private Optional<List<GameViewsData>> loadActiveGames() {
+    private Optional<List<GameViewData>> loadActiveGames() {
         try {
             return Optional.of(gamesService.getActiveGames()
                     .stream()
-                    .map(GameViewsData::fromGamesViewDecereal)
+                    .map(GameViewData::fromGamesViewDecereal)
                     .toList());
         } catch (NotFoundException | UnexpectedApiErrorException e) {
             return Optional.empty();

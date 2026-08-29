@@ -1,7 +1,7 @@
 package hr.algebra.gamearena.webapp.models.mvc.data.tournament;
 
 import hr.algebra.gamearena.webapp.models.cereal.tournament.TournamentFullViewDecereal;
-import hr.algebra.gamearena.webapp.models.mvc.data.games.GameViewsData;
+import hr.algebra.gamearena.webapp.models.mvc.data.games.GameViewData;
 
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
@@ -11,7 +11,7 @@ public record TournamentViewData(
         String name,
         String description,
         TournamentStatusViewEnum status,
-        GameViewsData games,
+        GameViewData games,
         BigDecimal soloPrice,
         BigDecimal groupPrice,
         String currency,
@@ -25,7 +25,7 @@ public record TournamentViewData(
                 tournament.name(),
                 tournament.description(),
                 tournament.status() != null ? TournamentStatusViewEnum.fromDecereal(tournament.status()) : null,
-                GameViewsData.fromGamesViewDecereal(tournament.games()),
+                GameViewData.fromGamesViewDecereal(tournament.games()),
                 tournament.soloPrice(),
                 tournament.groupPrice(),
                 tournament.currency(),
