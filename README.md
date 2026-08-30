@@ -11,6 +11,42 @@ A platform for registering for esports tournaments and tracking results and lead
 - An administrator views platform activity reports with filters by game and time period (authenticated - admin)
 - An administrator views a historical log of system logins (user, time, IP address) (authenticated - admin)
 
+# Setup
+
+Bind all the empty references like NGROK authentication token and NGROK assigned URL
+
+```bash
+cp .env.example .env
+```
+
+Build and run the compose file to build the project
+
+
+```bash
+docker compose -f docker-compose.ngrok.yml up -d --build
+```
+
+Rerun the project
+
+
+```bash
+docker compose -f docker-compose.ngrok.yml up -d
+```
+
+Turn down the project
+
+
+```bash
+docker compose -f docker-compose.ngrok.yml down
+```
+
+
+Full remove everything
+
+```bash
+docker compose -f docker-compose.ngrok.yml down -v
+```
+
 ## Thinks to note
 
 ### Regenerate OpenAPI.json schema

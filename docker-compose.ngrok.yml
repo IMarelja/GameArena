@@ -1,0 +1,72 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: GameArenaDB-full
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - db-data-full:/var/lib/postgresql/data
+      - ./db/init.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
+      - ./db/seed.sql:/docker-entrypoint-initdb.d/02-seed.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME:-gamer} -d ${DB_NAME:-gamearenadb}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: ./api
+    container_name: GameArenaAPI-full
+    restart: unless-stopped
+    environment:
+      JWT_SECRET: ${JWT_SECRET}
+      DB_URL: jdbc:postgresql://db:5432/${DB_NAME}
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+    depends_on:
+      db:
+        condition: service_healthy
+
+  webapp:
+    build:
+      context: ./webapp
+    container_name: GameArenaWebApp-full
+    restart: unless-stopped
+    environment:
+      API_URL: ${API_URL}
+    depends_on:
+      api:
+        condition: service_healthy
+
+  ngrok-api:
+    image: ngrok/ngrok:3-alpine
+    container_name: GameArenaNgrok-api
+    restart: unless-stopped
+    environment:
+      NGROK_AUTHTOKEN: ${NGROK_AUTHTOKEN_API}
+    command: ["http", "api:5762", "--url=${NGROK_URL_API}"]
+    ports:
+      - "4040:4040"
+    depends_on:
+      api:
+        condition: service_healthy
+
+  ngrok-webapp:
+    image: ngrok/ngrok:3-alpine
+    container_name: GameArenaNgrok-webapp
+    restart: unless-stopped
+    environment:
+      NGROK_AUTHTOKEN: ${NGROK_AUTHTOKEN_WEBAPP}
+    command: ["http", "webapp:5763", "--url=${NGROK_URL_WEBAPP}"]
+    ports:
+      - "4041:4040"
+    depends_on:
+      webapp:
+        condition: service_healthy
+
+volumes:
+  db-data-full:
