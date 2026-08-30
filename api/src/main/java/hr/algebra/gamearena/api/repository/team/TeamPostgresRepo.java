@@ -97,7 +97,7 @@ public class TeamPostgresRepo implements ITeamRepo{
 
     @Override
     public List<TeamInvitation> getInvitationsForUserId(Long userId) {
-        return teamInvitationPostgresSQLRepo.findByInviteeId(userId)
+        return teamInvitationPostgresSQLRepo.findByInviteeIdOrInviterId(userId, userId)
                 .stream()
                 .map(TeamInvitation::fromTeamInvitationPostgres)
                 .toList();
