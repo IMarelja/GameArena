@@ -23,8 +23,6 @@ public class TypedSseEmitter<T> extends SseEmitter {
         send(builder);
     }
 
-    // The client can disconnect (recycling the servlet response) in the same instant the
-    // upstream stream terminates on another thread, so complete() here is inherently racy.
     public void completeSafely() {
         try {
             complete();

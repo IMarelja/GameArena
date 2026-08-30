@@ -87,10 +87,6 @@ public class NotificationService implements INotificationService{
 
         var updated = Optional.of(notificationRepo.update(id, notificationUpdate));
 
-        if(updated.isEmpty()) {
-            throw new NotFoundException(notificationNotFound(id));
-        }
-
         notificationPushService.push(updated.get().receiverUserId(), buildFullSnapshot(updated.get().receiverUserId()));
 
         return Optional.of(NotificationMinimalView.fromNotification(updated.get()));
@@ -115,7 +111,9 @@ public class NotificationService implements INotificationService{
     public Flux<NotificationUnreadAndCountView> streamForUserUnreadAndCount(Long userId) {
         return Flux.concat(
                 Flux.just(buildUnreadSnapshot(userId)),
-                notificationPushService.subscribe(userId).map(this::toUnreadAndCount));
+                notificationPushService.subscribe(userId)
+                        .map(this::toUnreadAndCount)
+        );
     }
 
     @Override
@@ -123,13 +121,19 @@ public class NotificationService implements INotificationService{
         return Flux.concat(
                 Flux.just(countUnreadByUserId(userId)),
                 notificationPushService.subscribe(userId)
-                        .map(all -> NotificationUnreadCountView.fromNotification(
-                                (int) all.stream().filter(n -> !n.read()).count())));
+                        .map(allNotifications -> NotificationUnreadCountView.fromNotification(
+                                (int) allNotifications
+                                        .stream()
+                                        .filter(notif -> !notif.read()).count()))
+        );
     }
 
     @Override
     public Flux<List<NotificationFullView>> streamForUserAll(Long userId) {
-        return Flux.concat(Flux.just(buildFullSnapshot(userId)), notificationPushService.subscribe(userId));
+        return Flux.concat(
+                Flux.just(buildFullSnapshot(userId)),
+                notificationPushService.subscribe(userId)
+        );
     }
 
     private NotificationUnreadAndCountView toUnreadAndCount(List<NotificationFullView> all) {

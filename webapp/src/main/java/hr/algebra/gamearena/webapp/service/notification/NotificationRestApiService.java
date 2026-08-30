@@ -89,9 +89,9 @@ public class NotificationRestApiService implements INotificationService {
     @Override
     public TypedSseEmitter<NotificationUnreadCountDecereal> streamUnreadCount() throws UnauthorizedException {
         return relay(
-                client -> client.notificationCountStreamWithResponseSpec()
-                        .bodyToFlux(new ParameterizedTypeReference<ServerSentEvent<NotificationUnreadCountView>>() {}),
-                NotificationUnreadCountDecereal::fromNotificationUnreadCountViewClient);
+                client -> client.notificationCountStreamWithResponseSpec().bodyToFlux(new ParameterizedTypeReference<ServerSentEvent<NotificationUnreadCountView>>() {}),
+                NotificationUnreadCountDecereal::fromNotificationUnreadCountViewClient
+        );
     }
 
     @Override
@@ -103,9 +103,15 @@ public class NotificationRestApiService implements INotificationService {
     }
 
     private <T, R> TypedSseEmitter<R> relay(
-            Function<NotificationReactiveControllerApi, Flux<ServerSentEvent<T>>> streamFactory,
-            Function<T, R> toDecereal)
-            throws UnauthorizedException {
+            Function
+                    <
+                    NotificationReactiveControllerApi,
+                    Flux<ServerSentEvent<T>>
+                    >
+                    streamFactory,
+            Function<T, R> toDecereal
+    ) throws UnauthorizedException {
+
         NotificationReactiveControllerApi client = authenticatedReactiveNotificationClient.get()
                 .orElseThrow(() -> new UnauthorizedException(List.of("You must be logged in to receive notifications")));
 
@@ -125,7 +131,11 @@ public class NotificationRestApiService implements INotificationService {
         return emitter;
     }
 
-    private <T, R> void forward(TypedSseEmitter<R> emitter, ServerSentEvent<T> event, Function<T, R> toDecereal) {
+    private <T, R> void forward(
+            TypedSseEmitter<R> emitter,
+            ServerSentEvent<T> event,
+            Function<T, R> toDecereal
+    ) {
         try {
             R data = event.data() != null ? toDecereal.apply(event.data()) : null;
             emitter.sendEvent(event.event(), data);
