@@ -4,6 +4,7 @@ import hr.algebra.gamearena.api.model.team.*;
 import hr.algebra.gamearena.api.orm.postgres.team.TeamInvitationPostgres;
 import hr.algebra.gamearena.api.orm.postgres.team.TeamMemberPostgres;
 import hr.algebra.gamearena.api.orm.postgres.team.TeamPostgres;
+import hr.algebra.gamearena.api.orm.postgres.team.invite_status;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -147,7 +148,7 @@ public class TeamPostgresRepo implements ITeamRepo{
 
     @Override
     public boolean doesPendingTeamInvitationExist(Long teamId, Long inviteeId) {
-        return teamInvitationPostgresSQLRepo.existsByTeamIdAndInviteeIdAndStatus(teamId, inviteeId, InviteStatus.PENDING);
+        return teamInvitationPostgresSQLRepo.existsByTeamIdAndInviteeIdAndStatus(teamId, inviteeId, invite_status.PENDING);
     }
 
     @Override
