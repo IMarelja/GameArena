@@ -29,12 +29,8 @@ public class AdminRestApiService implements IAdminService {
 
     @Override
     public List<TournamentFullViewDecereal> queryTournaments(TournamentQueryCereal queryCereal) throws NotFoundException, UnauthorizedException, ForbiddenException, UnexpectedApiErrorException, BadRequestedExceptions {
-        AdminControllerApi client;
-        try {
-            client = authenticatedAdminControllerApi.get();
-        } catch (TokenNotFoundException | TokenNotValidException e) {
-            throw new UnauthorizedException(List.of("You must be logged in to view this page"));
-        }
+        AdminControllerApi client = authenticatedAdminControllerApi.get()
+                .orElseThrow(() -> new UnauthorizedException(List.of("You must be logged in to view this page")));
 
         try {
 
@@ -61,12 +57,8 @@ public class AdminRestApiService implements IAdminService {
 
     @Override
     public List<MatchDetailFullViewDecereal> queryMatches(MatchQueryCereal queryCereal) throws UnauthorizedException, NotFoundException, ForbiddenException, UnexpectedApiErrorException, BadRequestedExceptions {
-        AdminControllerApi client;
-        try {
-            client = authenticatedAdminControllerApi.get();
-        } catch (TokenNotFoundException | TokenNotValidException e) {
-            throw new UnauthorizedException(List.of("You must be logged in to view this page"));
-        }
+        AdminControllerApi client = authenticatedAdminControllerApi.get()
+                .orElseThrow(() -> new UnauthorizedException(List.of("You must be logged in to view this page")));
 
         try {
 

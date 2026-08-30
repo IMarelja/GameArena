@@ -4,8 +4,6 @@ import com.gamearena.client.api.LeaderboardControllerApi;
 import com.gamearena.client.model.ApiResponseListTournamentStatsEntryView;
 import hr.algebra.gamearena.webapp.config.ApiClientConfig.AuthenticatedApiClient;
 import hr.algebra.gamearena.webapp.exceptions.extenders.NotFoundException;
-import hr.algebra.gamearena.webapp.exceptions.extenders.TokenNotFoundException;
-import hr.algebra.gamearena.webapp.exceptions.extenders.TokenNotValidException;
 import hr.algebra.gamearena.webapp.exceptions.extenders.UnauthorizedException;
 import hr.algebra.gamearena.webapp.exceptions.extenders.UnexpectedApiErrorException;
 import hr.algebra.gamearena.webapp.models.cereal.leaderboard.TournamentStatsEntryViewDecereal;
@@ -34,12 +32,8 @@ public class LeaderboardRestApiService implements ILeaderboardService {
 
     @Override
     public List<TournamentStatsEntryViewDecereal> getMyStats() throws UnauthorizedException, NotFoundException, UnexpectedApiErrorException {
-        LeaderboardControllerApi client;
-        try {
-            client = authenticatedLeaderboardClient.get();
-        } catch (TokenNotFoundException | TokenNotValidException e) {
-            throw new UnauthorizedException(List.of("You must be logged in to view this page"));
-        }
+        LeaderboardControllerApi client = authenticatedLeaderboardClient.get()
+                .orElseThrow(() -> new UnauthorizedException(List.of("You must be logged in to view this page")));
 
         try {
             ResponseEntity<ApiResponseListTournamentStatsEntryView> response = client.getMyStatsWithHttpInfo();

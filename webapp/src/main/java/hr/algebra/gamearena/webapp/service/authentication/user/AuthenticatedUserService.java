@@ -26,6 +26,8 @@ public class AuthenticatedUserService implements IAuthenticatedUserService {
 
     @Override
     public boolean isAdmin() {
-        return current().map(claim -> claim.role() == UserRoleDecereal.ADMIN).orElse(false);
+        return current()
+                .map(claim -> claim.role() == UserRoleDecereal.ADMIN)
+                .orElse(false);
     }
 }

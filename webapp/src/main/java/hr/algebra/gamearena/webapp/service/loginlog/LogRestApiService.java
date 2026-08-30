@@ -25,13 +25,8 @@ public class LogRestApiService implements ILogService {
 
     @Override
     public List<LoginLogDecereal> getLoginLogs() throws UnauthorizedException, ForbiddenException, NotFoundException, UnexpectedApiErrorException {
-        LoggingControllerApi client;
-
-        try {
-            client = authenticatedLogApiClient.get();
-        } catch (TokenNotFoundException | TokenNotValidException e){
-            throw new UnauthorizedException(List.of("You must be logged in to view this page"));
-        }
+        LoggingControllerApi client = authenticatedLogApiClient.get()
+                .orElseThrow(() -> new UnauthorizedException(List.of("You must be logged in to view this page")));
 
         try {
             ResponseEntity<ApiResponseListLoginLogsFullView> response = client.getLoggedTournamentsWithHttpInfo();

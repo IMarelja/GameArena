@@ -35,12 +35,8 @@ public class MatchRestApiService implements IMatchService {
 
     @Override
     public List<MatchDetailFullViewDecereal> getMyMatches() throws UnauthorizedException, NotFoundException, UnexpectedApiErrorException {
-        MatchControllerApi client;
-        try {
-            client = authenticatedMatchClient.get();
-        } catch (TokenNotFoundException | TokenNotValidException e) {
-            throw new UnauthorizedException(List.of("You must be logged in to view this page"));
-        }
+        MatchControllerApi client = authenticatedMatchClient.get()
+                .orElseThrow(() -> new UnauthorizedException(List.of("You must be logged in to view this page")));
 
         try {
             ResponseEntity<ApiResponseListMatchDetailedFullView> response = client.getMyMatchesWithHttpInfo();
@@ -124,12 +120,8 @@ public class MatchRestApiService implements IMatchService {
 
     @Override
     public MatchDetailFullViewDecereal createMatch(MatchCreateCereal cereal) throws UnauthorizedException, ForbiddenException, NotFoundException, UnexpectedApiErrorException, BadRequestedExceptions {
-        MatchControllerApi client;
-        try {
-            client = authenticatedMatchClient.get();
-        } catch (TokenNotFoundException | TokenNotValidException e) {
-            throw new UnauthorizedException(List.of("You must be logged in to create a match"));
-        }
+        MatchControllerApi client = authenticatedMatchClient.get()
+                .orElseThrow(() -> new UnauthorizedException(List.of("You must be logged in to create a match")));
 
         try {
             var request = new MatchCreateRequest()
@@ -156,12 +148,8 @@ public class MatchRestApiService implements IMatchService {
 
     @Override
     public MatchDetailFullViewDecereal editMatch(Long id, MatchEditCereal cereal) throws UnauthorizedException, ForbiddenException, NotFoundException, UnexpectedApiErrorException {
-        MatchControllerApi client;
-        try {
-            client = authenticatedMatchClient.get();
-        } catch (TokenNotFoundException | TokenNotValidException e) {
-            throw new UnauthorizedException(List.of("You must be logged in to edit a match"));
-        }
+        MatchControllerApi client = authenticatedMatchClient.get()
+                .orElseThrow(() -> new UnauthorizedException(List.of("You must be logged in to edit a match")));
 
         try {
             var request = new MatchEditRequest()

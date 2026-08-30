@@ -10,8 +10,6 @@ import com.gamearena.client.invoker.ApiClient;
 import hr.algebra.gamearena.webapp.client.reactive.ApiReactiveClient;
 import hr.algebra.gamearena.webapp.client.reactive.NotificationReactiveControllerApi;
 import hr.algebra.gamearena.webapp.client.reactive.TournamentReactiveApiClient;
-import hr.algebra.gamearena.webapp.exceptions.extenders.TokenNotFoundException;
-import hr.algebra.gamearena.webapp.exceptions.extenders.TokenNotValidException;
 import hr.algebra.gamearena.webapp.service.jwt.IJwtService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -21,6 +19,7 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 
@@ -125,20 +124,18 @@ public class ApiClientConfig {
     }
 
     private <T> AuthenticatedApiClient<T> authenticatedClient(ApiClient apiClient, IJwtService jwtService, Function<ApiClient, T> apiFactory) {
-        return () -> {
-            String token = jwtService.getTokenPlainAndValidate();
-
+        return () -> jwtService.getTokenPlainAndValidate().map(token -> {
             ApiClient authenticatedApiClient = new ApiClient(apiClient.getRestClient());
             authenticatedApiClient.setBasePath(apiClient.getBasePath());
             authenticatedApiClient.addDefaultHeader("Authorization", "Bearer " + token);
 
             return apiFactory.apply(authenticatedApiClient);
-        };
+        });
     }
 
     @FunctionalInterface
     public interface AuthenticatedApiClient<T> {
-        T get() throws TokenNotFoundException, TokenNotValidException;
+        Optional<T> get();
     }
     // END
 
@@ -170,15 +167,13 @@ public class ApiClientConfig {
             ApiReactiveClient reactiveApiClient,
             IJwtService jwtService,
             Function<ApiReactiveClient, T> apiFactory) {
-        return () -> {
-            String token = jwtService.getTokenPlainAndValidate();
-
+        return () -> jwtService.getTokenPlainAndValidate().map(token -> {
             ApiReactiveClient authenticatedApiClient = new ApiReactiveClient(reactiveApiClient.getWebClient());
             authenticatedApiClient.setBasePath(reactiveApiClient.getBasePath());
             authenticatedApiClient.addDefaultHeader("Authorization", "Bearer " + token);
 
             return apiFactory.apply(authenticatedApiClient);
-        };
+        });
     }
     // END
 

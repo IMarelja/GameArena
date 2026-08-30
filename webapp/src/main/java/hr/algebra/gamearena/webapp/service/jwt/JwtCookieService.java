@@ -2,8 +2,6 @@ package hr.algebra.gamearena.webapp.service.jwt;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import hr.algebra.gamearena.webapp.exceptions.extenders.TokenNotFoundException;
-import hr.algebra.gamearena.webapp.exceptions.extenders.TokenNotValidException;
 import hr.algebra.gamearena.webapp.models.cereal.authentication.JwtClaimDecereal;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -60,41 +58,17 @@ public class JwtCookieService implements IJwtService {
     }
 
     @Override
-    public String getTokenPlainAndValidate() throws TokenNotFoundException, TokenNotValidException {
-        String token = findCookieValue().orElseThrow(TokenNotFoundException::new);
-
-        if (decodeClaims(token).isEmpty()) {
-            throw new TokenNotValidException();
-        }
-
-        return token;
-    }
-
-    /*
-    🐟
-    Kill your grandma
-     */
-
-    @Override
-    public JwtClaimDecereal getTokenClaimsAndValidate() throws TokenNotFoundException, TokenNotValidException {
-        String token = findCookieValue().orElseThrow(TokenNotFoundException::new);
-        JwtClaimDecereal claims = decodeClaims(token).orElseThrow(TokenNotValidException::new);
-
-        if (claims.expiration().isBefore(OffsetDateTime.now(ZoneOffset.UTC))) {
-            throw new TokenNotValidException();
-        }
-
-        return claims;
+    public Optional<String> getTokenPlainAndValidate() {
+        return findCookieValue().filter(token -> decodeClaims(token).isPresent());
     }
 
     @Override
-    public JwtClaimDecereal getTokenClaimsAndValidateOrNull() {
-        try {
-            return getTokenClaimsAndValidate();
-        } catch (TokenNotFoundException | TokenNotValidException e) {
-            return null;
-        }
+    public Optional<JwtClaimDecereal> getTokenClaimsAndValidate() {
+        return findCookieValue()
+                .flatMap(this::decodeClaims)
+                .filter(claims -> claims.expiration().isAfter(OffsetDateTime.now(ZoneOffset.UTC)));
     }
+
 
     private Optional<String> findCookieValue() {
         if (request.getCookies() == null) {
@@ -109,26 +83,15 @@ public class JwtCookieService implements IJwtService {
 
     private Optional<JwtClaimDecereal> decodeClaims(String token) {
         try {
-            String[] parts = token.split("\\.");
-            if (parts.length != 3) {
-                return Optional.empty();
-            }
+            String payload = token.split("\\.")[1];
 
-            JsonNode payload = objectMapper.readTree(decodeBase64Url(parts[1]));
+            byte[] decoded = Base64.getUrlDecoder().decode(payload);
+            JsonNode node = objectMapper.readTree(decoded);
 
-            return Optional.of(JwtClaimDecereal.fromJsonNode(payload));
+            return Optional.of(JwtClaimDecereal.fromJsonNode(node));
         } catch (Exception e) {
-            log.debug("JwtCookieService decodeClaims(): rejected token: {}", e.getMessage());
+            log.debug("Failed to decode JWT claims: {}", e.getMessage());
             return Optional.empty();
         }
-    }
-
-    private static byte[] decodeBase64Url(String segment) {
-        String padded = switch (segment.length() % 4) {
-            case 2 -> segment + "==";
-            case 3 -> segment + "=";
-            default -> segment;
-        };
-        return Base64.getUrlDecoder().decode(padded);
     }
 }

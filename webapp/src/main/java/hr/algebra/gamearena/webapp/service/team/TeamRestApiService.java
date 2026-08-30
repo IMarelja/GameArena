@@ -83,12 +83,8 @@ public class TeamRestApiService implements ITeamService {
 
     @Override
     public List<TeamMinimalViewDecereal> getAllMyTeam() throws UnauthorizedException, NotFoundException, ForbiddenException, UnexpectedApiErrorException {
-        TeamControllerApi client;
-        try {
-            client = authenticatedTeamClient.get();
-        } catch (TokenNotFoundException | TokenNotValidException e) {
-            throw new UnauthorizedException(List.of("You must be logged in to view your team"));
-        }
+        TeamControllerApi client = authenticatedTeamClient.get()
+                .orElseThrow(() -> new UnauthorizedException(List.of("You must be logged in to view your team")));
 
         try{
             ResponseEntity<ApiResponseListTeamMinimalView> response = client.getTeamsForMeWithHttpInfo();
@@ -114,12 +110,8 @@ public class TeamRestApiService implements ITeamService {
 
     @Override
     public TeamMinimalViewDecereal addTeam(TeamAddCereal cereal) throws UnauthorizedException, NotFoundException, UnexpectedApiErrorException, ForbiddenException, BadRequestedExceptions {
-        TeamControllerApi client;
-        try {
-            client = authenticatedTeamClient.get();
-        } catch (TokenNotFoundException | TokenNotValidException e) {
-            throw new UnauthorizedException(List.of("You must be logged in to add a team"));
-        }
+        TeamControllerApi client = authenticatedTeamClient.get()
+                .orElseThrow(() -> new UnauthorizedException(List.of("You must be logged in to add a team")));
 
         try{
             var request = new TeamCreateRequest().gameId(cereal.gameId()).name(cereal.name());
@@ -144,12 +136,8 @@ public class TeamRestApiService implements ITeamService {
 
     @Override
     public TeamMinimalViewDecereal editTeam(Long id, TeamEditCereal cereal) throws UnauthorizedException, ForbiddenException, NotFoundException, UnexpectedApiErrorException {
-        TeamControllerApi client;
-        try {
-            client = authenticatedTeamClient.get();
-        } catch (TokenNotFoundException | TokenNotValidException e) {
-            throw new UnauthorizedException(List.of("You must be logged in to edit a team"));
-        }
+        TeamControllerApi client = authenticatedTeamClient.get()
+                .orElseThrow(() -> new UnauthorizedException(List.of("You must be logged in to edit a team")));
 
         try {
             var request = new TeamEditRequest().name(cereal.name()).gameId(cereal.gameId());
@@ -190,12 +178,8 @@ public class TeamRestApiService implements ITeamService {
 
     @Override
     public TeamMemberFullViewDecereal getMyTeamMembership(Long teamId) throws UnauthorizedException, NotFoundException, UnexpectedApiErrorException {
-        TeamControllerApi client;
-        try {
-            client = authenticatedTeamClient.get();
-        } catch (TokenNotFoundException | TokenNotValidException e) {
-            throw new UnauthorizedException(List.of("You must be logged in to view this page"));
-        }
+        TeamControllerApi client = authenticatedTeamClient.get()
+                .orElseThrow(() -> new UnauthorizedException(List.of("You must be logged in to view this page")));
 
         try {
             ResponseEntity<ApiResponseTeamMemberFullView> response = client.getMeTeamMemberWithHttpInfo(teamId);
@@ -229,12 +213,8 @@ public class TeamRestApiService implements ITeamService {
 
     @Override
     public TeamMemberFullViewDecereal editTeamMemberRole(Long teamId, Long memberId, TeamMemberEditCereal cereal) throws UnauthorizedException, ForbiddenException, NotFoundException, UnexpectedApiErrorException {
-        TeamControllerApi client;
-        try {
-            client = authenticatedTeamClient.get();
-        } catch (TokenNotFoundException | TokenNotValidException e) {
-            throw new UnauthorizedException(List.of("You must be logged in to edit team members"));
-        }
+        TeamControllerApi client = authenticatedTeamClient.get()
+                .orElseThrow(() -> new UnauthorizedException(List.of("You must be logged in to edit team members")));
 
         try {
             var request = new TeamMemberEditRequest().role(cereal.role().toClient());
@@ -256,12 +236,8 @@ public class TeamRestApiService implements ITeamService {
 
     @Override
     public void leaveTeam(Long teamId) throws UnauthorizedException, ForbiddenException, NotFoundException, ConflictException, UnexpectedApiErrorException, BadRequestedExceptions {
-        TeamControllerApi client;
-        try {
-            client = authenticatedTeamClient.get();
-        } catch (TokenNotFoundException | TokenNotValidException e) {
-            throw new UnauthorizedException(List.of("You must be logged in to leave the team"));
-        }
+        TeamControllerApi client = authenticatedTeamClient.get()
+                .orElseThrow(() -> new UnauthorizedException(List.of("You must be logged in to leave the team")));
 
         try{
             client.leaveTeam(teamId);
@@ -272,12 +248,8 @@ public class TeamRestApiService implements ITeamService {
 
     @Override
     public void removeTeamMember(Long teamId, Long memberId) throws UnauthorizedException, ForbiddenException, NotFoundException, UnexpectedApiErrorException {
-        TeamControllerApi client;
-        try {
-            client = authenticatedTeamClient.get();
-        } catch (TokenNotFoundException | TokenNotValidException e) {
-            throw new UnauthorizedException(List.of("You must be logged in to remove team members"));
-        }
+        TeamControllerApi client = authenticatedTeamClient.get()
+                .orElseThrow(() -> new UnauthorizedException(List.of("You must be logged in to remove team members")));
 
         try {
             client.removeTeamMember(teamId, memberId);
@@ -316,12 +288,8 @@ public class TeamRestApiService implements ITeamService {
 
     @Override
     public List<TeamInvitationDecereal> getAllMyTeamInvitations() throws NotFoundException, UnauthorizedException, ForbiddenException, UnexpectedApiErrorException {
-        TeamControllerApi client;
-        try {
-            client = authenticatedTeamClient.get();
-        } catch (TokenNotFoundException | TokenNotValidException e) {
-            throw new UnauthorizedException(List.of("You must be logged in to view your invitations"));
-        }
+        TeamControllerApi client = authenticatedTeamClient.get()
+                .orElseThrow(() -> new UnauthorizedException(List.of("You must be logged in to view your invitations")));
 
         try {
             ResponseEntity<ApiResponseListTeamInvitationView> response = client.getMyInvitationsWithHttpInfo();
@@ -342,12 +310,8 @@ public class TeamRestApiService implements ITeamService {
 
     @Override
     public TeamInvitationDecereal getInvitationById(Long invitationId) throws NotFoundException, UnauthorizedException, ForbiddenException, UnexpectedApiErrorException {
-        TeamControllerApi client;
-        try {
-            client = authenticatedTeamClient.get();
-        } catch (TokenNotFoundException | TokenNotValidException e) {
-            throw new UnauthorizedException(List.of("You must be logged in to view this invitation"));
-        }
+        TeamControllerApi client = authenticatedTeamClient.get()
+                .orElseThrow(() -> new UnauthorizedException(List.of("You must be logged in to view this invitation")));
 
         try {
             ResponseEntity<ApiResponseTeamInvitationView> response = client.getInvitationByIdWithHttpInfo(invitationId);
@@ -368,12 +332,8 @@ public class TeamRestApiService implements ITeamService {
 
     @Override
     public TeamInvitationDecereal createInvitation(Long userId, Long teamId) throws NotFoundException, UnauthorizedException, ForbiddenException, ConflictException, BadRequestedExceptions, UnexpectedApiErrorException {
-        TeamControllerApi client;
-        try {
-            client = authenticatedTeamClient.get();
-        } catch (TokenNotFoundException | TokenNotValidException e) {
-            throw new UnauthorizedException(List.of("You must be logged in to invite a user to a team"));
-        }
+        TeamControllerApi client = authenticatedTeamClient.get()
+                .orElseThrow(() -> new UnauthorizedException(List.of("You must be logged in to invite a user to a team")));
 
         try {
             ResponseEntity<ApiResponseTeamInvitationView> response = client.inviteUserWithHttpInfo(teamId, userId);
@@ -394,12 +354,8 @@ public class TeamRestApiService implements ITeamService {
 
     @Override
     public TeamInvitationDecereal respondInvitation(Long invitationId, TeamInvitationInviteeRespondCereal cereal) throws NotFoundException, UnauthorizedException, ForbiddenException, ConflictException, BadRequestedExceptions, UnexpectedApiErrorException {
-        TeamControllerApi client;
-        try {
-            client = authenticatedTeamClient.get();
-        } catch (TokenNotFoundException | TokenNotValidException e) {
-            throw new UnauthorizedException(List.of("You must be logged in to respond to this invitation"));
-        }
+        TeamControllerApi client = authenticatedTeamClient.get()
+                .orElseThrow(() -> new UnauthorizedException(List.of("You must be logged in to respond to this invitation")));
 
         try {
             ResponseEntity<ApiResponseTeamInvitationView> response = client.invitationResponseWithHttpInfo(invitationId, cereal.toTeamInvitationResponseEditRequest());
@@ -420,12 +376,8 @@ public class TeamRestApiService implements ITeamService {
 
     @Override
     public TeamInvitationDecereal updateInvitation(Long invitationId, TeamInvitationInviterUpdateCereal cereal) throws NotFoundException, UnauthorizedException, ForbiddenException, ConflictException, BadRequestedExceptions, UnexpectedApiErrorException {
-        TeamControllerApi client;
-        try {
-            client = authenticatedTeamClient.get();
-        } catch (TokenNotFoundException | TokenNotValidException e) {
-            throw new UnauthorizedException(List.of("You must be logged in to update this invitation"));
-        }
+        TeamControllerApi client = authenticatedTeamClient.get()
+                .orElseThrow(() -> new UnauthorizedException(List.of("You must be logged in to update this invitation")));
 
         try {
             ResponseEntity<ApiResponseTeamInvitationView> response = client.updateInvitationWithHttpInfo(invitationId, cereal.toInviterTeamInvitationEditRequest());

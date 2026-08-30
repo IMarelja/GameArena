@@ -94,12 +94,8 @@ public class GamesRestApiService implements IGamesService {
 
     @Override
     public GamesViewDecereal createGame(GameCreateCereal cereal) throws NotFoundException, UnexpectedApiErrorException, ForbiddenException, ConflictException, UnauthorizedException, BadRequestedExceptions {
-        GamesControllerApi client;
-        try {
-            client = authenticatedGamesApiClient.get();
-        } catch (TokenNotFoundException | TokenNotValidException e) {
-            throw new UnauthorizedException(List.of("You must be logged in to view this page"));
-        }
+        GamesControllerApi client = authenticatedGamesApiClient.get()
+                .orElseThrow(() -> new UnauthorizedException(List.of("You must be logged in to view this page")));
 
         try {
             ResponseEntity<ApiResponseGamesFullView> response = client.createGamesWithHttpInfo(cereal.toGamesCreateRequest());
@@ -120,12 +116,8 @@ public class GamesRestApiService implements IGamesService {
 
     @Override
     public GamesViewDecereal editGame(Long id, GameEditCereal cereal) throws NotFoundException, UnexpectedApiErrorException, ForbiddenException, ConflictException, UnauthorizedException, BadRequestedExceptions {
-        GamesControllerApi client;
-        try {
-            client = authenticatedGamesApiClient.get();
-        } catch (TokenNotFoundException | TokenNotValidException e) {
-            throw new UnauthorizedException(List.of("You must be logged in to view this page"));
-        }
+        GamesControllerApi client = authenticatedGamesApiClient.get()
+                .orElseThrow(() -> new UnauthorizedException(List.of("You must be logged in to view this page")));
 
         try {
             ResponseEntity<ApiResponseGamesFullView> response = client.updateGamesWithHttpInfo(id, cereal.toGamesEditRequest());

@@ -1,8 +1,5 @@
 package hr.algebra.gamearena.webapp.filter;
 
-import hr.algebra.gamearena.webapp.exceptions.extenders.TokenNotFoundException;
-import hr.algebra.gamearena.webapp.exceptions.extenders.TokenNotValidException;
-import hr.algebra.gamearena.webapp.models.cereal.authentication.JwtClaimDecereal;
 import hr.algebra.gamearena.webapp.service.jwt.IJwtService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -39,23 +36,21 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
     private void authenticate() {
-        JwtClaimDecereal claim;
+        jwtService.getTokenClaimsAndValidate().ifPresentOrElse(
+                claim -> {
+                    var authentication = UsernamePasswordAuthenticationToken.authenticated(
+                            claim,
+                            null,
+                            List.of(new SimpleGrantedAuthority(ROLE_PREFIX + claim.role())));
 
-        try {
-            claim = jwtService.getTokenClaimsAndValidate();
-        } catch (TokenNotFoundException | TokenNotValidException e) {
-            log.debug("JwtAuthenticationFilter: no valid session token - {}", e.getMessage());
-            SecurityContextHolder.clearContext();
-            return;
-        }
-
-        var authentication = UsernamePasswordAuthenticationToken.authenticated(
-                claim,
-                null,
-                List.of(new SimpleGrantedAuthority(ROLE_PREFIX + claim.role())));
-
-        SecurityContext context = SecurityContextHolder.createEmptyContext();
-        context.setAuthentication(authentication);
-        SecurityContextHolder.setContext(context);
+                    SecurityContext context = SecurityContextHolder.createEmptyContext();
+                    context.setAuthentication(authentication);
+                    SecurityContextHolder.setContext(context);
+                },
+                () -> {
+                    log.debug("JwtAuthenticationFilter: no valid session token");
+                    SecurityContextHolder.clearContext();
+                }
+        );
     }
 }

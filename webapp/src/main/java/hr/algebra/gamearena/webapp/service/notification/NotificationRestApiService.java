@@ -8,8 +8,6 @@ import hr.algebra.gamearena.webapp.client.reactive.NotificationReactiveControlle
 import hr.algebra.gamearena.webapp.config.ApiClientConfig.AuthenticatedApiClient;
 import hr.algebra.gamearena.webapp.exceptions.extenders.ForbiddenException;
 import hr.algebra.gamearena.webapp.exceptions.extenders.NotFoundException;
-import hr.algebra.gamearena.webapp.exceptions.extenders.TokenNotFoundException;
-import hr.algebra.gamearena.webapp.exceptions.extenders.TokenNotValidException;
 import hr.algebra.gamearena.webapp.exceptions.extenders.UnauthorizedException;
 import hr.algebra.gamearena.webapp.exceptions.extenders.UnexpectedApiErrorException;
 import hr.algebra.gamearena.webapp.models.cereal.notification.NotificationDecereal;
@@ -56,12 +54,8 @@ public class NotificationRestApiService implements INotificationService {
 
     @Override
     public NotificationDecereal updateNotification(Long id, NotificationUpdateCereal cereal) throws UnauthorizedException, ForbiddenException, NotFoundException, UnexpectedApiErrorException {
-        NotificationControllerApi client;
-        try {
-            client = authenticatedNotificationClient.get();
-        } catch (TokenNotFoundException | TokenNotValidException e) {
-            throw new UnauthorizedException(List.of("You must be logged in to update notifications"));
-        }
+        NotificationControllerApi client = authenticatedNotificationClient.get()
+                .orElseThrow(() -> new UnauthorizedException(List.of("You must be logged in to update notifications")));
 
         try {
             ResponseEntity<ApiResponseNotificationMinimalView> response = client.updateNotificationWithHttpInfo(id, cereal.toNotificationEditRequest());
@@ -82,12 +76,8 @@ public class NotificationRestApiService implements INotificationService {
 
     @Override
     public void deleteNotification(Long id) throws UnauthorizedException, ForbiddenException, NotFoundException, UnexpectedApiErrorException {
-        NotificationControllerApi client;
-        try {
-            client = authenticatedNotificationClient.get();
-        } catch (TokenNotFoundException | TokenNotValidException e) {
-            throw new UnauthorizedException(List.of("You must be logged in to delete notifications"));
-        }
+        NotificationControllerApi client = authenticatedNotificationClient.get()
+                .orElseThrow(() -> new UnauthorizedException(List.of("You must be logged in to delete notifications")));
 
         try {
             client.deleteNotificationWithHttpInfo(id);
@@ -116,12 +106,8 @@ public class NotificationRestApiService implements INotificationService {
             Function<NotificationReactiveControllerApi, Flux<ServerSentEvent<T>>> streamFactory,
             Function<T, R> toDecereal)
             throws UnauthorizedException {
-        NotificationReactiveControllerApi client;
-        try {
-            client = authenticatedReactiveNotificationClient.get();
-        } catch (TokenNotFoundException | TokenNotValidException e) {
-            throw new UnauthorizedException(List.of("You must be logged in to receive notifications"));
-        }
+        NotificationReactiveControllerApi client = authenticatedReactiveNotificationClient.get()
+                .orElseThrow(() -> new UnauthorizedException(List.of("You must be logged in to receive notifications")));
 
         TypedSseEmitter<R> emitter = new TypedSseEmitter<>(EMITTER_TIMEOUT_MILLIS);
         Disposable subscription = streamFactory.apply(client).subscribe(

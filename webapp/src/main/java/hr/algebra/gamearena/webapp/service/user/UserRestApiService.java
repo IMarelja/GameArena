@@ -8,8 +8,6 @@ import com.gamearena.client.model.UserSuspendRequest;
 import hr.algebra.gamearena.webapp.config.ApiClientConfig.AuthenticatedApiClient;
 import hr.algebra.gamearena.webapp.exceptions.extenders.ForbiddenException;
 import hr.algebra.gamearena.webapp.exceptions.extenders.NotFoundException;
-import hr.algebra.gamearena.webapp.exceptions.extenders.TokenNotFoundException;
-import hr.algebra.gamearena.webapp.exceptions.extenders.TokenNotValidException;
 import hr.algebra.gamearena.webapp.exceptions.extenders.UnauthorizedException;
 import hr.algebra.gamearena.webapp.exceptions.extenders.UnexpectedApiErrorException;
 import hr.algebra.gamearena.webapp.models.cereal.user.UserFullViewDtoDecereal;
@@ -77,12 +75,8 @@ public class UserRestApiService implements IUserService {
 
     @Override
     public UserFullViewDtoDecereal getMe() throws NotFoundException, UnauthorizedException, UnexpectedApiErrorException {
-        UserControllerApi client;
-        try {
-            client = authenticatedUserClient.get();
-        } catch (TokenNotFoundException | TokenNotValidException e) {
-            throw new UnauthorizedException(List.of("You must be logged in to view this page"));
-        }
+        UserControllerApi client = authenticatedUserClient.get()
+                .orElseThrow(() -> new UnauthorizedException(List.of("You must be logged in to view this page")));
 
         try {
             ResponseEntity<ApiResponseUserFullViewDto> response = client.getMeWithHttpInfo();
@@ -105,12 +99,8 @@ public class UserRestApiService implements IUserService {
 
     @Override
     public void deleteMyAccount() throws UnauthorizedException {
-        UserControllerApi client;
-        try {
-            client = authenticatedUserClient.get();
-        } catch (TokenNotFoundException | TokenNotValidException e) {
-            throw new UnauthorizedException(List.of("You must be logged in to delete your account"));
-        }
+        UserControllerApi client = authenticatedUserClient.get()
+                .orElseThrow(() -> new UnauthorizedException(List.of("You must be logged in to delete your account")));
 
         try {
             client.deleteMe();
@@ -124,12 +114,8 @@ public class UserRestApiService implements IUserService {
 
     @Override
     public UserFullViewDtoDecereal getUserFullById(Long id) throws UnauthorizedException, ForbiddenException, NotFoundException, UnexpectedApiErrorException {
-        UserControllerApi client;
-        try {
-            client = authenticatedUserClient.get();
-        } catch (TokenNotFoundException | TokenNotValidException e) {
-            throw new UnauthorizedException(List.of("You must be logged in to view this page"));
-        }
+        UserControllerApi client = authenticatedUserClient.get()
+                .orElseThrow(() -> new UnauthorizedException(List.of("You must be logged in to view this page")));
 
         try {
             ResponseEntity<ApiResponseUserFullViewDto> response = client.getByIdFullInfoWithHttpInfo(id);
@@ -150,12 +136,8 @@ public class UserRestApiService implements IUserService {
 
     @Override
     public UserFullViewDtoDecereal suspendAccount(UserSuspendCereal cereal) throws UnauthorizedException, ForbiddenException, NotFoundException, UnexpectedApiErrorException {
-        UserControllerApi client;
-        try {
-            client = authenticatedUserClient.get();
-        } catch (TokenNotFoundException | TokenNotValidException e) {
-            throw new UnauthorizedException(List.of("You must be logged in to suspend accounts"));
-        }
+        UserControllerApi client = authenticatedUserClient.get()
+                .orElseThrow(() -> new UnauthorizedException(List.of("You must be logged in to suspend accounts")));
 
         try {
             var request = new UserSuspendRequest().userId(cereal.userId()).isActive(cereal.isActive());

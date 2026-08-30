@@ -1,6 +1,7 @@
 package hr.algebra.gamearena.webapp.controller.mvc;
 
 import hr.algebra.gamearena.webapp.exceptions.extenders.*;
+import hr.algebra.gamearena.webapp.models.cereal.authentication.JwtClaimDecereal;
 import hr.algebra.gamearena.webapp.models.cereal.user.UserSuspendCereal;
 import hr.algebra.gamearena.webapp.models.mvc.MvcError;
 import hr.algebra.gamearena.webapp.models.mvc.MvcResponse;
@@ -88,8 +89,8 @@ public class UserMvcController {
     @GetMapping("/user/{id}")
     @PreAuthorize("permitAll()")
     public ModelAndView viewUser(@PathVariable Long id) throws NotFoundException, UnexpectedApiErrorException {
-        var claims = jwtService.getTokenClaimsAndValidateOrNull();
-        if (claims != null && claims.userId().equals(id)) {
+        var claims = jwtService.getTokenClaimsAndValidate();
+        if (claims.isPresent() && claims.get().userId().equals(id)) {
             return MvcResponse.redirect("/" + ME_VIEW);
         }
 
@@ -339,8 +340,6 @@ public class UserMvcController {
     }
 
     private Long currentUserId() {
-        return jwtService.getTokenClaimsAndValidateOrNull() != null
-                ? jwtService.getTokenClaimsAndValidateOrNull().userId()
-                : null;
+        return jwtService.getTokenClaimsAndValidate().map(JwtClaimDecereal::userId).orElse(null);
     }
 }

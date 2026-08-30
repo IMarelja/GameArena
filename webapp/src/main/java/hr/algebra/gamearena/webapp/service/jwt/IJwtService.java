@@ -1,13 +1,12 @@
 package hr.algebra.gamearena.webapp.service.jwt;
 
-import hr.algebra.gamearena.webapp.exceptions.extenders.TokenNotFoundException;
-import hr.algebra.gamearena.webapp.exceptions.extenders.TokenNotValidException;
 import hr.algebra.gamearena.webapp.models.cereal.authentication.JwtClaimDecereal;
+
+import java.util.Optional;
 
 public interface IJwtService {
     void storeToken(String token);
     void clearToken();
-    String getTokenPlainAndValidate() throws TokenNotFoundException, TokenNotValidException;
-    JwtClaimDecereal getTokenClaimsAndValidate() throws TokenNotFoundException, TokenNotValidException;
-    JwtClaimDecereal getTokenClaimsAndValidateOrNull();
+    Optional<String> getTokenPlainAndValidate();
+    Optional<JwtClaimDecereal> getTokenClaimsAndValidate();
 }

@@ -73,12 +73,8 @@ public class TournamentRestApiService implements ITournamentService {
 
     @Override
     public List<TournamentFullViewDecereal> getMyTournaments() throws UnauthorizedException, NotFoundException, UnexpectedApiErrorException {
-        TournamentControllerApi client;
-        try {
-            client = authenticatedTournamentClient.get();
-        } catch (TokenNotFoundException | TokenNotValidException e) {
-            throw new UnauthorizedException(List.of("You must be logged in to view this page"));
-        }
+        TournamentControllerApi client = authenticatedTournamentClient.get()
+                .orElseThrow(() -> new UnauthorizedException(List.of("You must be logged in to view this page")));
 
         try {
             ResponseEntity<ApiResponseListTournamentFullView> response = client.getMyTournamentsWithHttpInfo();
@@ -141,12 +137,8 @@ public class TournamentRestApiService implements ITournamentService {
 
     @Override
     public TournamentFullViewDecereal createTournament(TournamentCreateCereal cereal) throws UnauthorizedException, ForbiddenException, NotFoundException, UnexpectedApiErrorException {
-        TournamentControllerApi client;
-        try {
-            client = authenticatedTournamentClient.get();
-        } catch (TokenNotFoundException | TokenNotValidException e) {
-            throw new UnauthorizedException(List.of("You must be logged in to create a tournament"));
-        }
+        TournamentControllerApi client = authenticatedTournamentClient.get()
+                .orElseThrow(() -> new UnauthorizedException(List.of("You must be logged in to create a tournament")));
 
         try {
             var price = new PriceCreateRequest()
@@ -180,12 +172,8 @@ public class TournamentRestApiService implements ITournamentService {
 
     @Override
     public TournamentFullViewDecereal editTournament(Long tournamentId, TournamentEditCereal cereal) throws UnauthorizedException, ForbiddenException, NotFoundException, UnexpectedApiErrorException {
-        TournamentControllerApi client;
-        try {
-            client = authenticatedTournamentClient.get();
-        } catch (TokenNotFoundException | TokenNotValidException e) {
-            throw new UnauthorizedException(List.of("You must be logged in to edit a tournament"));
-        }
+        TournamentControllerApi client = authenticatedTournamentClient.get()
+                .orElseThrow(() -> new UnauthorizedException(List.of("You must be logged in to edit a tournament")));
 
         try {
             var price = new PriceEditRequest()
@@ -220,12 +208,8 @@ public class TournamentRestApiService implements ITournamentService {
 
     @Override
     public TournamentMemberViewDecereal addTournamentMember(Long tournamentId, TournamentMemberCreateCereal cereal) throws UnauthorizedException, ForbiddenException, NotFoundException, ConflictException, BadRequestedExceptions, UnexpectedApiErrorException {
-        TournamentControllerApi client;
-        try {
-            client = authenticatedTournamentClient.get();
-        } catch (TokenNotFoundException | TokenNotValidException e) {
-            throw new UnauthorizedException(List.of("You must be logged in to add a tournament member"));
-        }
+        TournamentControllerApi client = authenticatedTournamentClient.get()
+                .orElseThrow(() -> new UnauthorizedException(List.of("You must be logged in to add a tournament member")));
 
         try {
             var request = new TournamentMemberCreateRequest().userId(cereal.userId()).role(cereal.role().toClient());
@@ -247,12 +231,8 @@ public class TournamentRestApiService implements ITournamentService {
 
     @Override
     public TournamentMemberViewDecereal editTournamentMember(Long memberId, TournamentMemberEditCereal cereal) throws UnauthorizedException, ForbiddenException, NotFoundException, ConflictException, BadRequestedExceptions, UnexpectedApiErrorException {
-        TournamentControllerApi client;
-        try {
-            client = authenticatedTournamentClient.get();
-        } catch (TokenNotFoundException | TokenNotValidException e) {
-            throw new UnauthorizedException(List.of("You must be logged in to edit a tournament member"));
-        }
+        TournamentControllerApi client = authenticatedTournamentClient.get()
+                .orElseThrow(() -> new UnauthorizedException(List.of("You must be logged in to edit a tournament member")));
 
         try {
             var request = new TournamentMemberEditRequest().role(cereal.role().toClient());
@@ -312,12 +292,8 @@ public class TournamentRestApiService implements ITournamentService {
 
     @Override
     public TournamentMemberViewDecereal getMyTournamentMembership(Long tournamentId) throws UnauthorizedException, NotFoundException, UnexpectedApiErrorException {
-        TournamentControllerApi client;
-        try {
-            client = authenticatedTournamentClient.get();
-        } catch (TokenNotFoundException | TokenNotValidException e) {
-            throw new UnauthorizedException(List.of("You must be logged in to view this page"));
-        }
+        TournamentControllerApi client = authenticatedTournamentClient.get()
+                .orElseThrow(() -> new UnauthorizedException(List.of("You must be logged in to view this page")));
 
         try {
             ResponseEntity<ApiResponseTournamentMemberView> response = client.getMeMemberOfTournamentWithHttpInfo(tournamentId);
