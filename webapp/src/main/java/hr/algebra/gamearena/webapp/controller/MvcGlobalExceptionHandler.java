@@ -91,6 +91,10 @@ public class MvcGlobalExceptionHandler {
         return false;
     }
 
+    @ModelAttribute("isPartOfAnyTeam")
+    public boolean isPartOfAnyTeam(){
+        return teamService.isUserPartOfAnyTeam();
+    }
 
 
     // GameArena site exceptions

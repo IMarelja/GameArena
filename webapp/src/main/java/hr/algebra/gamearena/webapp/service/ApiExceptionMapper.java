@@ -1,6 +1,7 @@
 package hr.algebra.gamearena.webapp.service;
 
 import hr.algebra.gamearena.webapp.exceptions.extenders.*;
+import hr.algebra.gamearena.webapp.models.cereal.team.TeamMinimalViewDecereal;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.client.RestClientResponseException;
 
@@ -121,6 +122,24 @@ public final class ApiExceptionMapper {
         }
         if (wrong.status == HttpStatus.CONFLICT) {
             throw new ConflictException(wrong.messages);
+        }
+
+        throw new UnexpectedApiErrorException(wrong.status + ": " + wrong.messages);
+    }
+
+    public static List<TeamMinimalViewDecereal> unauthorizedNotFoundOrForbidden(RestClientResponseException ex) throws UnauthorizedException, NotFoundException, ForbiddenException, UnexpectedApiErrorException {
+
+        ApiWrongMessage wrong = ApiWrongMessage.fromRestClientResponseException(ex);
+
+        if (wrong.status == HttpStatus.UNAUTHORIZED) {
+            throw new UnauthorizedException(wrong.messages);
+        }
+
+        if (wrong.status == HttpStatus.NOT_FOUND) {
+            throw new NotFoundException(wrong.messages);
+        }
+        if (wrong.status == HttpStatus.FORBIDDEN) {
+            throw new ForbiddenException(wrong.messages);
         }
 
         throw new UnexpectedApiErrorException(wrong.status + ": " + wrong.messages);

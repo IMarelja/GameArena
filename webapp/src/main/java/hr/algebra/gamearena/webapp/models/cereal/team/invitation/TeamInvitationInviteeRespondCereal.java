@@ -2,7 +2,7 @@ package hr.algebra.gamearena.webapp.models.cereal.team.invitation;
 
 import com.gamearena.client.model.TeamInvitationResponseEditRequest;
 
-public record TeamInvitationRespondCereal(
+public record TeamInvitationInviteeRespondCereal(
         StatusInviteeCereal status
 ) {
     public TeamInvitationResponseEditRequest toTeamInvitationResponseEditRequest() {

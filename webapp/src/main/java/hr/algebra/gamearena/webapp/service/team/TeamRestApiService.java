@@ -1,22 +1,14 @@
 package hr.algebra.gamearena.webapp.service.team;
 
 import com.gamearena.client.api.TeamControllerApi;
-import com.gamearena.client.model.ApiResponseListTeamInvitationView;
-import com.gamearena.client.model.ApiResponseListTeamMemberMinimalView;
-import com.gamearena.client.model.ApiResponseListTeamMinimalView;
-import com.gamearena.client.model.ApiResponseTeamInvitationView;
-import com.gamearena.client.model.ApiResponseTeamMemberFullView;
-import com.gamearena.client.model.ApiResponseTeamMinimalView;
-import com.gamearena.client.model.TeamEditRequest;
-import com.gamearena.client.model.TeamMemberEditRequest;
-import com.gamearena.client.model.TeamCreateRequest;
+import com.gamearena.client.model.*;
 import hr.algebra.gamearena.webapp.config.ApiClientConfig.AuthenticatedApiClient;
 import hr.algebra.gamearena.webapp.exceptions.extenders.*;
 import hr.algebra.gamearena.webapp.models.cereal.team.TeamAddCereal;
 import hr.algebra.gamearena.webapp.models.cereal.team.TeamEditCereal;
 import hr.algebra.gamearena.webapp.models.cereal.team.invitation.TeamInvitationDecereal;
-import hr.algebra.gamearena.webapp.models.cereal.team.invitation.TeamInvitationRespondCereal;
-import hr.algebra.gamearena.webapp.models.cereal.team.invitation.TeamInvitationUpdateCereal;
+import hr.algebra.gamearena.webapp.models.cereal.team.invitation.TeamInvitationInviteeRespondCereal;
+import hr.algebra.gamearena.webapp.models.cereal.team.invitation.TeamInvitationInviterUpdateCereal;
 import hr.algebra.gamearena.webapp.models.cereal.team.member.TeamMemberEditCereal;
 import hr.algebra.gamearena.webapp.models.cereal.team.member.TeamMemberFullViewDecereal;
 import hr.algebra.gamearena.webapp.models.cereal.team.member.TeamMemberMinimalViewDecereal;
@@ -86,6 +78,37 @@ public class TeamRestApiService implements ITeamService {
             return TeamMinimalViewDecereal.fromTeamMinimalViewClient(body.getData());
         } catch (RestClientResponseException ex) {
             return ApiExceptionMapper.notFoundOnly(ex);
+        }
+    }
+
+    @Override
+    public List<TeamMinimalViewDecereal> getAllMyTeam() throws UnauthorizedException, NotFoundException, ForbiddenException, UnexpectedApiErrorException {
+        TeamControllerApi client;
+        try {
+            client = authenticatedTeamClient.get();
+        } catch (TokenNotFoundException | TokenNotValidException e) {
+            throw new UnauthorizedException(List.of("You must be logged in to edit a team"));
+        }
+
+        try{
+            ResponseEntity<ApiResponseListTeamMinimalView> response = client.getTeamsForMeWithHttpInfo();
+            ApiResponseListTeamMinimalView body = response.getBody();
+
+            if (body == null) {
+                throw new NotFoundException(List.of(NO_RESPONSE_RECEIVED_API));
+            }
+
+            if (body.getData() == null) {
+                throw new UnexpectedApiErrorException(UNEXPECTED_EMPTY_RESPONSE);
+            }
+
+            return body.getData()
+                    .stream()
+                    .map(TeamMinimalViewDecereal::fromTeamMinimalViewClient)
+                    .toList();
+
+        }catch (RestClientResponseException ex){
+            return ApiExceptionMapper.unauthorizedNotFoundOrForbidden(ex);
         }
     }
 
@@ -260,6 +283,22 @@ public class TeamRestApiService implements ITeamService {
     }
 
     @Override
+    public boolean isUserPartOfAnyTeam() {
+        if(!authenticatedUserService.isAuthenticated())
+            return false;
+
+        List<TeamMinimalViewDecereal> teams;
+
+        try {
+            teams = getAllMyTeam();
+        } catch (NotFoundException | UnauthorizedException | ForbiddenException | UnexpectedApiErrorException e) {
+            return false;
+        }
+
+        return teams != null && !teams.isEmpty();
+    }
+
+    @Override
     public List<TeamInvitationDecereal> getAllMyTeamInvitations() throws NotFoundException, UnauthorizedException, ForbiddenException, UnexpectedApiErrorException {
         TeamControllerApi client;
         try {
@@ -338,7 +377,7 @@ public class TeamRestApiService implements ITeamService {
     }
 
     @Override
-    public TeamInvitationDecereal respondInvitation(Long invitationId, TeamInvitationRespondCereal cereal) throws NotFoundException, UnauthorizedException, ForbiddenException, ConflictException, BadRequestedExceptions, UnexpectedApiErrorException {
+    public TeamInvitationDecereal respondInvitation(Long invitationId, TeamInvitationInviteeRespondCereal cereal) throws NotFoundException, UnauthorizedException, ForbiddenException, ConflictException, BadRequestedExceptions, UnexpectedApiErrorException {
         TeamControllerApi client;
         try {
             client = authenticatedTeamClient.get();
@@ -364,7 +403,7 @@ public class TeamRestApiService implements ITeamService {
     }
 
     @Override
-    public TeamInvitationDecereal updateInvitation(Long invitationId, TeamInvitationUpdateCereal cereal) throws NotFoundException, UnauthorizedException, ForbiddenException, ConflictException, BadRequestedExceptions, UnexpectedApiErrorException {
+    public TeamInvitationDecereal updateInvitation(Long invitationId, TeamInvitationInviterUpdateCereal cereal) throws NotFoundException, UnauthorizedException, ForbiddenException, ConflictException, BadRequestedExceptions, UnexpectedApiErrorException {
         TeamControllerApi client;
         try {
             client = authenticatedTeamClient.get();
@@ -386,17 +425,6 @@ public class TeamRestApiService implements ITeamService {
             return TeamInvitationDecereal.fromTeamInvitationViewClient(body.getData());
         } catch (RestClientResponseException ex) {
             return ApiExceptionMapper.unauthorizedBadRequestNotFoundForbiddenOrConflict(ex);
-        }
-    }
-
-    @Override
-    public boolean isPartOfAnyTeam(Long id, Long teamId) {
-        try {
-            return getTeamMembers(teamId)
-                    .stream()
-                    .anyMatch(member -> member.userId().equals(id));
-        } catch (NotFoundException | UnexpectedApiErrorException e) {
-            return false;
         }
     }
 }
