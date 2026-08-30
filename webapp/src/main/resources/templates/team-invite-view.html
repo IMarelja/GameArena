@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Team Invitation')}">
+    <title>GameArena - Team Invitation</title>
+</head>
+<body>
+<!--/*@thymesVar id="data" type="hr.algebra.gamearena.webapp.models.mvc.data.team.invite.TeamInviteViewData"*/-->
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<main class="container py-4" style="max-width: 560px;">
+    <h1 class="mb-4">Team Invitation</h1>
+
+    <div th:replace="~{fragments/errors :: errors}"></div>
+
+    <div th:if="${data != null}">
+        <div class="d-flex justify-content-between align-items-start mb-3">
+            <h2 class="h4 mb-0" th:text="${data.team().name()}"></h2>
+            <span class="badge fs-6 rounded-pill" th:classappend="${data.status()?.badgeClass()}" th:text="${data.status()}"></span>
+        </div>
+
+        <table class="table table-borderless w-auto mb-4">
+            <tbody>
+            <tr><th>Inviter</th><td th:text="${data.inviter().username()}"></td></tr>
+            <tr><th>Invitee</th><td th:text="${data.invitee().username()}"></td></tr>
+            <tr><th>Created At</th><td th:text="${data.createdAt()}"></td></tr>
+            <tr th:if="${data.respondedAt().isPresent()}"><th>Responded At</th><td th:text="${data.respondedAt().get()}"></td></tr>
+            </tbody>
+        </table>
+    </div>
+</main>
+</body>
+</html>

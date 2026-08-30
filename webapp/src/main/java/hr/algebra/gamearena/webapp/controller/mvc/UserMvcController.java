@@ -7,15 +7,20 @@ import hr.algebra.gamearena.webapp.models.mvc.MvcResponse;
 import hr.algebra.gamearena.webapp.models.mvc.data.leaderboard.TournamentStatsEntryViewData;
 import hr.algebra.gamearena.webapp.models.mvc.data.match.MatchViewData;
 import hr.algebra.gamearena.webapp.models.mvc.data.tournament.TournamentViewData;
+import hr.algebra.gamearena.webapp.models.mvc.data.team.TeamMinimalViewData;
+import hr.algebra.gamearena.webapp.models.mvc.data.team.invite.TeamInviteCreatePostView;
+import hr.algebra.gamearena.webapp.models.mvc.data.team.invite.TeamInviteCreateViewData;
 import hr.algebra.gamearena.webapp.models.mvc.data.tournament.member.TournamentMemberAddFormViewData;
 import hr.algebra.gamearena.webapp.models.mvc.data.tournament.member.TournamentMemberAddPostViewModel;
 import hr.algebra.gamearena.webapp.models.mvc.data.user.UserFullViewData;
+import hr.algebra.gamearena.webapp.models.mvc.data.user.UserJustUsernameViewData;
 import hr.algebra.gamearena.webapp.models.mvc.data.user.UserProfileViewData;
 import hr.algebra.gamearena.webapp.models.mvc.data.user.UserViewData;
 import hr.algebra.gamearena.webapp.service.authentication.user.IAuthenticatedUserService;
 import hr.algebra.gamearena.webapp.service.jwt.IJwtService;
 import hr.algebra.gamearena.webapp.service.leaderboard.ILeaderboardService;
 import hr.algebra.gamearena.webapp.service.match.IMatchService;
+import hr.algebra.gamearena.webapp.service.team.ITeamService;
 import hr.algebra.gamearena.webapp.service.tournament.ITournamentService;
 import hr.algebra.gamearena.webapp.service.user.IUserService;
 import jakarta.validation.Valid;
@@ -41,6 +46,7 @@ public class UserMvcController {
     private final ILeaderboardService leaderboardService;
     private final IJwtService jwtService;
     private final IAuthenticatedUserService authenticatedUserService;
+    private final ITeamService teamService;
 
     private static final String ME_VIEW = "me";
 
@@ -49,6 +55,7 @@ public class UserMvcController {
 
     private static final String USER_SUSPEND_VIEW = "user-suspend";
     private static final String USER_TOURNAMENT_ADD_VIEW = "user-tournament-add";
+    private static final String USER_TEAM_INVITE_ADD_VIEW = "user-team-invite-add";
 
     public UserMvcController(
             IUserService userService,
@@ -56,7 +63,8 @@ public class UserMvcController {
             ITournamentService tournamentService,
             ILeaderboardService leaderboardService,
             IJwtService jwtService,
-            IAuthenticatedUserService authenticatedUserService)
+            IAuthenticatedUserService authenticatedUserService,
+            ITeamService teamService)
     {
         this.userService = userService;
         this.matchService = matchService;
@@ -64,6 +72,7 @@ public class UserMvcController {
         this.leaderboardService = leaderboardService;
         this.jwtService = jwtService;
         this.authenticatedUserService = authenticatedUserService;
+        this.teamService = teamService;
     }
 
     @GetMapping("/users")
@@ -230,6 +239,74 @@ public class UserMvcController {
                             tournaments),
                     errors
             ).toModelAndView();
+        }
+    }
+
+    @GetMapping("/user/{id}/team-invite/add")
+    @PreAuthorize("isAuthenticated()")
+    public ModelAndView addTeamInviteForm(@PathVariable Long id) throws NotFoundException, UnexpectedApiErrorException {
+        var user = UserJustUsernameViewData.fromUserViewDtoDecereal(userService.getUserById(id));
+        var teams = myTeams();
+        var form = new TeamInviteCreatePostView(null);
+
+        return MvcResponse.success(
+                HttpStatus.OK,
+                USER_TEAM_INVITE_ADD_VIEW,
+                new TeamInviteCreateViewData(user, form, teams)
+        ).toModelAndView();
+    }
+
+    @PostMapping("/user/{id}/team-invite/add")
+    @PreAuthorize("isAuthenticated()")
+    public ModelAndView addTeamInvite(
+            @PathVariable Long id,
+            @Valid @ModelAttribute("form") TeamInviteCreatePostView form,
+            BindingResult bindingResult
+    ) throws ForbiddenException, UnauthorizedException, UnexpectedApiErrorException, NotFoundException {
+        UserJustUsernameViewData user = UserJustUsernameViewData.fromUserViewDtoDecereal(userService.getUserById(id));
+
+        var teams = myTeams();
+
+        if (bindingResult.hasErrors()) {
+            var errors = bindingResult.getAllErrors()
+                    .stream()
+                    .map(err -> new MvcError(err.getDefaultMessage())).toList();
+            return MvcResponse.errorsWithData(
+                    HttpStatus.BAD_REQUEST,
+                    USER_TEAM_INVITE_ADD_VIEW,
+                    new TeamInviteCreateViewData(
+                            user,
+                            form,
+                            teams),
+                    errors
+            ).toModelAndView();
+        }
+
+        try {
+            var created = teamService.createInvitation(id, form.teamId());
+            return MvcResponse.redirect("/team-invite/" + created.id());
+        } catch (NotFoundException | ConflictException | BadRequestedExceptions | UnexpectedApiErrorException e) {
+            var errors = e.getMessages()
+                    .stream()
+                    .map(MvcError::new)
+                    .toList();
+            return MvcResponse.errorsWithData(
+                    e.getStatus(),
+                    USER_TEAM_INVITE_ADD_VIEW,
+                    new TeamInviteCreateViewData(
+                            user,
+                            form,
+                            teams),
+                    errors
+            ).toModelAndView();
+        }
+    }
+
+    private List<TeamMinimalViewData> myTeams() {
+        try {
+            return teamService.getAllMyTeam().stream().map(TeamMinimalViewData::from).toList();
+        } catch (UnauthorizedException | NotFoundException | ForbiddenException | UnexpectedApiErrorException e) {
+            return List.of();
         }
     }
 

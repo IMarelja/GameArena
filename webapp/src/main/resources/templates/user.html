@@ -6,6 +6,7 @@
 <body>
 <!--/*@thymesVar id="data" type="hr.algebra.gamearena.webapp.models.mvc.data.user.UserProfileViewData"*/-->
 <!--/*@thymesVar id="isAdmin" type="java.lang.Boolean"*/-->
+<!--/*@thymesVar id="isPartOfAnyTeam" type="java.lang.Boolean"*/-->
 <div th:replace="~{fragments/navbar :: navbar}"></div>
 
 <main class="container py-4">
@@ -23,6 +24,7 @@
             <div>
                 <span class="badge fs-6 text-bg-danger rounded-pill" th:if="${data.user().isDeleted()}">Deleted</span>
                 <a class="btn btn-outline-secondary btn-sm" th:if="${data.canAddToTournament()}" th:href="@{/user/{id}/tournaments/add(id=${data.user().id()})}">Add To Tournament</a>
+                <a class="btn btn-outline-secondary btn-sm" th:if="${isPartOfAnyTeam}" th:href="@{/user/{id}/team-invite/add(id=${data.user().id()})}">Invite To Team</a>
                 <a class="btn btn-outline-warning btn-sm" th:if="${isAdmin}" th:href="@{/user/{id}/suspend(id=${data.user().id()})}">Suspend / Unsuspend</a>
             </div>
         </div>

@@ -87,7 +87,7 @@ public class TeamRestApiService implements ITeamService {
         try {
             client = authenticatedTeamClient.get();
         } catch (TokenNotFoundException | TokenNotValidException e) {
-            throw new UnauthorizedException(List.of("You must be logged in to edit a team"));
+            throw new UnauthorizedException(List.of("You must be logged in to view your team"));
         }
 
         try{
@@ -118,7 +118,7 @@ public class TeamRestApiService implements ITeamService {
         try {
             client = authenticatedTeamClient.get();
         } catch (TokenNotFoundException | TokenNotValidException e) {
-            throw new UnauthorizedException(List.of("You must be logged in to edit a team"));
+            throw new UnauthorizedException(List.of("You must be logged in to add a team"));
         }
 
         try{
@@ -251,6 +251,22 @@ public class TeamRestApiService implements ITeamService {
             return TeamMemberFullViewDecereal.fromTeamMemberFullViewClient(body.getData());
         } catch (RestClientResponseException ex) {
             return ApiExceptionMapper.unauthorizedForbiddenOrNotFound(ex);
+        }
+    }
+
+    @Override
+    public void leaveTeam(Long teamId) throws UnauthorizedException, ForbiddenException, NotFoundException, ConflictException, UnexpectedApiErrorException, BadRequestedExceptions {
+        TeamControllerApi client;
+        try {
+            client = authenticatedTeamClient.get();
+        } catch (TokenNotFoundException | TokenNotValidException e) {
+            throw new UnauthorizedException(List.of("You must be logged in to leave the team"));
+        }
+
+        try{
+            client.leaveTeam(teamId);
+        } catch (RestClientResponseException ex){
+            ApiExceptionMapper.unauthorizedBadRequestNotFoundForbiddenOrConflict(ex);
         }
     }
 

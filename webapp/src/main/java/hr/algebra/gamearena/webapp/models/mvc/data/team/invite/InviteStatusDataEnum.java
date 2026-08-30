@@ -18,4 +18,14 @@ public enum InviteStatusDataEnum {
             case ERROR -> ERROR;
         };
     }
+
+    public String badgeClass() {
+        return switch (this) {
+            case PENDING -> "text-bg-warning";
+            case ACCEPTED -> "text-bg-success";
+            case DECLINED -> "text-bg-secondary";
+            case CANCELLED -> "text-bg-dark";
+            case ERROR -> "text-bg-danger";
+        };
+    }
 }

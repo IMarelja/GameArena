@@ -6,6 +6,7 @@
 <body>
 <!--/*@thymesVar id="data" type="hr.algebra.gamearena.webapp.models.mvc.data.team.TeamDetailViewData"*/-->
 <!--/*@thymesVar id="isTeamCaptain" type="java.lang.Boolean"*/-->
+<!--/*@thymesVar id="isTeamMember" type="java.lang.Boolean"*/-->
 <div th:replace="~{fragments/navbar :: navbar}"></div>
 
 <main class="container py-4">
@@ -16,7 +17,12 @@
                   members=${data.members().orElse(null)}">
         <div class="d-flex justify-content-between align-items-start mb-3">
             <h1 class="mb-0" th:text="${data.team().name()}"></h1>
-            <a class="btn btn-outline-secondary btn-sm" th:if="${isTeamCaptain}" th:href="@{/team/{teamId}/edit(teamId=${data.team().id()})}">Edit Team</a>
+            <div>
+                <a class="btn btn-outline-secondary btn-sm" th:if="${isTeamCaptain}" th:href="@{/team/{teamId}/edit(teamId=${data.team().id()})}">Edit Team</a>
+                <form method="post" class="d-inline" th:if="${isTeamMember}" th:action="@{/team/{teamId}/leave(teamId=${data.team().id()})}">
+                    <button type="submit" class="btn btn-outline-danger btn-sm">Leave Team</button>
+                </form>
+            </div>
         </div>
 
         <table class="table table-borderless w-auto mb-4">

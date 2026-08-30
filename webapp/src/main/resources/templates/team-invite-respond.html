@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Respond To Invitation')}">
+    <title>GameArena - Respond To Invitation</title>
+</head>
+<body>
+<!--/*@thymesVar id="data" type="hr.algebra.gamearena.webapp.models.mvc.data.team.invite.TeamInviteeResponseViewData"*/-->
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<main class="container py-4" style="max-width: 560px;">
+    <h1 class="mb-4">Respond To Invitation</h1>
+
+    <div th:replace="~{fragments/errors :: errors}"></div>
+
+    <div th:if="${data != null}" th:with="invite=${data.invite()}">
+        <div class="d-flex justify-content-between align-items-start mb-3">
+            <h2 class="h4 mb-0" th:text="${invite.team().name()}"></h2>
+            <span class="badge fs-6 rounded-pill" th:classappend="${invite.status()?.badgeClass()}" th:text="${invite.status()}"></span>
+        </div>
+
+        <table class="table table-borderless w-auto mb-4">
+            <tbody>
+            <tr><th>Inviter</th><td th:text="${invite.inviter().username()}"></td></tr>
+            <tr><th>Created At</th><td th:text="${invite.createdAt()}"></td></tr>
+            </tbody>
+        </table>
+
+        <form method="post" th:action="@{/team-invite/{id}/respond(id=${invite.id()})}">
+            <div class="mb-3">
+                <label class="form-label">
+                    Response
+                    <select class="form-select" name="status">
+                        <option th:each="status : ${T(hr.algebra.gamearena.webapp.models.mvc.data.team.invite.ResponseInviteeStatusView).values()}"
+                                th:value="${status}"
+                                th:selected="${status == data.form().status()}"
+                                th:text="${status}"></option>
+                    </select>
+                </label>
+            </div>
+            <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
+    </div>
+</main>
+</body>
+</html>

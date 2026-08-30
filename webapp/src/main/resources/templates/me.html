@@ -21,7 +21,9 @@
                   tournamentsFailed=${data.tournaments().isEmpty()},
                   tournaments=${data.tournaments().orElse(null)},
                   matchesFailed=${data.matches().isEmpty()},
-                  matches=${data.matches().orElse(null)}">
+                  matches=${data.matches().orElse(null)},
+                  invitationsFailed=${data.invitations().isEmpty()},
+                  invitations=${data.invitations().orElse(null)}">
 
         <section class="mb-5" th:if="${data.user() != null}">
             <h2 class="h4 mb-3">Profile</h2>
@@ -106,6 +108,23 @@
                 </a>
             </div>
             <p class="text-muted fst-italic" th:if="${not matchesFailed and #lists.isEmpty(matches)}">No matches found.</p>
+        </section>
+
+        <section class="mb-5">
+            <h2 class="h4 mb-3">My Invitations</h2>
+            <div class="alert alert-danger" th:if="${invitationsFailed}">Failed to load your team invitations.</div>
+            <div class="list-group" th:if="${not invitationsFailed and not #lists.isEmpty(invitations)}">
+                <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
+                   th:each="invite : ${invitations}"
+                   th:href="@{/team-invite/{id}(id=${invite.id()})}">
+                    <span>
+                        <span th:text="${invite.team().name()}"></span>
+                        <small class="text-muted" th:text="'(' + ${invite.inviter().username()} + ' &rarr; ' + ${invite.invitee().username()} + ')'"></small>
+                    </span>
+                    <span class="badge rounded-pill" th:classappend="${invite.status()?.badgeClass()}" th:text="${invite.status()}"></span>
+                </a>
+            </div>
+            <p class="text-muted fst-italic" th:if="${not invitationsFailed and #lists.isEmpty(invitations)}">No invitations found.</p>
         </section>
 
     </div>

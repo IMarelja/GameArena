@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Invite To Team')}">
+    <title>GameArena - Invite To Team</title>
+</head>
+<body>
+<!--/*@thymesVar id="data" type="hr.algebra.gamearena.webapp.models.mvc.data.team.invite.TeamInviteCreateViewData"*/-->
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<main class="container py-4" style="max-width: 560px;">
+    <h1 class="mb-4">Invite <span th:text="${data.user().username()}"></span> To Team</h1>
+
+    <div th:replace="~{fragments/errors :: errors}"></div>
+
+    <form method="post" th:if="${data != null}" th:action="@{/user/{id}/team-invite/add(id=${data.user().id()})}">
+        <div class="mb-3">
+            <label class="form-label">
+                Team
+                <select class="form-select" name="teamId">
+                    <option th:each="team : ${data.teams()}"
+                            th:value="${team.id()}"
+                            th:selected="${data.form().teamId() != null and team.id() == data.form().teamId()}"
+                            th:text="${team.name()}"></option>
+                </select>
+            </label>
+        </div>
+        <p class="text-muted fst-italic" th:if="${#lists.isEmpty(data.teams())}">You are not part of any team.</p>
+        <button type="submit" class="btn btn-primary">Send Invitation</button>
+    </form>
+</main>
+</body>
+</html>

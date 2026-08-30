@@ -1,6 +1,7 @@
 package hr.algebra.gamearena.webapp.controller.mvc;
 
 import hr.algebra.gamearena.webapp.exceptions.extenders.BadRequestedExceptions;
+import hr.algebra.gamearena.webapp.exceptions.extenders.ConflictException;
 import hr.algebra.gamearena.webapp.exceptions.extenders.ForbiddenException;
 import hr.algebra.gamearena.webapp.exceptions.extenders.NotFoundException;
 import hr.algebra.gamearena.webapp.exceptions.extenders.UnauthorizedException;
@@ -345,7 +346,9 @@ public class TeamMvcController {
 
     @PostMapping("/team/{teamId}/member/{memberId}/remove")
     @PreAuthorize("isAuthenticated()")
-    public ModelAndView removeTeamMember(@PathVariable Long teamId, @PathVariable Long memberId) throws ForbiddenException {
+    public ModelAndView removeTeamMember(
+            @PathVariable Long teamId,
+            @PathVariable Long memberId) throws ForbiddenException {
         if (!teamService.isTeamCaptain(teamId)) {
             throw new ForbiddenException(List.of("Only this team's captain can remove members"));
         }
@@ -361,6 +364,25 @@ public class TeamMvcController {
             return MvcResponse.errors(
                     e.getStatus(),
                     TEAM_MEMBER_REMOVE_VIEW,
+                    errors
+            ).toModelAndView();
+        }
+    }
+
+    @PostMapping("/team/{teamId}/leave")
+    @PreAuthorize("isAuthenticated()")
+    public ModelAndView leaveTeam(@PathVariable Long teamId) {
+        try {
+            teamService.leaveTeam(teamId);
+            return MvcResponse.redirect("/" + TEAMS_VIEW);
+        } catch (UnauthorizedException | ForbiddenException | NotFoundException | ConflictException | BadRequestedExceptions | UnexpectedApiErrorException e) {
+            var errors = e.getMessages()
+                    .stream()
+                    .map(MvcError::new)
+                    .toList();
+            return MvcResponse.errors(
+                    e.getStatus(),
+                    TEAM_VIEW,
                     errors
             ).toModelAndView();
         }
