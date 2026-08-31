@@ -15,12 +15,19 @@ public class NotificationPushService {
 
     public Flux<List<NotificationFullView>> subscribe(Long userId) {
         Sinks.Many<List<NotificationFullView>> sink = sinksByUserId.computeIfAbsent(
-                userId, id -> Sinks.many().multicast().onBackpressureBuffer());
+                userId, id -> Sinks.many()
+                        .multicast()
+                        .onBackpressureBuffer()
+        );
 
         return sink.asFlux()
                 .doFinally(
-                        signal -> sinksByUserId.computeIfPresent(userId, (id, currentSink) ->
-                        currentSink == sink && currentSink.currentSubscriberCount() == 0 ? null : currentSink));
+                        signal -> sinksByUserId.computeIfPresent(
+                                userId,
+                                (id, currentSink) ->
+                                        currentSink == sink && currentSink.currentSubscriberCount() == 0 ? null : currentSink
+                        )
+                );
     }
 
     public void push(Long recipientUserId, List<NotificationFullView> snapshot) {

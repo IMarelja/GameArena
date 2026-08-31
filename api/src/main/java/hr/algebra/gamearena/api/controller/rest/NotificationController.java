@@ -36,32 +36,50 @@ public class NotificationController {
         this.notificationService = notificationService;
     }
 
-    @GetMapping(value = "/stream/unread", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    @GetMapping(value = "/stream/unread",
+            produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     @PreAuthorize("isAuthenticated()")
-    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", content = @Content(mediaType = MediaType.TEXT_EVENT_STREAM_VALUE,
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(
+            responseCode = "200",
+            content = @Content(mediaType = MediaType.TEXT_EVENT_STREAM_VALUE,
             schema = @Schema(implementation = NotificationUnreadAndCountView.class)))
     public Flux<ServerSentEvent<NotificationUnreadAndCountView>> notificationStream(@AuthenticationPrincipal JwtTokenClaim caller){
         return notificationService.streamForUserUnreadAndCount(caller.userId())
                 .map(snapshot -> ServerSentEvent.builder(snapshot).event("unread-notifications").build());
     }
 
-    @GetMapping(value = "/stream/unread/count/", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    @GetMapping(value = "/stream/unread/count/",
+            produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     @PreAuthorize("isAuthenticated()")
-    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", content = @Content(mediaType = MediaType.TEXT_EVENT_STREAM_VALUE,
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(
+            responseCode = "200",
+            content = @Content(mediaType = MediaType.TEXT_EVENT_STREAM_VALUE,
             schema = @Schema(implementation = NotificationUnreadCountView.class)))
     public Flux<ServerSentEvent<NotificationUnreadCountView>> notificationCountStream(@AuthenticationPrincipal JwtTokenClaim caller){
         return notificationService.streamToUserUnreadCount(caller.userId())
-                .map(snapshot -> ServerSentEvent.builder(snapshot).event("unread-count").build());
+                .map(snapshot -> ServerSentEvent.builder(snapshot)
+                        .event("unread-count")
+                        .build()
+                );
     }
 
-    @GetMapping(value = "/stream/all", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    @GetMapping(value = "/stream/all",
+            produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     @PreAuthorize("isAuthenticated()")
-    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", content = @Content(mediaType = MediaType.TEXT_EVENT_STREAM_VALUE,
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200",
+            content = @Content(mediaType = MediaType.TEXT_EVENT_STREAM_VALUE,
             array = @ArraySchema(schema = @Schema(implementation = NotificationMinimalView.class))))
     public Flux<ServerSentEvent<List<NotificationMinimalView>>> notificationAllStream(@AuthenticationPrincipal JwtTokenClaim caller){
         return notificationService.streamForUserAll(caller.userId())
-                .map(all -> all.stream().map(NotificationFullView::toMinimalView).toList())
-                .map(snapshot -> ServerSentEvent.builder(snapshot).event("all-notifications").build());
+                .map(all -> all
+                        .stream()
+                        .map(NotificationFullView::toMinimalView)
+                        .toList()
+                )
+                .map(snapshot -> ServerSentEvent.builder(snapshot)
+                        .event("all-notifications")
+                        .build()
+                );
     }
 
     /*
