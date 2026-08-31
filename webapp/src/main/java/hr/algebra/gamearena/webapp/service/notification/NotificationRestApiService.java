@@ -89,7 +89,8 @@ public class NotificationRestApiService implements INotificationService {
     @Override
     public TypedSseEmitter<NotificationUnreadCountDecereal> streamUnreadCount() throws UnauthorizedException {
         return relay(
-                client -> client.notificationCountStreamWithResponseSpec().bodyToFlux(new ParameterizedTypeReference<ServerSentEvent<NotificationUnreadCountView>>() {}),
+                client -> client.notificationCountStreamWithResponseSpec()
+                        .bodyToFlux(new ParameterizedTypeReference<ServerSentEvent<NotificationUnreadCountView>>() {}),
                 NotificationUnreadCountDecereal::fromNotificationUnreadCountViewClient
         );
     }
