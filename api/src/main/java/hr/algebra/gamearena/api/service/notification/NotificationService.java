@@ -74,7 +74,10 @@ public class NotificationService implements INotificationService{
 
         var created = NotificationMinimalView.fromNotification(notificationRepo.save(notificationSave));
 
-        notificationPushService.push(request.getRecipientUserId(), buildFullSnapshot(request.getRecipientUserId()));
+        notificationPushService.push(
+                request.getRecipientUserId(),
+                buildFullSnapshot(request.getRecipientUserId())
+        );
 
 
         return created;
@@ -87,7 +90,10 @@ public class NotificationService implements INotificationService{
 
         var updated = Optional.of(notificationRepo.update(id, notificationUpdate));
 
-        notificationPushService.push(updated.get().receiverUserId(), buildFullSnapshot(updated.get().receiverUserId()));
+        notificationPushService.push(
+                updated.get().receiverUserId(),
+                buildFullSnapshot(updated.get().receiverUserId())
+        );
 
         return Optional.of(NotificationMinimalView.fromNotification(updated.get()));
     }
@@ -99,7 +105,10 @@ public class NotificationService implements INotificationService{
                 .orElseThrow(() -> new NotFoundException(notificationNotFound(id)));
 
         notificationRepo.delete(id);
-        notificationPushService.push(recipientUserId, buildFullSnapshot(recipientUserId));
+        notificationPushService.push(
+                recipientUserId,
+                buildFullSnapshot(recipientUserId)
+        );
     }
 
     @Override

@@ -66,7 +66,8 @@ public class NotificationController {
     @GetMapping(value = "/stream/all",
             produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     @PreAuthorize("isAuthenticated()")
-    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200",
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(
+            responseCode = "200",
             content = @Content(mediaType = MediaType.TEXT_EVENT_STREAM_VALUE,
             array = @ArraySchema(schema = @Schema(implementation = NotificationMinimalView.class))))
     public Flux<ServerSentEvent<List<NotificationMinimalView>>> notificationAllStream(@AuthenticationPrincipal JwtTokenClaim caller){
