@@ -13,13 +13,13 @@ A platform for registering for esports tournaments and tracking results and lead
 
 # Setup
 
-Create your `.env` file from the example
+Create your `.env` file from the example and pick one of the ways to run the project
 
 ```bash
 cp .env.example .env
 ```
 
-## Standard
+## Standard way
 
 Runs the database, API and webapp in a standard way.
 
@@ -57,7 +57,7 @@ Full remove everything (including the database volume)
 docker compose -f docker-compose.yaml down -v
 ```
 
-## Ngrok
+## Ngrok way
 
 Exposes the API and webapp publicly through ngrok tunnels.
 
@@ -86,6 +86,10 @@ Full remove everything
 ```bash
 docker compose -f docker-compose.ngrok.yml down -v
 ```
+
+## SonarQube
+
+Follow those [instructions](SonarQube/README.md)
 
 ## Thinks to note
 
