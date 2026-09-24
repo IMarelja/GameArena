@@ -3,11 +3,10 @@ services:
     image: postgres:16-alpine
     container_name: GameArenaDB
     restart: unless-stopped
-    # Keep these in sync with api/.env (DB_USERNAME, DB_PASSWORD, DB_URL's database name)
     environment:
-      POSTGRES_DB: gamearenadb
-      POSTGRES_USER: gamer
-      POSTGRES_PASSWORD: mysecretpassword
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
     ports:
       - "5432:5432"
     volumes:
@@ -15,10 +14,39 @@ services:
       - ./db/init.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
       - ./db/seed.sql:/docker-entrypoint-initdb.d/02-seed.sql:ro
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U gamer -d gamearenadb"]
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME:-gamer} -d ${DB_NAME:-gamearenadb}"]
       interval: 5s
       timeout: 5s
       retries: 5
+
+  api:
+    build:
+      context: ./api
+    container_name: GameArenaAPI
+    restart: unless-stopped
+    environment:
+      JWT_SECRET: ${JWT_SECRET}
+      DB_URL: jdbc:postgresql://db:5432/${DB_NAME}
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "5762:5762"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  webapp:
+    build:
+      context: ./webapp
+    container_name: GameArenaWebApp
+    restart: unless-stopped
+    environment:
+      API_URL: ${API_URL}
+    ports:
+      - "5763:5763"
+    depends_on:
+      api:
+        condition: service_healthy
 
 volumes:
   db-data:

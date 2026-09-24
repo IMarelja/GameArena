@@ -13,14 +13,57 @@ A platform for registering for esports tournaments and tracking results and lead
 
 # Setup
 
-Bind all the empty references like NGROK authentication token and NGROK assigned URL
+Create your `.env` file from the example
 
 ```bash
 cp .env.example .env
 ```
 
-Build and run the compose file to build the project
+## Standard
 
+Runs the database, API and webapp in a standard way.
+
+Make sure `API_URL` in `.env` points to the API container:
+
+```env
+API_URL=http://api:5762
+```
+
+Build and run the project
+
+```bash
+docker compose -f docker-compose.yaml up -d --build
+```
+
+- Webapp: http://localhost:5763
+- API: http://localhost:5762
+- Database: localhost:5432
+
+Rerun the project
+
+```bash
+docker compose -f docker-compose.yaml up -d
+```
+
+Turn down the project
+
+```bash
+docker compose -f docker-compose.yaml down 
+```
+
+Full remove everything (including the database volume)
+
+```bash
+docker compose -f docker-compose.yaml down -v
+```
+
+## Ngrok
+
+Exposes the API and webapp publicly through ngrok tunnels.
+
+Fill in all the empty references in `.env`: the ngrok auth tokens and the assigned URLs (`NGROK_URL_API`, `NGROK_AUTHTOKEN_API`, `NGROK_URL_WEBAPP`, `NGROK_AUTHTOKEN_WEBAPP`), and set `API_URL` to the same value as `NGROK_URL_API`.
+
+Build and run the project
 
 ```bash
 docker compose -f docker-compose.ngrok.yml up -d --build
@@ -28,18 +71,15 @@ docker compose -f docker-compose.ngrok.yml up -d --build
 
 Rerun the project
 
-
 ```bash
 docker compose -f docker-compose.ngrok.yml up -d
 ```
 
 Turn down the project
 
-
 ```bash
 docker compose -f docker-compose.ngrok.yml down
 ```
-
 
 Full remove everything
 
