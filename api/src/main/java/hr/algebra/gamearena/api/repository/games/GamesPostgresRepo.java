@@ -1,6 +1,7 @@
 package hr.algebra.gamearena.api.repository.games;
 
 import hr.algebra.gamearena.api.model.games.Games;
+import hr.algebra.gamearena.api.model.games.GamesQuery;
 import hr.algebra.gamearena.api.model.games.GamesSave;
 import hr.algebra.gamearena.api.model.games.GamesUpdate;
 import hr.algebra.gamearena.api.orm.postgres.games.GamesPostgres;
@@ -38,6 +39,14 @@ public class GamesPostgresRepo implements IGamesRepo{
     public Optional<Games> getById(Long id) {
         return sqlGamesPostgresRepo.findById(id)
                 .map(Games::fromPostgres);
+    }
+
+    @Override
+    public List<Games> queryGames(GamesQuery query) {
+        return sqlGamesPostgresRepo.queryByDate(query.getAscending())
+                .stream()
+                .map(Games::fromPostgres)
+                .toList();
     }
 
     @Override

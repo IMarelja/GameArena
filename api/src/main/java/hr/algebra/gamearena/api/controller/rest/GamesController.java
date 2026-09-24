@@ -1,9 +1,7 @@
 package hr.algebra.gamearena.api.controller.rest;
 
-import hr.algebra.gamearena.api.dto.games.GamesCreateRequest;
-import hr.algebra.gamearena.api.dto.games.GamesEditRequest;
-import hr.algebra.gamearena.api.dto.games.GamesFullView;
-import hr.algebra.gamearena.api.dto.games.GamesView;
+import hr.algebra.gamearena.api.dto.games.*;
+import hr.algebra.gamearena.api.dto.match.MatchQueryDto;
 import hr.algebra.gamearena.api.dto.other.ApiResponse;
 import hr.algebra.gamearena.api.exceptions.extenders.NotFoundException;
 import hr.algebra.gamearena.api.service.game.IGameService;
@@ -73,6 +71,12 @@ public class GamesController {
             gamesEditRequest.setDescription(gamesEditRequest.getDescription().trim());
 
         return ResponseEntity.ok(ApiResponse.success(this.gameService.update(id, gamesEditRequest)));
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/query")
+    public ResponseEntity<ApiResponse<List<GamesFullView>>> queryGames(@Valid @ModelAttribute GamesQueryDto query){
+        return ResponseEntity.ok(ApiResponse.success(this.gameService.query(query)));
     }
 
 }

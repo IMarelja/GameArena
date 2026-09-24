@@ -1,11 +1,9 @@
 package hr.algebra.gamearena.api.service.game;
 
-import hr.algebra.gamearena.api.dto.games.GamesCreateRequest;
-import hr.algebra.gamearena.api.dto.games.GamesEditRequest;
-import hr.algebra.gamearena.api.dto.games.GamesFullView;
-import hr.algebra.gamearena.api.dto.games.GamesView;
+import hr.algebra.gamearena.api.dto.games.*;
 import hr.algebra.gamearena.api.exceptions.extenders.ConflictException;
 import hr.algebra.gamearena.api.exceptions.extenders.NotFoundException;
+import hr.algebra.gamearena.api.model.games.GamesQuery;
 import hr.algebra.gamearena.api.model.games.GamesSave;
 import hr.algebra.gamearena.api.model.games.GamesUpdate;
 import hr.algebra.gamearena.api.repository.games.IGamesRepo;
@@ -90,5 +88,18 @@ public class GameService implements IGameService {
         return gamesRepo.update(id, gamesUpdate)
                 .map(GamesFullView::fromGamesModel)
                 .orElseThrow(() -> new NotFoundException(gameNotFoundByIdOutput(id)));
+    }
+
+    @Override
+    public List<GamesFullView> query(GamesQueryDto query) {
+
+        var queryGame = new GamesQuery();
+
+        query.setAscending(query.getAscending());
+
+        return gamesRepo.queryGames(queryGame)
+                .stream()
+                .map(GamesFullView::fromGamesModel)
+                .toList();
     }
 }
